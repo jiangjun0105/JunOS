@@ -1,0 +1,111 @@
+/* tokens first (plain CSS variables), then Tailwind, then our component "skins" */
+@import '../styles/theme.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    @apply bg-desktop font-body text-ink antialiased;
+    /* it's a desktop OS — the page itself never scrolls */
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
+/* ============================================================================
+   Component "skins" — soft 3D claymorphism. These reference the tokens, so
+   editing theme.css restyles them automatically.
+   ========================================================================== */
+@layer components {
+  /* ---- window: soft cream, big radius, diffuse lift, faint top highlight ---- */
+  .os-window {
+    @apply flex flex-col overflow-hidden bg-surface text-ink;
+    border-radius: var(--radius-window);
+    /* drop shadow + an inset top highlight gives the puffy "clay" read
+       (inset follows the border-radius, so corners stay round) */
+    box-shadow: var(--shadow-window), inset 0 2px 2px rgb(255 255 255 / 0.6);
+  }
+
+  .os-titlebar {
+    @apply flex cursor-grab select-none items-center gap-2 px-3 py-2 active:cursor-grabbing;
+    background: linear-gradient(180deg, rgb(var(--surface-2)) 0%, rgb(var(--surface)) 100%);
+  }
+
+  .os-title {
+    @apply flex-1 truncate text-center font-display text-[14px] font-bold;
+  }
+
+  /* puffy round clay close button */
+  .os-close {
+    @apply grid h-5 w-5 place-items-center rounded-full text-[10px] leading-none text-ink;
+    background: radial-gradient(120% 120% at 30% 25%, #fffdf8 0%, #f0e6d6 100%);
+    box-shadow:
+      0 2px 5px -1px rgb(91 79 66 / 0.35),
+      var(--clay-inset);
+    transition:
+      transform 0.12s ease,
+      color 0.12s ease;
+  }
+  .os-close:hover {
+    color: white;
+    background: radial-gradient(120% 120% at 30% 25%, rgb(var(--accent) / 0.92) 0%, rgb(var(--accent)) 100%);
+    transform: scale(1.08);
+  }
+
+  .os-resize {
+    @apply absolute bottom-1 right-1 h-3.5 w-3.5 cursor-nwse-resize rounded-full;
+    background: rgb(var(--ink) / 0.12);
+    touch-action: none;
+  }
+
+  /* ---- desktop icon: emoji on a puffy clay tile (drag motion via Framer) ---- */
+  .os-icon {
+    @apply flex w-24 cursor-grab flex-col items-center gap-2 rounded-tile p-2;
+    background: transparent;
+  }
+  .os-icon-tile {
+    @apply grid h-16 w-16 place-items-center rounded-tile text-3xl;
+    background: radial-gradient(125% 125% at 30% 22%, #fffdf8 0%, #f3ead9 58%, #ead9c2 100%);
+    box-shadow:
+      0 12px 22px -8px rgb(91 79 66 / 0.42),
+      var(--clay-inset);
+  }
+  /* if an app supplies a real (3D-rendered) image, show it bare with a soft
+     contact shadow — exactly like the reference icon set */
+  .os-icon-img {
+    @apply h-16 w-16 object-contain;
+    filter: drop-shadow(0 10px 10px rgb(91 79 66 / 0.3));
+  }
+  .os-icon-label {
+    @apply rounded-full px-2.5 py-0.5 font-body text-[13px] font-semibold text-ink;
+    background: rgb(var(--surface) / 0.85);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* ---- top menu bar: soft cream, faint shadow, no hard border ---- */
+  .os-menubar {
+    @apply flex h-9 select-none items-center justify-between px-4 font-display text-[13px] font-bold text-ink;
+    background: rgb(var(--surface) / 0.7);
+    backdrop-filter: blur(8px);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.6),
+      0 6px 16px -10px rgb(91 79 66 / 0.4);
+  }
+
+  /* ---- wallpaper: clean warm cream with a soft center glow ---- */
+  .os-wallpaper {
+    @apply absolute inset-0;
+    background: radial-gradient(
+      140% 120% at 50% 0%,
+      rgb(255 252 245) 0%,
+      rgb(var(--desktop-bg)) 55%,
+      rgb(238 230 216) 100%
+    );
+  }
+}

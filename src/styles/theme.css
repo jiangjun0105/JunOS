@@ -1,0 +1,38 @@
+/* ============================================================================
+   cozy-os design tokens — THE WHOLE LOOK LIVES HERE.
+   Currently styled as soft 3D "claymorphism": warm cream surfaces, puffy
+   rounded forms, diffuse shadows, and a cozy clay palette (terracotta, soft
+   pink, sage) — inspired by 3D food-icon art.
+
+   Colors are space-separated RGB triples so Tailwind can inject opacity
+   (e.g. `bg-accent/10`). Friendly names are wired up in tailwind.config.ts.
+   ========================================================================== */
+
+:root {
+  /* ---- surfaces (warm cream / soft clay) ---- */
+  --surface: 252 248 240; /* window body — soft warm white #FCF8F0 */
+  --surface-2: 244 236 222; /* titlebar tint  — light clay   #F4ECDE */
+  --desktop-bg: 245 240 230; /* desktop behind windows        #F5F0E6 */
+
+  /* ---- text (warm brown, not grey) ---- */
+  --ink: 91 79 66; /* warm cocoa #5B4F42 */
+  --muted: 154 139 121; /* soft taupe #9A8B79 */
+
+  /* ---- lines (very soft; claymorphism leans on shadow, not borders) ---- */
+  --border: 225 214 196; /* faint warm line #E1D6C4 */
+
+  /* ---- warm "clay" accents pulled from the reference ---- */
+  --accent: 224 139 76; /* terracotta #E08B4C (primary / CTA / close) */
+  --accent-2: 231 166 174; /* soft pink  #E7A6AE */
+  --accent-3: 157 168 107; /* sage green #9DA86B */
+
+  /* ---- shape: big, soft, puffy rounding ---- */
+  --radius-window: 22px;
+  --radius-tile: 24px;
+
+  /* ---- shadows: soft, diffuse claymorphism lifts ---- */
+  --shadow-window: 0 26px 55px -22px rgb(91 79 66 / 0.45), 0 8px 18px -8px rgb(91 79 66 / 0.18);
+  --shadow-soft: 0 10px 22px -8px rgb(91 79 66 / 0.38);
+  /* puffy top-light / bottom-shade used on clay tiles & buttons */
+  --clay-inset: inset 0 3px 4px rgb(255 255 255 / 0.75), inset 0 -7px 12px rgb(150 120 88 / 0.18);
+}
