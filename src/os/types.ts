@@ -27,4 +27,13 @@ export interface WindowInstance {
   zIndex: number
   position: { x: number; y: number }
   size: { width: number; height: number }
+  /** Hidden from the desktop (still open, parked in the taskbar). */
+  minimized: boolean
+  /** Filling the desktop work area (between the menu bar and taskbar). */
+  maximized: boolean
+  /** Position + size to restore to when un-maximizing. */
+  prevRect?: {
+    position: { x: number; y: number }
+    size: { width: number; height: number }
+  }
 }

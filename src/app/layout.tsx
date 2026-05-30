@@ -1,19 +1,19 @@
 import type { Metadata } from 'next'
-import { Nunito } from 'next/font/google'
+import { Zen_Maru_Gothic } from 'next/font/google'
 import { OSRoot } from '@/os/OSRoot'
 import { WindowManagerProvider } from '@/os/WindowManager'
 import './globals.css'
 
-// Soft, rounded type to match the cozy 3D / claymorphism look.
-const sans = Nunito({
+// Zen Maru Gothic — soft, rounded, storybook type for the Totoro reskin.
+const sans = Zen_Maru_Gothic({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['400', '500', '700'],
   variable: '--font-sans',
 })
 
 export const metadata: Metadata = {
   title: 'cozy-os',
-  description: 'A desktop OS in the browser.',
+  description: 'A cozy desktop in a sunny Totoro forest — windows in the browser.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

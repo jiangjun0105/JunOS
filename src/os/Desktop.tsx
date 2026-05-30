@@ -3,22 +3,27 @@
 import { useEffect, useState } from 'react'
 import { appList } from './apps'
 import { DesktopIcon } from './DesktopIcon'
+import { Wallpaper } from './Wallpaper'
 import { useWindows } from './WindowManager'
 
 type IconPositions = Record<string, { x: number; y: number }>
 
 const STORAGE_KEY = 'cozy-os:icon-positions'
 
-/** A tidy starting column down the left edge. */
+/** A tidy starting column down the left edge (clear of the top menu bar). */
 function defaultPositions(): IconPositions {
   const positions: IconPositions = {}
   appList.forEach((app, i) => {
-    positions[app.id] = { x: 24, y: 20 + i * 100 }
+    positions[app.id] = { x: 24, y: 56 + i * 100 }
   })
   return positions
 }
 
-/** The home "page": slim menu bar, cream wallpaper, and draggable launcher icons. */
+/**
+ * The home "page": cream wallpaper + draggable launcher icons.
+ * The menu bar and taskbar are rendered as chrome in OSRoot (above the window
+ * layer), so they live outside this component.
+ */
 export function Desktop() {
   const { openApp, constraintsRef } = useWindows()
   const [positions, setPositions] = useState<IconPositions>(defaultPositions)
@@ -47,19 +52,7 @@ export function Desktop() {
 
   return (
     <div className="relative flex h-full w-full flex-col">
-      <div aria-hidden className="os-wallpaper" />
-
-      <div className="os-menubar relative z-10">
-        <span className="flex items-center gap-2">
-          <span
-            aria-hidden
-            className="h-3 w-3 rounded-sm"
-            style={{ background: 'rgb(var(--accent))' }}
-          />
-          cozy-os
-        </span>
-        <span className="font-medium text-muted">Help</span>
-      </div>
+      <Wallpaper />
 
       {/* Icon layer — icons are absolutely positioned and draggable. */}
       <div className="relative z-10 flex-1">
@@ -67,7 +60,7 @@ export function Desktop() {
           <DesktopIcon
             key={app.id}
             app={app}
-            position={positions[app.id] ?? { x: 24, y: 20 }}
+            position={positions[app.id] ?? { x: 24, y: 56 }}
             constraintsRef={constraintsRef}
             onOpen={() => openApp(app.id)}
             onMove={(position) => moveIcon(app.id, position)}

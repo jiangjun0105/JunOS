@@ -19,93 +19,170 @@
 }
 
 /* ============================================================================
-   Component "skins" — soft 3D claymorphism. These reference the tokens, so
-   editing theme.css restyles them automatically.
+   Component "skins" — Studio Ghibli "Totoro" storybook look: soft cream paper
+   surfaces, gentle moss-green borders, rounded corners, soft green-tinted
+   shadows, and translucent blurred chrome so the painted forest shows through.
+   These reference the tokens, so editing theme.css restyles them automatically.
    ========================================================================== */
 @layer components {
-  /* ---- window: soft cream, big radius, diffuse lift, faint top highlight ---- */
+  /* ---- window: nearly-opaque cream paper, soft green border, rounded, gentle
+     green-tinted lift so it reads like a card resting on the meadow ---- */
   .os-window {
-    @apply flex flex-col overflow-hidden bg-surface text-ink;
+    @apply flex flex-col overflow-hidden border border-line text-ink;
+    background: rgb(var(--surface) / 0.97);
     border-radius: var(--radius-window);
-    /* drop shadow + an inset top highlight gives the puffy "clay" read
-       (inset follows the border-radius, so corners stay round) */
-    box-shadow: var(--shadow-window), inset 0 2px 2px rgb(255 255 255 / 0.6);
+    box-shadow: var(--shadow-soft);
+  }
+  /* The focused window reads as clearly "lifted": forest-green border + a
+     deeper, softer shadow. Window.tsx toggles `is-active` on the frame when it
+     is focused. */
+  .os-window.is-active {
+    border-color: rgb(var(--accent) / 0.6);
+    box-shadow: var(--shadow-window), 0 0 0 1px rgb(var(--accent) / 0.25);
   }
 
   .os-titlebar {
-    @apply flex cursor-grab select-none items-center gap-2 px-3 py-2 active:cursor-grabbing;
-    background: linear-gradient(180deg, rgb(var(--surface-2)) 0%, rgb(var(--surface)) 100%);
+    @apply flex cursor-grab select-none items-center gap-2 border-b border-line px-3 py-2 active:cursor-grabbing;
+    background: rgb(var(--surface-2) / 0.92);
   }
 
   .os-title {
-    @apply flex-1 truncate text-center font-display text-[14px] font-bold;
+    @apply flex-1 truncate text-center font-display text-[13px] font-semibold;
   }
 
-  /* puffy round clay close button */
-  .os-close {
-    @apply grid h-5 w-5 place-items-center rounded-full text-[10px] leading-none text-ink;
-    background: radial-gradient(120% 120% at 30% 25%, #fffdf8 0%, #f0e6d6 100%);
-    box-shadow:
-      0 2px 5px -1px rgb(91 79 66 / 0.35),
-      var(--clay-inset);
-    transition:
-      transform 0.12s ease,
-      color 0.12s ease;
+  /* ---- soft "pebble" pressable button ----
+     A gentle rounded acorn/pebble: an outer element painted with a soft moss
+     "shadow" color; an inner cream face is translated up ~2px so the pebble
+     looks softly raised, and settles down on hover / active. Used for the
+     window min / max / close controls. Cozy and storybook, not corporate. */
+  .os-btn {
+    @apply relative inline-grid h-5 w-5 place-items-center rounded-full p-0 text-[10px] font-bold leading-none;
+    background: rgb(var(--border) / 0.7);
+    border: 1px solid rgb(var(--border) / 0.8);
+    transition: filter 0.16s ease;
   }
-  .os-close:hover {
+  .os-btn::before {
+    content: '';
+    @apply absolute inset-0 rounded-full;
+    background: rgb(var(--surface));
+    border: 1px solid rgb(var(--border) / 0.55);
+    transform: translateY(-2px);
+    transition: transform 0.12s ease, background 0.16s ease, border-color 0.16s ease;
+  }
+  .os-btn > * {
+    @apply relative z-10;
+    transform: translateY(-2px);
+    transition: transform 0.12s ease, color 0.16s ease;
+  }
+  .os-btn:hover::before {
+    transform: translateY(-1px);
+  }
+  .os-btn:hover > * {
+    transform: translateY(-1px);
+  }
+  .os-btn:active::before,
+  .os-btn:active > * {
+    transform: translateY(0);
+  }
+  /* close gently tints to forest green on hover */
+  .os-btn-close:hover {
+    background: rgb(var(--accent) / 0.5);
+  }
+  .os-btn-close:hover::before {
+    background: rgb(var(--accent));
+    border-color: rgb(var(--accent));
+  }
+  .os-btn-close:hover > * {
     color: white;
-    background: radial-gradient(120% 120% at 30% 25%, rgb(var(--accent) / 0.92) 0%, rgb(var(--accent)) 100%);
-    transform: scale(1.08);
   }
 
   .os-resize {
-    @apply absolute bottom-1 right-1 h-3.5 w-3.5 cursor-nwse-resize rounded-full;
-    background: rgb(var(--ink) / 0.12);
+    @apply absolute bottom-1 right-1 h-3.5 w-3.5 cursor-nwse-resize rounded-[6px];
+    background: rgb(var(--ink) / 0.08);
+    border: 1px solid rgb(var(--border) / 0.8);
     touch-action: none;
   }
 
-  /* ---- desktop icon: emoji on a puffy clay tile (drag motion via Framer) ---- */
+  /* ---- desktop icon: PostHog product-icon tile (drag motion via Framer) ---- */
   .os-icon {
     @apply flex w-24 cursor-grab flex-col items-center gap-2 rounded-tile p-2;
     background: transparent;
   }
   .os-icon-tile {
-    @apply grid h-16 w-16 place-items-center rounded-tile text-3xl;
-    background: radial-gradient(125% 125% at 30% 22%, #fffdf8 0%, #f3ead9 58%, #ead9c2 100%);
-    box-shadow:
-      0 12px 22px -8px rgb(91 79 66 / 0.42),
-      var(--clay-inset);
+    @apply grid h-16 w-16 place-items-center rounded-tile border border-line text-3xl;
+    background: rgb(var(--surface) / 0.95);
+    box-shadow: var(--shadow-soft);
   }
-  /* if an app supplies a real (3D-rendered) image, show it bare with a soft
-     contact shadow — exactly like the reference icon set */
+  /* if an app supplies a real (3D-rendered) image, show it bare with a soft,
+     green-tinted contact shadow so it sits gently on the meadow */
   .os-icon-img {
     @apply h-16 w-16 object-contain;
-    filter: drop-shadow(0 10px 10px rgb(91 79 66 / 0.3));
+    filter: drop-shadow(0 8px 8px rgb(47 60 45 / 0.22));
   }
   .os-icon-label {
-    @apply rounded-full px-2.5 py-0.5 font-body text-[13px] font-semibold text-ink;
-    background: rgb(var(--surface) / 0.85);
+    @apply rounded-tile border border-line/70 px-2.5 py-0.5 font-body text-[13px] font-medium text-ink;
+    background: rgb(var(--surface) / 0.92);
     box-shadow: var(--shadow-soft);
   }
 
-  /* ---- top menu bar: soft cream, faint shadow, no hard border ---- */
+  /* ---- top menu bar: softly translucent cream with a gentle blur so the
+     painted forest shows through; thin soft moss bottom border ---- */
   .os-menubar {
-    @apply flex h-9 select-none items-center justify-between px-4 font-display text-[13px] font-bold text-ink;
-    background: rgb(var(--surface) / 0.7);
+    @apply flex w-full select-none items-center gap-1 border-b border-line px-3 font-display text-[13px] font-semibold text-ink;
+    background: rgb(var(--surface) / 0.72);
     backdrop-filter: blur(8px);
-    box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.6),
-      0 6px 16px -10px rgb(91 79 66 / 0.4);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .os-menubar-brand {
+    @apply flex items-center gap-2 pr-2;
+  }
+  .os-menubar-trigger {
+    @apply rounded-tile px-2.5 py-1 font-display text-[13px] font-semibold text-ink transition-colors hover:bg-accent/15;
+  }
+  .os-menubar-trigger[data-open='true'] {
+    @apply bg-accent/15;
+  }
+  /* dropdown panel: soft cream paper, rounded, soft green-tinted lift */
+  .os-menu-panel {
+    @apply absolute left-0 top-full z-40 mt-1 min-w-[200px] rounded-tile border border-line py-1;
+    background: rgb(var(--surface) / 0.98);
+    box-shadow: var(--shadow-window);
+  }
+  .os-menu-item {
+    @apply flex w-full items-center rounded-[8px] px-3 py-1.5 text-left font-body text-[13px] font-medium text-ink transition-colors hover:bg-accent/15 disabled:cursor-default disabled:text-muted disabled:hover:bg-transparent;
+  }
+  .os-menu-separator {
+    @apply my-1 h-px bg-line;
   }
 
-  /* ---- wallpaper: clean warm cream with a soft center glow ---- */
+  /* ---- bottom taskbar: softly translucent cream with a gentle blur so the
+     painted forest shows through; thin soft moss top border ---- */
+  .os-taskbar {
+    @apply absolute inset-x-0 bottom-0 z-[60] flex items-center gap-2 border-t border-line px-3;
+    background: rgb(var(--surface) / 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-soft);
+  }
+  .os-taskbar-item {
+    @apply flex h-9 max-w-44 items-center gap-2 rounded-tile border border-line px-3 text-sm text-ink transition-colors;
+    background: rgb(var(--surface-2) / 0.85);
+  }
+  .os-taskbar-item:hover {
+    background: rgb(var(--accent) / 0.12);
+  }
+  .os-taskbar-item.is-active {
+    @apply border-accent;
+    background: rgb(var(--accent) / 0.18);
+  }
+  .os-taskbar-item.is-minimized {
+    @apply italic text-muted opacity-70;
+  }
+
+  /* ---- wallpaper: clean cream with a very subtle dot grid ---- */
   .os-wallpaper {
-    @apply absolute inset-0;
-    background: radial-gradient(
-      140% 120% at 50% 0%,
-      rgb(255 252 245) 0%,
-      rgb(var(--desktop-bg)) 55%,
-      rgb(238 230 216) 100%
-    );
+    @apply absolute inset-0 bg-desktop;
+    background-image: radial-gradient(rgb(var(--border) / 0.35) 1px, transparent 1px);
+    background-size: 22px 22px;
   }
 }

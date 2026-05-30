@@ -11,6 +11,7 @@ import {
   type RefObject,
 } from 'react'
 import { apps } from './apps'
+import { MENUBAR_HEIGHT, TASKBAR_HEIGHT } from './constants'
 import type { AppId, WindowInstance } from './types'
 
 /**
@@ -32,6 +33,16 @@ interface WindowManagerValue {
   closeWindow: (id: string) => void
   focusWindow: (id: string) => void
   updateWindow: (id: string, patch: Partial<Pick<WindowInstance, 'position' | 'size'>>) => void
+  /** Hide a window (it stays open, just parked in the taskbar). */
+  minimizeWindow: (id: string) => void
+  /** Un-hide a window and bring it to the front. */
+  restoreWindow: (id: string) => void
+  /** Maximize to the work area, or restore from prevRect if already maximized. */
+  toggleMaximize: (id: string) => void
+  /** Minimize every open window at once. */
+  minimizeAllWindows: () => void
+  /** Close every open window at once. */
+  closeAllWindows: () => void
 }
 
 const WindowManagerContext = createContext<WindowManagerValue | null>(null)
@@ -85,6 +96,8 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
         zIndex: ws.length + 1,
         position: { x: 140 + offset, y: 96 + offset },
         size: { ...def.defaultSize },
+        minimized: false,
+        maximized: false,
       }
       return [...ws, instance]
     })
@@ -103,9 +116,83 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
     setWindows((ws) => ws.map((w) => (w.id === id ? { ...w, ...patch } : w)))
   }, [])
 
+  const minimizeWindow = useCallback((id: string) => {
+    setWindows((ws) => ws.map((w) => (w.id === id ? { ...w, minimized: true } : w)))
+  }, [])
+
+  const restoreWindow = useCallback((id: string) => {
+    setWindows((ws) =>
+      raise(
+        ws.map((w) => (w.id === id ? { ...w, minimized: false } : w)),
+        id
+      )
+    )
+  }, [])
+
+  const toggleMaximize = useCallback((id: string) => {
+    setWindows((ws) =>
+      ws.map((w) => {
+        if (w.id !== id) return w
+        if (!w.maximized) {
+          // Going maximized — stash the current geometry so we can restore it.
+          const vw = typeof window !== 'undefined' ? window.innerWidth : w.size.width
+          const vh = typeof window !== 'undefined' ? window.innerHeight : w.size.height
+          return {
+            ...w,
+            maximized: true,
+            prevRect: { position: { ...w.position }, size: { ...w.size } },
+            position: { x: 0, y: MENUBAR_HEIGHT },
+            size: { width: vw, height: vh - MENUBAR_HEIGHT - TASKBAR_HEIGHT },
+          }
+        }
+        // Restoring — fall back to current geometry if there's no saved rect.
+        return {
+          ...w,
+          maximized: false,
+          position: w.prevRect?.position ?? w.position,
+          size: w.prevRect?.size ?? w.size,
+          prevRect: undefined,
+        }
+      })
+    )
+  }, [])
+
+  const minimizeAllWindows = useCallback(() => {
+    setWindows((ws) => ws.map((w) => ({ ...w, minimized: true })))
+  }, [])
+
+  const closeAllWindows = useCallback(() => {
+    setWindows([])
+  }, [])
+
   const value = useMemo<WindowManagerValue>(
-    () => ({ windows, focusedId, constraintsRef, openApp, closeWindow, focusWindow, updateWindow }),
-    [windows, focusedId, openApp, closeWindow, focusWindow, updateWindow]
+    () => ({
+      windows,
+      focusedId,
+      constraintsRef,
+      openApp,
+      closeWindow,
+      focusWindow,
+      updateWindow,
+      minimizeWindow,
+      restoreWindow,
+      toggleMaximize,
+      minimizeAllWindows,
+      closeAllWindows,
+    }),
+    [
+      windows,
+      focusedId,
+      openApp,
+      closeWindow,
+      focusWindow,
+      updateWindow,
+      minimizeWindow,
+      restoreWindow,
+      toggleMaximize,
+      minimizeAllWindows,
+      closeAllWindows,
+    ]
   )
 
   return <WindowManagerContext.Provider value={value}>{children}</WindowManagerContext.Provider>

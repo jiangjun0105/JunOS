@@ -1,38 +1,45 @@
 /* ============================================================================
    cozy-os design tokens — THE WHOLE LOOK LIVES HERE.
-   Currently styled as soft 3D "claymorphism": warm cream surfaces, puffy
-   rounded forms, diffuse shadows, and a cozy clay palette (terracotta, soft
-   pink, sage) — inspired by 3D food-icon art.
+   Studio Ghibli "My Neighbor Totoro" palette: a sunny forest meadow — soft sky
+   blue, warm cream paper, rolling forest greens, acorn amber, dark moss text.
+   Cozy, gentle, storybook, with soft green-tinted shadows.
 
    Colors are space-separated RGB triples so Tailwind can inject opacity
    (e.g. `bg-accent/10`). Friendly names are wired up in tailwind.config.ts.
    ========================================================================== */
 
 :root {
-  /* ---- surfaces (warm cream / soft clay) ---- */
-  --surface: 252 248 240; /* window body — soft warm white #FCF8F0 */
-  --surface-2: 244 236 222; /* titlebar tint  — light clay   #F4ECDE */
-  --desktop-bg: 245 240 230; /* desktop behind windows        #F5F0E6 */
+  /* ---- surfaces (warm cream paper / soft sage) ---- */
+  --surface: 247 243 231; /* window body — warm cream paper */
+  --surface-2: 232 236 218; /* titlebar / panel — soft sage tint */
+  --desktop-bg: 174 217 232; /* sky-blue desktop behind windows */
 
-  /* ---- text (warm brown, not grey) ---- */
-  --ink: 91 79 66; /* warm cocoa #5B4F42 */
-  --muted: 154 139 121; /* soft taupe #9A8B79 */
+  /* ---- text (dark moss) ---- */
+  --ink: 59 74 58; /* dark moss green */
+  --muted: 110 122 99; /* soft moss-grey */
 
-  /* ---- lines (very soft; claymorphism leans on shadow, not borders) ---- */
-  --border: 225 214 196; /* faint warm line #E1D6C4 */
+  /* ---- lines (gentle sage borders) ---- */
+  --border: 175 181 152; /* sage line */
 
-  /* ---- warm "clay" accents pulled from the reference ---- */
-  --accent: 224 139 76; /* terracotta #E08B4C (primary / CTA / close) */
-  --accent-2: 231 166 174; /* soft pink  #E7A6AE */
-  --accent-3: 157 168 107; /* sage green #9DA86B */
+  /* ---- Totoro accents ---- */
+  --accent: 94 140 78; /* forest green (primary / CTA) */
+  --accent-2: 127 181 214; /* sky blue */
+  --accent-3: 224 167 76; /* acorn amber */
 
-  /* ---- shape: big, soft, puffy rounding ---- */
-  --radius-window: 22px;
-  --radius-tile: 24px;
+  /* ---- shape: soft storybook rounding ---- */
+  --radius-window: 14px;
+  --radius-tile: 16px;
 
-  /* ---- shadows: soft, diffuse claymorphism lifts ---- */
-  --shadow-window: 0 26px 55px -22px rgb(91 79 66 / 0.45), 0 8px 18px -8px rgb(91 79 66 / 0.18);
-  --shadow-soft: 0 10px 22px -8px rgb(91 79 66 / 0.38);
-  /* puffy top-light / bottom-shade used on clay tiles & buttons */
-  --clay-inset: inset 0 3px 4px rgb(255 255 255 / 0.75), inset 0 -7px 12px rgb(150 120 88 / 0.18);
+  /* ---- shadows: soft, green-tinted lifts ---- */
+  --shadow-window: 0 16px 36px -16px rgb(47 60 45 / 0.4), 0 3px 8px -3px rgb(47 60 45 / 0.16);
+  --shadow-soft: 0 8px 18px -8px rgb(47 60 45 / 0.3);
+
+  /* ---- scene tokens (wallpaper illustration only) ---- */
+  --sky-top: 156 209 230; /* upper sky */
+  --sky-bottom: 224 238 206; /* horizon glow */
+  --hill-far: 158 196 120; /* distant rolling hill */
+  --hill-near: 106 152 78; /* foreground meadow */
+  --cloud: 255 255 255; /* fluffy white clouds */
+  --tree: 60 90 54; /* camphor-tree silhouette */
+  --soot: 38 38 40; /* susuwatari soot sprites */
 }
