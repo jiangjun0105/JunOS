@@ -1,7 +1,7 @@
 'use client'
 
-import { motion, useDragControls, type PanInfo } from 'framer-motion'
-import { type RefObject } from 'react'
+import { motion, useDragControls, useMotionValue, type PanInfo } from 'framer-motion'
+import { useEffect, useRef, type RefObject } from 'react'
 import { apps } from './apps'
 import { MENUBAR_HEIGHT } from './constants'
 import { useWindows } from './WindowManager'
@@ -27,10 +27,12 @@ function clampPosition(x: number, y: number): { x: number; y: number } {
  * is false so a drag can ONLY be started from the title bar (`controls.start`).
  * We don't write position to state mid-drag — Framer moves the element via its
  * own transform, and we commit the final (clamped) position once in `onDragEnd`.
- * The `animate` x/y then re-asserts state as the source of truth.
  *
- * Resizing: a tiny corner handle with self-cancelling constraints so it never
- * actually moves; only its drag *delta* is fed into the window's width/height.
+ * Resizing: width/height are driven by Framer MOTION VALUES, not React state, so
+ * a resize updates the DOM directly — no per-frame re-render of every window and
+ * no spring lagging behind the cursor. The final size is committed to state once
+ * on resize-end (the same pattern as position). When state size changes for other
+ * reasons (open, maximize/restore, viewport re-fit) the motion values re-sync.
  */
 export function Window({ win }: { win: WindowInstance }) {
   const { focusedId, focusWindow, closeWindow, updateWindow, minimizeWindow, toggleMaximize, constraintsRef } =
@@ -39,6 +41,18 @@ export function Window({ win }: { win: WindowInstance }) {
   const def = apps[win.appId]
   const Body = def?.Component
   const focused = focusedId === win.id
+
+  const width = useMotionValue(win.size.width)
+  const height = useMotionValue(win.size.height)
+  const resizing = useRef(false)
+
+  // Re-sync the live size from state whenever it changes for a reason OTHER than
+  // an in-progress resize (open, maximize/restore, viewport re-fit).
+  useEffect(() => {
+    if (resizing.current) return
+    width.set(win.size.width)
+    height.set(win.size.height)
+  }, [win.size.width, win.size.height, width, height])
 
   function handleDragEnd(_event: unknown, info: PanInfo) {
     updateWindow(win.id, {
@@ -50,12 +64,13 @@ export function Window({ win }: { win: WindowInstance }) {
     // cap growth at the viewport edges (relative to the window's current position)
     const maxW = typeof window !== 'undefined' ? window.innerWidth - win.position.x : Infinity
     const maxH = typeof window !== 'undefined' ? window.innerHeight - win.position.y : Infinity
-    updateWindow(win.id, {
-      size: {
-        width: Math.min(Math.max(win.size.width + info.delta.x, MIN.width), maxW),
-        height: Math.min(Math.max(win.size.height + info.delta.y, MIN.height), maxH),
-      },
-    })
+    width.set(Math.min(Math.max(width.get() + info.delta.x, MIN.width), maxW))
+    height.set(Math.min(Math.max(height.get() + info.delta.y, MIN.height), maxH))
+  }
+
+  function handleResizeEnd() {
+    resizing.current = false
+    updateWindow(win.id, { size: { width: width.get(), height: height.get() } })
   }
 
   return (
@@ -63,13 +78,11 @@ export function Window({ win }: { win: WindowInstance }) {
       className={`os-window pointer-events-auto absolute ${focused ? 'is-active' : ''}`}
       role="dialog"
       aria-label={win.title}
-      style={{ zIndex: win.zIndex }}
+      style={{ zIndex: win.zIndex, width, height }}
       initial={{ x: win.position.x, y: win.position.y, scale: 0.85, opacity: 0 }}
       animate={{
         x: win.position.x,
         y: win.position.y,
-        width: win.size.width,
-        height: win.size.height,
         scale: 1,
         opacity: focused ? 1 : 0.94,
       }}
@@ -136,7 +149,11 @@ export function Window({ win }: { win: WindowInstance }) {
           dragElastic={0}
           dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
           onPointerDown={(e) => e.stopPropagation()}
+          onDragStart={() => {
+            resizing.current = true
+          }}
           onDrag={handleResize}
+          onDragEnd={handleResizeEnd}
         />
       )}
     </motion.div>
