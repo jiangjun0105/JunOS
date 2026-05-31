@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { appList, apps } from './apps'
+import { appList } from './apps'
 import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { useWindows } from './WindowManager'
 
@@ -99,9 +99,7 @@ export function MenuBar() {
         {appList.map((app) => (
           <MenuItem key={app.id} onSelect={() => run(() => openApp(app.id))}>
             <span className="flex items-center gap-2">
-              <span aria-hidden className="text-base leading-none">
-                {app.icon}
-              </span>
+              <AppGlyph />
               {app.title}
             </span>
           </MenuItem>
@@ -115,7 +113,7 @@ export function MenuBar() {
         onClose={() => setOpenMenu(null)}
       >
         <MenuItem onSelect={() => run(resetIconPositions)}>Reset icon positions</MenuItem>
-        <MenuItem disabled>Theme: Totoro</MenuItem>
+        <MenuItem disabled>Theme: Cozy</MenuItem>
       </MenuTrigger>
 
       {/* Minimized windows: small icons in the top-right tray (macOS-style); click to restore. */}
@@ -130,12 +128,26 @@ export function MenuBar() {
               onClick={() => restoreWindow(win.id)}
               className="os-tray-item"
             >
-              <span aria-hidden>{apps[win.appId]?.icon}</span>
+              <AppGlyph />
             </button>
           ))}
         </div>
       )}
     </div>
+  )
+}
+
+/**
+ * A simple monochrome window glyph — the small icon used in the Apps menu and
+ * the minimized tray. (The colorful PNG is reserved for the big desktop
+ * launchers.) Uses currentColor, so it inherits the surrounding ink color.
+ */
+function AppGlyph() {
+  return (
+    <svg viewBox="0 0 18 16" width="17" height="15" aria-hidden className="flex-none">
+      <rect x="1" y="1" width="16" height="14" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <line x1="1" y1="5.2" x2="17" y2="5.2" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
   )
 }
 
