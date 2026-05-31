@@ -9,7 +9,7 @@
 export const MENUBAR_HEIGHT = 40
 
 /** localStorage key for persisted desktop-icon positions (shared by Desktop + MenuBar). */
-export const ICON_POSITIONS_KEY = 'cozy-os:icon-positions'
+export const ICON_POSITIONS_KEY = 'junos:icon-positions'
 
 /** Custom DOM event that asks the desktop to reset its icon layout (no reload). */
-export const RESET_ICONS_EVENT = 'cozy-os:reset-icons'
+export const RESET_ICONS_EVENT = 'junos:reset-icons'

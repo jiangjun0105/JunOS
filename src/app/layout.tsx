@@ -7,7 +7,7 @@ import './globals.css'
 // globals.css and referenced by name in tailwind.config.ts.
 
 export const metadata: Metadata = {
-  title: 'cozy-os',
+  title: 'JunOS',
   description: 'A desktop OS in the browser.',
 }
 

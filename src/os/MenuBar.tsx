@@ -5,7 +5,7 @@ import { appList } from './apps'
 import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { useWindows } from './WindowManager'
 
-type MenuId = 'cozy-os' | 'apps' | 'view'
+type MenuId = 'junos' | 'apps' | 'view'
 
 /**
  * The top menu bar — a hand-rolled menu system (no Radix / headless deps).
@@ -73,11 +73,11 @@ export function MenuBar() {
         label={
           <>
             <span aria-hidden className="h-3 w-3 rounded-sm bg-accent" />
-            cozy-os
+            JunOS
           </>
         }
-        isOpen={openMenu === 'cozy-os'}
-        onToggle={() => toggleMenu('cozy-os')}
+        isOpen={openMenu === 'junos'}
+        onToggle={() => toggleMenu('junos')}
         onClose={() => setOpenMenu(null)}
       >
         <MenuItem onSelect={() => run(() => openApp('about'))}>About</MenuItem>

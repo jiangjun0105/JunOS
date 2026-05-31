@@ -1,6 +1,6 @@
 /** A little "Projects" app — a few sample cards. Make it yours! */
 const projects = [
-  { name: 'cozy-os', blurb: 'This very site — a desktop OS in the browser.', tag: '🪟 web' },
+  { name: 'JunOS', blurb: 'This very site — a desktop OS in the browser.', tag: '🪟 web' },
   { name: 'Acorn Notes', blurb: 'A tiny notes app I am tinkering with.', tag: '📒 app' },
   { name: 'Forest Walks', blurb: 'Photos from hikes near the camphor trees.', tag: '🌲 photo' },
 ]

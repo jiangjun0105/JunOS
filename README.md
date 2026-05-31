@@ -1,4 +1,4 @@
-# cozy-os 🌸
+# JunOS 🌸
 
 A tiny, anime-style **desktop OS in the browser** — pages and apps open as
 draggable, resizable windows on a soft pastel sky. Built with **Next.js (App

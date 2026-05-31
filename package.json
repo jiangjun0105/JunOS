@@ -1,5 +1,5 @@
 {
-  "name": "cozy-os",
+  "name": "junos",
   "version": "0.1.0",
   "private": true,
   "description": "A cute anime-style desktop OS in the browser (Next.js + Framer Motion).",
