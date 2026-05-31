@@ -5,6 +5,7 @@ import { useEffect, useRef, type RefObject } from 'react'
 import { apps } from './apps'
 import { MENUBAR_HEIGHT } from './constants'
 import { useWindows } from './WindowManager'
+import { WindowScrollbar } from './WindowScrollbar'
 import type { WindowInstance } from './types'
 
 const MIN = { width: 240, height: 160 }
@@ -37,6 +38,9 @@ function clampPosition(x: number, y: number): { x: number; y: number } {
  * Keyboard: the frame is focusable (role="dialog"); it's focused on open, and
  * Escape closes it. It is intentionally NOT a focus trap — windows are non-modal,
  * so you must be able to Tab between them.
+ *
+ * Chrome: apps can opt into a decorative File/Edit/View/Help toolbar; scrolling
+ * content shows a Win95-style chrome scrollbar (see WindowScrollbar).
  */
 export function Window({ win }: { win: WindowInstance }) {
   const { focusedId, focusWindow, closeWindow, updateWindow, minimizeWindow, toggleMaximize, constraintsRef } =
@@ -50,6 +54,7 @@ export function Window({ win }: { win: WindowInstance }) {
   const height = useMotionValue(win.size.height)
   const resizing = useRef(false)
   const frameRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   // Re-sync the live size from state whenever it changes for a reason OTHER than
   // an in-progress resize (open, maximize/restore, viewport re-fit).
@@ -155,7 +160,22 @@ export function Window({ win }: { win: WindowInstance }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4">{Body ? <Body /> : <p>Unknown app.</p>}</div>
+      {/* decorative File/Edit/View/Help toolbar, opt-in per app */}
+      {def?.toolbar && (
+        <div className="win-menu">
+          <span>File</span>
+          <span>Edit</span>
+          <span>View</span>
+          <span>Help</span>
+        </div>
+      )}
+
+      <div className="relative flex min-h-0 flex-1">
+        <div ref={contentRef} className="os-scroll-host min-h-0 flex-1 overflow-auto p-4 pr-5">
+          {Body ? <Body /> : <p>Unknown app.</p>}
+        </div>
+        <WindowScrollbar targetRef={contentRef} />
+      </div>
 
       {!win.maximized && (
         <motion.div

@@ -49,10 +49,11 @@
 
   /* ---- title bar: steel-blue gradient, white Dosis caps ---- */
   .os-titlebar {
-    @apply flex cursor-grab select-none items-center gap-2 px-2 active:cursor-grabbing;
-    min-height: 32px;
+    @apply flex flex-none cursor-grab select-none items-center gap-2 active:cursor-grabbing;
+    height: 30px;
+    padding: 0 5px 0 7px;
     color: rgb(var(--title-text));
-    background: linear-gradient(rgb(var(--title-hi)), rgb(var(--title)) 55%, rgb(var(--title-lo)));
+    background: linear-gradient(rgb(var(--title-hi)), rgb(var(--title)) 60%, rgb(var(--title-lo)));
     border-bottom: 2px solid rgb(var(--ink));
   }
   /* inactive windows get a muted, warm-taupe bar */
@@ -60,20 +61,21 @@
     background: linear-gradient(#b9a48f, #9c8773 55%, #7e6a57);
   }
   .os-title {
-    @apply min-w-0 flex-1 truncate pl-1 font-display text-[15px] font-bold uppercase;
+    @apply min-w-0 flex-1 truncate font-display text-[18px] font-bold uppercase;
     letter-spacing: 0.4px;
+    line-height: 1.4;
     text-shadow: 1px 1px 0 rgb(20 28 38 / 0.45);
   }
 
   /* ---- window control buttons: modern rounded ---- */
   .os-btns {
-    @apply flex flex-none items-center gap-1.5;
+    @apply flex flex-none items-center gap-1;
   }
   .os-btn {
-    @apply grid h-[19px] w-[22px] place-items-center rounded-md text-[13px] font-bold leading-none;
+    @apply grid h-[21px] w-[23px] place-items-center rounded-[6px] text-[15px] leading-none;
     font-family: var(--font-display);
-    background: rgb(226 220 198);
-    border: 2px solid rgb(var(--ink));
+    background: rgb(var(--btn-face));
+    border: 2px solid rgb(var(--btn-line));
     color: rgb(var(--ink));
   }
   .os-btn:hover {
@@ -86,6 +88,7 @@
     background: rgb(var(--accent-3));
     border-color: rgb(121 48 31);
     color: rgb(251 230 214);
+    font-weight: 700;
   }
   .os-btn-close:hover {
     background: rgb(228 123 93);
@@ -99,18 +102,88 @@
     touch-action: none;
   }
 
-  /* ---- cozy pill scrollbars inside windows ---- */
-  .os-window *::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+  /* ---- per-window toolbar (File / Edit / View / Help), opt-in per app ---- */
+  .win-menu {
+    @apply flex flex-none select-none items-center border-b-2 border-line font-display font-semibold text-ink;
+    gap: 18px;
+    padding: 3px 10px 4px;
+    font-size: 18px;
+    background: rgb(var(--paper-hi));
   }
-  .os-window *::-webkit-scrollbar-thumb {
-    background: rgb(var(--surface-2));
-    border: 2px solid rgb(var(--ink));
+  .win-menu span {
+    cursor: default;
+  }
+  .win-menu span::first-letter {
+    text-decoration: underline;
+  }
+
+  /* ---- Win95-style chrome scrollbar (replaces the native one) ---- */
+  .os-scroll-host {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+  }
+  .os-scroll-host::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  .os-scrollbar {
+    @apply absolute bottom-0 right-0 top-0 flex w-[17px] flex-col;
+    background: rgb(var(--paper-lo));
+    border-left: 2px solid rgb(var(--ink));
+  }
+  .os-scroll-btn {
+    @apply grid h-[17px] flex-none cursor-pointer place-items-center text-[11px] leading-none text-ink;
+    background: rgb(var(--btn-face));
+  }
+  .os-scroll-btn:hover {
+    background: rgb(241 236 217);
+  }
+  .os-scroll-btn:first-child {
+    border-bottom: 2px solid rgb(var(--ink));
+  }
+  .os-scroll-btn:last-child {
+    border-top: 2px solid rgb(var(--ink));
+  }
+  .os-scroll-track {
+    @apply relative flex-1;
+  }
+  .os-scroll-thumb {
+    @apply absolute left-[3px] right-[3px] cursor-grab;
+    min-height: 20px;
     border-radius: 9px;
+    background: rgb(var(--scroll-thumb));
+    border: 2px solid rgb(var(--ink));
   }
-  .os-window *::-webkit-scrollbar-track {
-    background: transparent;
+  .os-scroll-thumb:active {
+    cursor: grabbing;
+  }
+
+  /* ---- file-explorer tree ---- */
+  .tree {
+    @apply font-body text-[15px] text-ink;
+    line-height: 1.4;
+  }
+  .tree-row {
+    @apply flex w-full items-center gap-1.5 rounded-md px-1.5 py-1 text-left;
+    white-space: nowrap;
+  }
+  .tree-row:hover {
+    background: rgb(var(--surface-2));
+  }
+  .tree-twist {
+    @apply w-3 flex-none text-center text-[10px];
+    opacity: 0.7;
+  }
+  .tree-ico {
+    @apply grid h-5 w-5 flex-none place-items-center;
+  }
+  .tree-name {
+    @apply truncate;
+  }
+  .tree-children {
+    @apply ml-2 pl-2;
+    border-left: 1.5px solid rgb(var(--ink) / 0.18);
   }
 
   /* ---- desktop launcher icon ---- */

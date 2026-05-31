@@ -1,4 +1,5 @@
 import { AboutWindow } from '@/components/windows/AboutWindow'
+import { FilesWindow } from '@/components/windows/FilesWindow'
 import { ProjectsWindow } from '@/components/windows/ProjectsWindow'
 import type { AppDefinition, AppId } from './types'
 
@@ -16,6 +17,7 @@ export const apps: Record<AppId, AppDefinition> = {
     title: 'About me',
     icon: '🌳', // emoji fallback if the image is unavailable
     image: '/icons/about.png',
+    toolbar: true,
     defaultSize: { width: 440, height: 340 },
     Component: AboutWindow,
   },
@@ -24,8 +26,17 @@ export const apps: Record<AppId, AppDefinition> = {
     title: 'Projects',
     icon: '🗂️',
     image: '/icons/projects.png',
+    toolbar: true,
     defaultSize: { width: 440, height: 380 },
     Component: ProjectsWindow,
+  },
+  files: {
+    id: 'files',
+    title: 'Files',
+    icon: '📁', // emoji fallback
+    image: '/icons/folder.svg',
+    defaultSize: { width: 300, height: 360 },
+    Component: FilesWindow,
   },
 }
 

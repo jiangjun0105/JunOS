@@ -13,6 +13,8 @@ export interface AppDefinition {
   icon: string
   /** Optional path/URL to a real (e.g. 3D-rendered) icon image — shown bare with a soft shadow. */
   image?: string
+  /** Show the decorative File / Edit / View / Help toolbar below the title bar. */
+  toolbar?: boolean
   defaultSize: { width: number; height: number }
   /** The React component rendered inside the window body. */
   Component: ComponentType

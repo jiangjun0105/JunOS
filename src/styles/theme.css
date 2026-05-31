@@ -1,18 +1,20 @@
 /* ============================================================================
    cozy-os design tokens — THE WHOLE LOOK LIVES HERE.
-   "Hand-drawn OS — Cozy" palette (from the Claude Design handoff): warm-white
-   paper windows with bold slate-ink outlines, steel-blue title bars, modern
-   rounded chrome with a coral close button, on a warm-yellow desktop.
+   "Hand-drawn OS — Cozy" palette (from the Claude Design handoff), matched to
+   the sample project: warm-white paper, slate-ink outlines, steel-blue title
+   bars, modern rounded chrome with a coral close, on a warm-yellow desktop.
 
    Colors are space-separated RGB triples so Tailwind can inject opacity
-   (e.g. `bg-accent/10`). Friendly names are wired up in tailwind.config.ts;
-   the raw title/desktop vars are used directly in globals.css.
+   (e.g. bg-accent/10). Friendly names are wired in tailwind.config.ts; the raw
+   title/paper/btn/scroll vars are used directly in globals.css.
    ========================================================================== */
 
 :root {
   /* ---- surfaces ---- */
-  --surface: 255 251 240; /* window body — warm-white "paper" #FFFBF0 */
-  --surface-2: 240 233 207; /* panels / menus / table headers — paper tint */
+  --surface: 255 251 240; /* window body — warm-white paper #FFFBF0 */
+  --surface-2: 240 233 207; /* app content panels/cards */
+  --paper-hi: 247 240 216; /* lighter strips — the File/Edit toolbar #F7F0D8 */
+  --paper-lo: 230 218 180; /* header tints + scrollbar track #E6DAB4 */
   --desktop-bg: 242 220 121; /* wallpaper — warm yellow #F2DC79 */
   --desktop-hi: 247 231 154; /* lighter top of the wallpaper gradient */
   --desktop-lo: 236 205 95; /* deeper bottom */
@@ -21,17 +23,22 @@
   --ink: 37 50 63; /* slate ink #25323F */
   --muted: 65 82 95; /* softer ink #41525F */
   --border: 37 50 63; /* element outlines = ink */
+  --btn-line: 43 58 71; /* window-button outline #2B3A47 */
+  --btn-face: 226 220 198; /* window-button face #E2DCC6 */
 
-  /* ---- title bar (steel blue) ---- */
+  /* ---- title bar (steel-blue gradient over the chosen blue) ---- */
   --title: 59 114 196; /* #3B72C4 */
-  --title-hi: 92 142 214; /* gradient top */
-  --title-lo: 42 92 166; /* gradient bottom */
-  --title-text: 244 237 214; /* warm-white title text */
+  --title-hi: 82 112 153; /* #527099 */
+  --title-lo: 52 78 116; /* #344E74 */
+  --title-text: 244 237 214; /* warm-white title text #F4EDD6 */
 
   /* ---- accents ---- */
   --accent: 59 114 196; /* blue — active window + hover tints */
   --accent-2: 79 141 91; /* green — "ok" status #4F8D5B */
-  --accent-3: 217 105 74; /* coral — close button / "critical" #D9694A */
+  --accent-3: 217 105 74; /* coral — close button #D9694A */
+
+  /* ---- scrollbar ---- */
+  --scroll-thumb: 194 185 156; /* tan thumb #C2B99C */
 
   /* ---- shape ---- */
   --radius-window: 15px;

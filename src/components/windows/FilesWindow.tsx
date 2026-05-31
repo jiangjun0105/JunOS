@@ -1,0 +1,123 @@
+'use client'
+
+import { useState } from 'react'
+import type { AppId } from '@/os/types'
+import { useWindows } from '@/os/WindowManager'
+
+/** File kind drives the color-coded page glyph (matching the sample project). */
+type FileKind = 'doc' | 'txt' | 'csv' | 'exe'
+
+/** A node in the file tree: a folder (expandable) or a file that opens an app. */
+type TreeNode =
+  | { kind: 'folder'; name: string; children: TreeNode[] }
+  | { kind: 'file'; name: string; appId: AppId; fileKind?: FileKind }
+
+/**
+ * The tree shown in the File Explorer. Files open their app's window on click.
+ * Extend this — or nest more folders — to grow the tree.
+ */
+const TREE: TreeNode[] = [
+  {
+    kind: 'folder',
+    name: 'JunOS',
+    children: [
+      { kind: 'file', name: 'About me', appId: 'about', fileKind: 'doc' },
+      { kind: 'file', name: 'Projects', appId: 'projects', fileKind: 'csv' },
+    ],
+  },
+]
+
+/** File Explorer — an expandable folder tree (like the Hand-drawn OS design). */
+export function FilesWindow() {
+  return (
+    <div className="tree">
+      {TREE.map((node, i) => (
+        <TreeRow key={i} node={node} />
+      ))}
+    </div>
+  )
+}
+
+function TreeRow({ node }: { node: TreeNode }) {
+  const { openApp } = useWindows()
+  const [open, setOpen] = useState(true)
+
+  if (node.kind === 'folder') {
+    return (
+      <div>
+        <button
+          type="button"
+          className="tree-row"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <span className="tree-twist">{open ? '▾' : '▸'}</span>
+          <span className="tree-ico">
+            <FolderGlyph />
+          </span>
+          <span className="tree-name">{node.name}</span>
+        </button>
+        {open && (
+          <div className="tree-children">
+            {node.children.map((child, i) => (
+              <TreeRow key={i} node={child} />
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <button type="button" className="tree-row" onClick={() => openApp(node.appId)}>
+      <span className="tree-twist" aria-hidden />
+      <span className="tree-ico">
+        <FileGlyph kind={node.fileKind} />
+      </span>
+      <span className="tree-name">{node.name}</span>
+    </button>
+  )
+}
+
+/** Yellow folder glyph (matches the sample's tree folder; outline = currentColor/ink). */
+function FolderGlyph() {
+  return (
+    <svg viewBox="0 0 24 20" width="19" height="16" aria-hidden>
+      <path
+        d="M2 4 h7 l2 2.5 H22 v11 H2 Z"
+        fill="#f0c24e"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+/** Simple page glyph, color-coded by file kind (matches the sample). */
+function FileGlyph({ kind }: { kind?: FileKind }) {
+  const color = kind ? { doc: '#3b72c4', txt: '#5f6670', csv: '#4f8d5b', exe: '#b3473b' }[kind] : '#8a8f98'
+  return (
+    <svg viewBox="0 0 19 23" width="15" height="18" aria-hidden>
+      <path
+        d="M3 2 h8 l5 5 v13 q0 1-1 1 H4 q-1 0-1-1 Z"
+        fill="#fdfaf0"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path d="M11 2 v5 h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      {kind === 'csv' ? (
+        <path d="M5 11.5 h8 M5 14.5 h8 M5 17.5 h8 M9 10.5 v8" stroke={color} strokeWidth="1.2" fill="none" />
+      ) : (
+        <path
+          d={`M5 11.5 h7 M5 14.5 h${kind === 'txt' ? 5 : 7} M5 17.5 h6`}
+          stroke={color}
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          fill="none"
+        />
+      )}
+    </svg>
+  )
+}
