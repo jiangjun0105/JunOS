@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Placeholder agent photo — swap for a real headshot when you have one. -->
+  <rect width="120" height="120" fill="#f7e79a"/>
+  <path d="M14 120 v-6 a46 46 0 0 1 92 0 v6 Z" fill="#3b72c4" stroke="#25323f" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M50 72 h20 v12 q-10 6 -20 0 Z" fill="#eab68f" stroke="#25323f" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="60" cy="50" r="23" fill="#f3c89c" stroke="#25323f" stroke-width="3.5"/>
+  <circle cx="52" cy="49" r="2.6" fill="#25323f"/>
+  <circle cx="68" cy="49" r="2.6" fill="#25323f"/>
+  <path d="M52 57 q8 7 16 0" fill="none" stroke="#25323f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M33 54 V48 a27 27 0 0 1 54 0 V54" fill="none" stroke="#25323f" stroke-width="4.5" stroke-linecap="round"/>
+  <rect x="29" y="48" width="11" height="17" rx="4.5" fill="#d9694a" stroke="#25323f" stroke-width="3.5"/>
+  <rect x="80" y="48" width="11" height="17" rx="4.5" fill="#d9694a" stroke="#25323f" stroke-width="3.5"/>
+  <path d="M34.5 65 q0 13 13 13 h7" fill="none" stroke="#25323f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="56" cy="78" r="4" fill="#d9694a" stroke="#25323f" stroke-width="3"/>
+</svg>

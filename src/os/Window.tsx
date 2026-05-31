@@ -172,7 +172,7 @@ export function Window({ win }: { win: WindowInstance }) {
 
       <div className="relative flex min-h-0 flex-1">
         <div ref={contentRef} className="os-scroll-host min-h-0 flex-1 overflow-auto p-4 pr-5">
-          {Body ? <Body /> : <p>Unknown app.</p>}
+          {Body ? <Body params={win.params} /> : <p>Unknown app.</p>}
         </div>
         <WindowScrollbar targetRef={contentRef} />
       </div>

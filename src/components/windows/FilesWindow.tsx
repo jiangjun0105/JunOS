@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { articlesByKind, type ArticleKind } from '@/content/articles'
 import type { AppId } from '@/os/types'
 import { useWindows } from '@/os/WindowManager'
 
@@ -10,11 +11,23 @@ type FileKind = 'doc' | 'txt' | 'csv' | 'exe'
 /** A node in the file tree: a folder (expandable) or a file that opens an app. */
 type TreeNode =
   | { kind: 'folder'; name: string; children: TreeNode[] }
-  | { kind: 'file'; name: string; appId: AppId; fileKind?: FileKind }
+  | { kind: 'file'; name: string; appId: AppId; fileKind?: FileKind; params?: Record<string, unknown> }
+
+/** Article files for a kind become tree nodes that open the reader with their slug. */
+function articleFiles(kind: ArticleKind): TreeNode[] {
+  return articlesByKind(kind).map((a) => ({
+    kind: 'file' as const,
+    name: a.title,
+    appId: 'article' as AppId,
+    fileKind: 'doc' as const,
+    params: { slug: a.slug },
+  }))
+}
 
 /**
- * The tree shown in the File Explorer. Files open their app's window on click.
- * Extend this — or nest more folders — to grow the tree.
+ * The tree shown in the File Explorer. Files open their app's window on click; the
+ * Research / Personal folders are generated from src/content/articles, so new
+ * articles appear here automatically. Extend or nest more folders to grow it.
  */
 const TREE: TreeNode[] = [
   {
@@ -23,8 +36,11 @@ const TREE: TreeNode[] = [
     children: [
       { kind: 'file', name: 'About me', appId: 'about', fileKind: 'doc' },
       { kind: 'file', name: 'Projects', appId: 'projects', fileKind: 'csv' },
+      { kind: 'file', name: 'Support', appId: 'support', fileKind: 'exe' },
     ],
   },
+  { kind: 'folder', name: 'Research', children: articleFiles('research') },
+  { kind: 'folder', name: 'Personal', children: articleFiles('personal') },
 ]
 
 /** File Explorer — an expandable folder tree (like the Hand-drawn OS design). */
@@ -69,7 +85,13 @@ function TreeRow({ node }: { node: TreeNode }) {
   }
 
   return (
-    <button type="button" className="tree-row" onClick={() => openApp(node.appId)}>
+    <button
+      type="button"
+      className="tree-row"
+      onClick={() =>
+        openApp(node.appId, node.params ? { params: node.params, title: node.name } : undefined)
+      }
+    >
       <span className="tree-twist" aria-hidden />
       <span className="tree-ico">
         <FileGlyph kind={node.fileKind} />

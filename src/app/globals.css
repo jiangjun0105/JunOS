@@ -268,6 +268,78 @@
   }
 }
 
+/* ============================================================================
+   Article reader (MDX windows) + media blocks (Figure / Gallery / Video / Embed).
+   Most long-form element styling lives in src/mdx-components.tsx; these classes
+   cover the reader chrome, index cards, and media wrappers.
+   ============================================================================ */
+@layer components {
+  /* meta row above the body: date · kind, with tag chips on the right */
+  .article-head {
+    @apply mb-3 flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed border-line/25 pb-2;
+  }
+  .article-meta {
+    @apply flex items-center gap-1.5 font-display text-[13px] font-semibold uppercase tracking-wide text-muted;
+  }
+  .article-tags {
+    @apply flex flex-wrap gap-1;
+  }
+  .article-tag {
+    @apply rounded-full border border-line/40 bg-surface-2/60 px-2 py-0.5 text-[11px] font-medium text-muted;
+  }
+
+  /* long-form body: keep the first heading flush; strip inline-code skin inside pre */
+  .article-prose > :first-child {
+    margin-top: 0;
+  }
+  .article-prose pre code {
+    @apply border-0 bg-transparent p-0;
+  }
+
+  /* index cards in the Research window */
+  .article-card {
+    @apply block w-full rounded-tile border border-line bg-surface-2/50 p-3 text-left transition-colors;
+  }
+  .article-card:hover {
+    @apply bg-surface-2/80;
+  }
+  .article-card-kind {
+    @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs capitalize;
+  }
+
+  /* ---- media blocks ---- */
+  .media-figure {
+    @apply my-3.5;
+  }
+  .media-img {
+    @apply block w-full rounded-tile border-2 border-line;
+    box-shadow: var(--shadow-soft);
+  }
+  .media-caption {
+    @apply mt-1.5 text-center text-[13px] italic text-muted;
+  }
+  .media-gallery {
+    @apply my-3.5 grid gap-2;
+  }
+  .media-video {
+    @apply block w-full rounded-tile border-2 border-line;
+    background: #000;
+    box-shadow: var(--shadow-soft);
+  }
+  .media-embed {
+    @apply relative w-full overflow-hidden rounded-tile border-2 border-line;
+    aspect-ratio: 16 / 9;
+    box-shadow: var(--shadow-soft);
+  }
+  .media-embed iframe {
+    @apply absolute inset-0 h-full w-full;
+    border: 0;
+  }
+  .media-fallback {
+    @apply grid place-items-center rounded-tile border-2 border-dashed border-line/40 bg-surface-2/40 px-4 py-8 text-center;
+  }
+}
+
 /* Respect the OS "reduce motion" setting: neutralize CSS transitions/animations.
    (Framer Motion transform animations are handled via <MotionConfig reducedMotion="user">.) */
 @media (prefers-reduced-motion: reduce) {

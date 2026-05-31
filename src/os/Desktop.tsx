@@ -7,6 +7,9 @@ import { DesktopIcon } from './DesktopIcon'
 import { Wallpaper } from './Wallpaper'
 import { useWindows } from './WindowManager'
 
+/** Apps that get a desktop launcher icon (hidden ones — like the article reader — open indirectly). */
+const launchers = appList.filter((app) => app.launcher !== false)
+
 type IconPositions = Record<string, { x: number; y: number }>
 
 const ICON_COL_X = 24
@@ -16,7 +19,7 @@ const ICON_ROW_PITCH = 100
 /** A tidy starting column down the left edge (clear of the top menu bar). */
 function defaultPositions(): IconPositions {
   const positions: IconPositions = {}
-  appList.forEach((app, i) => {
+  launchers.forEach((app, i) => {
     positions[app.id] = { x: ICON_COL_X, y: ICON_TOP + i * ICON_ROW_PITCH }
   })
   return positions
@@ -93,7 +96,7 @@ export function Desktop() {
 
       {/* Icon layer — icons are absolutely positioned and draggable. */}
       <div className="relative z-10 flex-1">
-        {appList.map((app) => (
+        {launchers.map((app) => (
           <DesktopIcon
             key={app.id}
             app={app}

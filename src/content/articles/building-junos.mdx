@@ -1,0 +1,24 @@
+# Building JunOS
+
+I rebuilt my personal site as a tiny **desktop OS in the browser**. Every page is
+a draggable window; the desktop is just an array of window objects in React state.
+
+## Why bother?
+
+A list of links is forgettable. A little world you can _poke at_ is not. Turning
+"navigation" into "opening a window" made the site feel like a place rather than a
+page.
+
+## The whole idea in one paragraph
+
+There's one array, `windows[]`. Opening an app pushes an entry; **focus is simply
+whichever window has the highest `zIndex`** — derived, never stored separately. No
+router, no per-page state. The window manager owns everything.
+
+<Figure src="/icons/about.png" alt="The JunOS about-me launcher" width={120} caption="One of the desktop launchers." />
+
+## What I'd do next
+
+- Make each open window deep-linkable (a real URL per window).
+- Persist the open windows to `localStorage`.
+- Write more of these articles — which is exactly why this little content system exists.

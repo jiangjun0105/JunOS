@@ -1,0 +1,40 @@
+# Field Notes on Attention
+
+A few half-formed thoughts I keep coming back to. Nothing here is settled — these
+are _field notes_, not conclusions.
+
+## The one-sentence version
+
+Attention is a **soft lookup**: every token writes a query, every token offers a
+key, and the match scores decide whose values get mixed into whom.
+
+> If you can phrase your problem as "who should look at whom, and how much?",
+> there is probably an attention layer hiding inside it.
+
+## A picture helps
+
+<Figure
+  src="/icons/projects.png"
+  alt="A stand-in diagram tile"
+  caption="Placeholder figure — drop a real diagram at /public/media/field-notes-on-attention/."
+/>
+
+## And a clip
+
+Here's a short clip embedded straight from YouTube — nothing to host yourself:
+
+<Embed src="https://youtu.be/aqz-KE-bpKQ" title="Big Buck Bunny (Creative Commons)" />
+
+For a screen recording you host yourself, use `<Video>` instead (it shows a
+friendly placeholder until the file exists):
+
+<Video
+  src="/media/field-notes-on-attention/demo.mp4"
+  caption="Self-hosted clips live under /public/media/<slug>/."
+/>
+
+## Open questions
+
+- What's the right _context width_ before attention stops helping?
+- How much of "reasoning" is just attention over a scratchpad?
+- Where does it quietly fail — and would I even notice?

@@ -32,7 +32,7 @@ interface WindowManagerValue {
   focusedId: string | undefined
   /** Shared drag-bounds element so windows can't be dragged off the desktop. */
   constraintsRef: RefObject<HTMLDivElement | null>
-  openApp: (appId: AppId) => void
+  openApp: (appId: AppId, opts?: { params?: Record<string, unknown>; title?: string }) => void
   closeWindow: (id: string) => void
   focusWindow: (id: string) => void
   updateWindow: (id: string, patch: Partial<Pick<WindowInstance, 'position' | 'size'>>) => void
@@ -85,12 +85,17 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
     setWindows((ws) => raise(ws, id))
   }, [])
 
-  const openApp = useCallback((appId: AppId) => {
+  const openApp = useCallback<WindowManagerValue['openApp']>((appId, opts) => {
     const def = apps[appId]
     if (!def) return
+    const params = opts?.params
+    // A window's identity is its app PLUS its params, so two different articles
+    // open as two windows — but re-opening the same one just focuses it.
+    const wantKey = appId + (params ? JSON.stringify(params) : '')
     setWindows((ws) => {
+      const keyOf = (w: WindowInstance) => w.appId + (w.params ? JSON.stringify(w.params) : '')
       // Already open? Un-minimize (in case it was parked) and focus it — don't duplicate.
-      const existing = ws.find((w) => w.appId === appId)
+      const existing = ws.find((w) => keyOf(w) === wantKey)
       if (existing) {
         return raise(
           ws.map((w) => (w.id === existing.id ? { ...w, minimized: false } : w)),
@@ -117,7 +122,8 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
       const instance: WindowInstance = {
         id: `win-${counter.current}`,
         appId,
-        title: def.title,
+        title: opts?.title ?? def.title,
+        params,
         zIndex: ws.length + 1,
         position,
         size,

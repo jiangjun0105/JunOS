@@ -96,8 +96,10 @@ export function MenuBar() {
         onToggle={() => toggleMenu('apps')}
         onClose={() => setOpenMenu(null)}
       >
-        {appList.map((app) => (
-          <MenuItem key={app.id} onSelect={() => run(() => openApp(app.id))}>
+        {appList
+          .filter((app) => app.launcher !== false)
+          .map((app) => (
+            <MenuItem key={app.id} onSelect={() => run(() => openApp(app.id))}>
             <span className="flex items-center gap-2">
               <AppGlyph />
               {app.title}

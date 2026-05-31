@@ -5,6 +5,7 @@ import { type ReactNode } from 'react'
 import { MenuBar } from './MenuBar'
 import { useWindows } from './WindowManager'
 import { Window } from './Window'
+import { WindowUrlSync } from './WindowUrlSync'
 
 /**
  * The persistent desktop shell. It owns the drag-bounds element (so windows
@@ -27,6 +28,8 @@ export function OSRoot({ children }: { children: ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
       <div ref={constraintsRef} className="relative h-dvh w-screen overflow-hidden">
+        {/* keeps the address bar pointed at the focused window (no render) */}
+        <WindowUrlSync />
         {children}
 
         <div className="pointer-events-none absolute inset-0 z-50">
