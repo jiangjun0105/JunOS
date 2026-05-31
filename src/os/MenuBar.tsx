@@ -14,6 +14,8 @@ type MenuId = 'cozy-os' | 'apps' | 'view'
  *  - Clicking a trigger toggles its menu; clicking another trigger swaps to it.
  *  - A document `pointerdown` outside the whole bar closes any open menu, and
  *    Escape does the same. Selecting an item runs its action and closes too.
+ *  - Keyboard: ArrowDown opens a focused trigger; within an open menu Up/Down/
+ *    Home/End move between items and Escape closes + returns focus to the trigger.
  *
  * Minimized windows appear as small icons in the top-right tray (macOS-style);
  * clicking one restores it. Every menu item is wired to a real useWindows() action.
@@ -76,6 +78,7 @@ export function MenuBar() {
         }
         isOpen={openMenu === 'cozy-os'}
         onToggle={() => toggleMenu('cozy-os')}
+        onClose={() => setOpenMenu(null)}
       >
         <MenuItem onSelect={() => run(() => openApp('about'))}>About</MenuItem>
         <MenuSeparator />
@@ -87,7 +90,12 @@ export function MenuBar() {
         </MenuItem>
       </MenuTrigger>
 
-      <MenuTrigger label="Apps" isOpen={openMenu === 'apps'} onToggle={() => toggleMenu('apps')}>
+      <MenuTrigger
+        label="Apps"
+        isOpen={openMenu === 'apps'}
+        onToggle={() => toggleMenu('apps')}
+        onClose={() => setOpenMenu(null)}
+      >
         {appList.map((app) => (
           <MenuItem key={app.id} onSelect={() => run(() => openApp(app.id))}>
             <span className="flex items-center gap-2">
@@ -100,7 +108,12 @@ export function MenuBar() {
         ))}
       </MenuTrigger>
 
-      <MenuTrigger label="View" isOpen={openMenu === 'view'} onToggle={() => toggleMenu('view')}>
+      <MenuTrigger
+        label="View"
+        isOpen={openMenu === 'view'}
+        onToggle={() => toggleMenu('view')}
+        onClose={() => setOpenMenu(null)}
+      >
         <MenuItem onSelect={() => run(resetIconPositions)}>Reset icon positions</MenuItem>
         <MenuItem disabled>Theme: Totoro</MenuItem>
       </MenuTrigger>
@@ -130,16 +143,38 @@ interface MenuTriggerProps {
   label: ReactNode
   isOpen: boolean
   onToggle: () => void
+  /** Close this menu (used when returning focus to the trigger on Escape). */
+  onClose: () => void
   children: ReactNode
 }
 
-/** A clickable label that reveals its dropdown panel directly beneath it. */
-function MenuTrigger({ label, isOpen, onToggle, children }: MenuTriggerProps) {
+/**
+ * A clickable label that reveals its dropdown panel directly beneath it, with
+ * roving keyboard focus inside the panel.
+ */
+function MenuTrigger({ label, isOpen, onToggle, onClose, children }: MenuTriggerProps) {
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  // When the menu opens, move focus to its first enabled item.
+  useEffect(() => {
+    if (!isOpen) return
+    const first = panelRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')
+    first?.focus()
+  }, [isOpen])
+
   return (
     <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={onToggle}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown' && !isOpen) {
+            e.preventDefault()
+            onToggle()
+          }
+        }}
         data-open={isOpen}
         aria-haspopup="true"
         aria-expanded={isOpen}
@@ -149,7 +184,35 @@ function MenuTrigger({ label, isOpen, onToggle, children }: MenuTriggerProps) {
       </button>
 
       {isOpen && (
-        <div role="menu" className="os-menu-panel">
+        <div
+          ref={panelRef}
+          role="menu"
+          className="os-menu-panel"
+          onKeyDown={(e) => {
+            const items = Array.from(
+              panelRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ?? []
+            )
+            if (items.length === 0) return
+            const idx = items.indexOf(document.activeElement as HTMLButtonElement)
+            if (e.key === 'ArrowDown') {
+              e.preventDefault()
+              items[(idx + 1) % items.length].focus()
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault()
+              items[(idx - 1 + items.length) % items.length].focus()
+            } else if (e.key === 'Home') {
+              e.preventDefault()
+              items[0].focus()
+            } else if (e.key === 'End') {
+              e.preventDefault()
+              items[items.length - 1].focus()
+            } else if (e.key === 'Escape') {
+              e.preventDefault()
+              onClose()
+              triggerRef.current?.focus()
+            }
+          }}
+        >
           {children}
         </div>
       )}

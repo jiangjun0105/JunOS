@@ -33,6 +33,10 @@ function clampPosition(x: number, y: number): { x: number; y: number } {
  * no spring lagging behind the cursor. The final size is committed to state once
  * on resize-end (the same pattern as position). When state size changes for other
  * reasons (open, maximize/restore, viewport re-fit) the motion values re-sync.
+ *
+ * Keyboard: the frame is focusable (role="dialog"); it's focused on open, and
+ * Escape closes it. It is intentionally NOT a focus trap — windows are non-modal,
+ * so you must be able to Tab between them.
  */
 export function Window({ win }: { win: WindowInstance }) {
   const { focusedId, focusWindow, closeWindow, updateWindow, minimizeWindow, toggleMaximize, constraintsRef } =
@@ -45,6 +49,7 @@ export function Window({ win }: { win: WindowInstance }) {
   const width = useMotionValue(win.size.width)
   const height = useMotionValue(win.size.height)
   const resizing = useRef(false)
+  const frameRef = useRef<HTMLDivElement>(null)
 
   // Re-sync the live size from state whenever it changes for a reason OTHER than
   // an in-progress resize (open, maximize/restore, viewport re-fit).
@@ -53,6 +58,11 @@ export function Window({ win }: { win: WindowInstance }) {
     width.set(win.size.width)
     height.set(win.size.height)
   }, [win.size.width, win.size.height, width, height])
+
+  // Focus a newly opened (or restored) window so keyboard users land in it.
+  useEffect(() => {
+    frameRef.current?.focus({ preventScroll: true })
+  }, [])
 
   function handleDragEnd(_event: unknown, info: PanInfo) {
     updateWindow(win.id, {
@@ -75,9 +85,11 @@ export function Window({ win }: { win: WindowInstance }) {
 
   return (
     <motion.div
-      className={`os-window pointer-events-auto absolute ${focused ? 'is-active' : ''}`}
+      ref={frameRef}
+      className={`os-window pointer-events-auto absolute outline-none ${focused ? 'is-active' : ''}`}
       role="dialog"
       aria-label={win.title}
+      tabIndex={-1}
       style={{ zIndex: win.zIndex, width, height }}
       initial={{ x: win.position.x, y: win.position.y, scale: 0.85, opacity: 0 }}
       animate={{
@@ -96,6 +108,13 @@ export function Window({ win }: { win: WindowInstance }) {
       dragConstraints={constraintsRef as unknown as RefObject<Element>}
       onPointerDown={() => focusWindow(win.id)}
       onDragEnd={handleDragEnd}
+      onKeyDown={(e) => {
+        // Escape closes the window — unless the user is typing in a field.
+        if (e.key !== 'Escape') return
+        const target = e.target as HTMLElement
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return
+        closeWindow(win.id)
+      }}
     >
       <div
         className="os-titlebar"
