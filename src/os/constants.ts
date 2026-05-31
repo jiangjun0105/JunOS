@@ -1,9 +1,9 @@
 /**
- * Pixel dimensions of the persistent desktop chrome.
+ * Pixel height of the persistent top menu bar.
  *
- * These define the desktop "work area": the region a maximized window fills,
- * sitting flush below the menu bar and above the taskbar. The menu bar and
- * taskbar components consume the same constants so everything lines up.
+ * Defines the desktop "work area": the region a maximized window fills, sitting
+ * flush below the menu bar and down to the bottom of the screen. (There is no
+ * bottom bar — minimized windows appear as small icons in the menu bar's
+ * top-right tray.)
  */
 export const MENUBAR_HEIGHT = 40
-export const TASKBAR_HEIGHT = 52

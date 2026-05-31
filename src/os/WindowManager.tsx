@@ -11,7 +11,7 @@ import {
   type RefObject,
 } from 'react'
 import { apps } from './apps'
-import { MENUBAR_HEIGHT, TASKBAR_HEIGHT } from './constants'
+import { MENUBAR_HEIGHT } from './constants'
 import type { AppId, WindowInstance } from './types'
 
 /**
@@ -142,7 +142,7 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
             maximized: true,
             prevRect: { position: { ...w.position }, size: { ...w.size } },
             position: { x: 0, y: MENUBAR_HEIGHT },
-            size: { width: vw, height: vh - MENUBAR_HEIGHT - TASKBAR_HEIGHT },
+            size: { width: vw, height: vh - MENUBAR_HEIGHT },
           }
         }
         // Restoring — fall back to current geometry if there's no saved rect.

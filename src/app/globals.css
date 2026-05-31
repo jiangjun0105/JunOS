@@ -155,28 +155,14 @@
     @apply my-1 h-px bg-line;
   }
 
-  /* ---- bottom taskbar: softly translucent cream with a gentle blur so the
-     painted forest shows through; thin soft moss top border ---- */
-  .os-taskbar {
-    @apply absolute inset-x-0 bottom-0 z-[60] flex items-center gap-2 border-t border-line px-3;
-    background: rgb(var(--surface) / 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-soft);
+  /* ---- minimized-window tray (top-right of the menu bar), macOS-style ---- */
+  .os-tray-item {
+    @apply grid h-7 w-7 place-items-center rounded-full text-base leading-none transition-colors;
+    background: rgb(var(--surface-2) / 0.8);
+    border: 1px solid rgb(var(--border) / 0.7);
   }
-  .os-taskbar-item {
-    @apply flex h-9 max-w-44 items-center gap-2 rounded-tile border border-line px-3 text-sm text-ink transition-colors;
-    background: rgb(var(--surface-2) / 0.85);
-  }
-  .os-taskbar-item:hover {
-    background: rgb(var(--accent) / 0.12);
-  }
-  .os-taskbar-item.is-active {
-    @apply border-accent;
+  .os-tray-item:hover {
     background: rgb(var(--accent) / 0.18);
-  }
-  .os-taskbar-item.is-minimized {
-    @apply italic text-muted opacity-70;
   }
 
   /* ---- wallpaper: clean cream with a very subtle dot grid ---- */

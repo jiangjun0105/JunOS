@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
-import { Zen_Maru_Gothic } from 'next/font/google'
+import { Patrick_Hand } from 'next/font/google'
 import { OSRoot } from '@/os/OSRoot'
 import { WindowManagerProvider } from '@/os/WindowManager'
 import './globals.css'
 
-// Zen Maru Gothic — soft, rounded, storybook type for the Totoro reskin.
-const sans = Zen_Maru_Gothic({
+// Patrick Hand — a friendly handwritten font for the cozy storybook feel.
+// (It ships a single 400 weight; bold text is faux-bolded by the browser.)
+const sans = Patrick_Hand({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  weight: '400',
   variable: '--font-sans',
 })
 

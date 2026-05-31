@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { appList } from './apps'
+import { appList, apps } from './apps'
 import { MENUBAR_HEIGHT } from './constants'
 import { useWindows } from './WindowManager'
 
@@ -18,14 +18,16 @@ type MenuId = 'cozy-os' | 'apps' | 'view'
  *  - A document `mousedown` outside the whole bar closes any open menu, and
  *    Escape does the same. Selecting an item runs its action and closes too.
  *
- * Every item is wired to a real action from `useWindows()`.
+ * Minimized windows appear as small icons in the top-right tray (macOS-style);
+ * clicking one restores it. Every menu item is wired to a real useWindows() action.
  */
 export function MenuBar() {
-  const { windows, openApp, minimizeAllWindows, closeAllWindows } = useWindows()
+  const { windows, openApp, minimizeAllWindows, closeAllWindows, restoreWindow } = useWindows()
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null)
   const barRef = useRef<HTMLDivElement>(null)
 
   const hasWindows = windows.length > 0
+  const minimized = windows.filter((w) => w.minimized)
 
   // Outside-click + Escape both close whatever menu is open.
   useEffect(() => {
@@ -71,11 +73,7 @@ export function MenuBar() {
   }
 
   return (
-    <div
-      ref={barRef}
-      className="os-menubar relative z-30"
-      style={{ height: MENUBAR_HEIGHT }}
-    >
+    <div ref={barRef} className="os-menubar relative z-30" style={{ height: MENUBAR_HEIGHT }}>
       {/* Brand mark */}
       <span className="os-menubar-brand">
         <span aria-hidden className="h-3 w-3 rounded-sm bg-accent" />
@@ -112,8 +110,26 @@ export function MenuBar() {
 
       <MenuTrigger label="View" isOpen={openMenu === 'view'} onToggle={() => toggleMenu('view')}>
         <MenuItem onSelect={() => run(resetIconPositions)}>Reset icon positions</MenuItem>
-        <MenuItem disabled>Theme: PostHog</MenuItem>
+        <MenuItem disabled>Theme: Totoro</MenuItem>
       </MenuTrigger>
+
+      {/* Minimized windows: small icons in the top-right tray (macOS-style); click to restore. */}
+      {minimized.length > 0 && (
+        <div className="ml-auto flex items-center gap-1.5 pl-2">
+          {minimized.map((win) => (
+            <button
+              key={win.id}
+              type="button"
+              title={`Restore ${win.title}`}
+              aria-label={`Restore ${win.title}`}
+              onClick={() => restoreWindow(win.id)}
+              className="os-tray-item"
+            >
+              <span aria-hidden>{apps[win.appId]?.icon}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -151,7 +167,13 @@ interface MenuItemProps {
 /** A single dropdown row — a button so it's keyboard-focusable and clickable. */
 function MenuItem({ children, onSelect, disabled = false }: MenuItemProps) {
   return (
-    <button type="button" role="menuitem" disabled={disabled} onClick={onSelect} className="os-menu-item">
+    <button
+      type="button"
+      role="menuitem"
+      disabled={disabled}
+      onClick={onSelect}
+      className="os-menu-item"
+    >
       {children}
     </button>
   )
