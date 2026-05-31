@@ -2,11 +2,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { appList, apps } from './apps'
-import { MENUBAR_HEIGHT } from './constants'
+import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { useWindows } from './WindowManager'
-
-/** localStorage key the desktop uses to persist dragged icon positions. */
-const ICON_POSITIONS_KEY = 'cozy-os:icon-positions'
 
 type MenuId = 'cozy-os' | 'apps' | 'view'
 
@@ -15,7 +12,7 @@ type MenuId = 'cozy-os' | 'apps' | 'view'
  *
  *  - One `openMenu` piece of state tracks which dropdown (if any) is showing.
  *  - Clicking a trigger toggles its menu; clicking another trigger swaps to it.
- *  - A document `mousedown` outside the whole bar closes any open menu, and
+ *  - A document `pointerdown` outside the whole bar closes any open menu, and
  *    Escape does the same. Selecting an item runs its action and closes too.
  *
  * Minimized windows appear as small icons in the top-right tray (macOS-style);
@@ -29,11 +26,12 @@ export function MenuBar() {
   const hasWindows = windows.length > 0
   const minimized = windows.filter((w) => w.minimized)
 
-  // Outside-click + Escape both close whatever menu is open.
+  // Outside-pointerdown + Escape both close whatever menu is open. (pointerdown,
+  // not mousedown, so a touch drag starting beneath the menu also dismisses it.)
   useEffect(() => {
     if (!openMenu) return
 
-    function onPointerDown(event: MouseEvent) {
+    function onPointerDown(event: PointerEvent) {
       if (barRef.current && !barRef.current.contains(event.target as Node)) {
         setOpenMenu(null)
       }
@@ -42,10 +40,10 @@ export function MenuBar() {
       if (event.key === 'Escape') setOpenMenu(null)
     }
 
-    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
     return () => {
-      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('pointerdown', onPointerDown)
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [openMenu])
@@ -61,15 +59,10 @@ export function MenuBar() {
     setOpenMenu(null)
   }
 
-  /** View → Reset icon positions: drop the saved layout and reload. */
+  /** View → Reset icon positions: ask the desktop to restore defaults in place (no reload). */
   function resetIconPositions() {
     if (typeof window === 'undefined') return
-    try {
-      window.localStorage.removeItem(ICON_POSITIONS_KEY)
-    } catch {
-      /* ignore quota / private-mode errors */
-    }
-    window.location.reload()
+    window.dispatchEvent(new CustomEvent(RESET_ICONS_EVENT))
   }
 
   return (
@@ -144,7 +137,14 @@ interface MenuTriggerProps {
 function MenuTrigger({ label, isOpen, onToggle, children }: MenuTriggerProps) {
   return (
     <div className="relative">
-      <button type="button" onClick={onToggle} data-open={isOpen} className="os-menubar-trigger">
+      <button
+        type="button"
+        onClick={onToggle}
+        data-open={isOpen}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        className="os-menubar-trigger"
+      >
         {label}
       </button>
 

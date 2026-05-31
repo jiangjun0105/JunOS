@@ -3,10 +3,22 @@
 import { motion, useDragControls, type PanInfo } from 'framer-motion'
 import { type RefObject } from 'react'
 import { apps } from './apps'
+import { MENUBAR_HEIGHT } from './constants'
 import { useWindows } from './WindowManager'
 import type { WindowInstance } from './types'
 
 const MIN = { width: 240, height: 160 }
+
+/** Keep a window on-screen: never under the menu bar, and never fully off any edge. */
+function clampPosition(x: number, y: number): { x: number; y: number } {
+  if (typeof window === 'undefined') return { x, y }
+  const maxX = Math.max(0, window.innerWidth - 120) // keep ~120px on screen horizontally
+  const maxY = Math.max(MENUBAR_HEIGHT, window.innerHeight - 44) // keep the title bar reachable
+  return {
+    x: Math.min(Math.max(x, 0), maxX),
+    y: Math.min(Math.max(y, MENUBAR_HEIGHT), maxY),
+  }
+}
 
 /**
  * One draggable / resizable window.
@@ -14,8 +26,8 @@ const MIN = { width: 240, height: 160 }
  * Dragging: the whole frame is a `motion.div` with `drag`, but `dragListener`
  * is false so a drag can ONLY be started from the title bar (`controls.start`).
  * We don't write position to state mid-drag — Framer moves the element via its
- * own transform, and we commit the final position once in `onDragEnd`. The
- * `animate` x/y then re-asserts state as the source of truth.
+ * own transform, and we commit the final (clamped) position once in `onDragEnd`.
+ * The `animate` x/y then re-asserts state as the source of truth.
  *
  * Resizing: a tiny corner handle with self-cancelling constraints so it never
  * actually moves; only its drag *delta* is fed into the window's width/height.
@@ -30,18 +42,18 @@ export function Window({ win }: { win: WindowInstance }) {
 
   function handleDragEnd(_event: unknown, info: PanInfo) {
     updateWindow(win.id, {
-      position: {
-        x: win.position.x + info.offset.x,
-        y: win.position.y + info.offset.y,
-      },
+      position: clampPosition(win.position.x + info.offset.x, win.position.y + info.offset.y),
     })
   }
 
   function handleResize(_event: unknown, info: PanInfo) {
+    // cap growth at the viewport edges (relative to the window's current position)
+    const maxW = typeof window !== 'undefined' ? window.innerWidth - win.position.x : Infinity
+    const maxH = typeof window !== 'undefined' ? window.innerHeight - win.position.y : Infinity
     updateWindow(win.id, {
       size: {
-        width: Math.max(win.size.width + info.delta.x, MIN.width),
-        height: Math.max(win.size.height + info.delta.y, MIN.height),
+        width: Math.min(Math.max(win.size.width + info.delta.x, MIN.width), maxW),
+        height: Math.min(Math.max(win.size.height + info.delta.y, MIN.height), maxH),
       },
     })
   }
@@ -49,6 +61,8 @@ export function Window({ win }: { win: WindowInstance }) {
   return (
     <motion.div
       className={`os-window pointer-events-auto absolute ${focused ? 'is-active' : ''}`}
+      role="dialog"
+      aria-label={win.title}
       style={{ zIndex: win.zIndex }}
       initial={{ x: win.position.x, y: win.position.y, scale: 0.85, opacity: 0 }}
       animate={{
@@ -67,7 +81,7 @@ export function Window({ win }: { win: WindowInstance }) {
       dragMomentum={false}
       dragElastic={0}
       dragConstraints={constraintsRef as unknown as RefObject<Element>}
-      onMouseDown={() => focusWindow(win.id)}
+      onPointerDown={() => focusWindow(win.id)}
       onDragEnd={handleDragEnd}
     >
       <div

@@ -16,7 +16,7 @@
 
   /* ---- text (dark moss) ---- */
   --ink: 59 74 58; /* dark moss green */
-  --muted: 110 122 99; /* soft moss-grey */
+  --muted: 92 104 82; /* soft moss-grey (darkened to clear WCAG AA on the cream surfaces) */
 
   /* ---- lines (gentle sage borders) ---- */
   --border: 175 181 152; /* sage line */
@@ -33,13 +33,4 @@
   /* ---- shadows: soft, green-tinted lifts ---- */
   --shadow-window: 0 16px 36px -16px rgb(47 60 45 / 0.4), 0 3px 8px -3px rgb(47 60 45 / 0.16);
   --shadow-soft: 0 8px 18px -8px rgb(47 60 45 / 0.3);
-
-  /* ---- scene tokens (wallpaper illustration only) ---- */
-  --sky-top: 156 209 230; /* upper sky */
-  --sky-bottom: 224 238 206; /* horizon glow */
-  --hill-far: 158 196 120; /* distant rolling hill */
-  --hill-near: 106 152 78; /* foreground meadow */
-  --cloud: 255 255 255; /* fluffy white clouds */
-  --tree: 60 90 54; /* camphor-tree silhouette */
-  --soot: 38 38 40; /* susuwatari soot sprites */
 }

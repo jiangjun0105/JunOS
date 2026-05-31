@@ -1,54 +1,91 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { appList } from './apps'
+import { ICON_POSITIONS_KEY, MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { DesktopIcon } from './DesktopIcon'
 import { Wallpaper } from './Wallpaper'
 import { useWindows } from './WindowManager'
 
 type IconPositions = Record<string, { x: number; y: number }>
 
-const STORAGE_KEY = 'cozy-os:icon-positions'
+const ICON_COL_X = 24
+const ICON_TOP = MENUBAR_HEIGHT + 16 // first icon sits clear below the menu bar
+const ICON_ROW_PITCH = 100
 
 /** A tidy starting column down the left edge (clear of the top menu bar). */
 function defaultPositions(): IconPositions {
   const positions: IconPositions = {}
   appList.forEach((app, i) => {
-    positions[app.id] = { x: 24, y: 56 + i * 100 }
+    positions[app.id] = { x: ICON_COL_X, y: ICON_TOP + i * ICON_ROW_PITCH }
   })
   return positions
 }
 
+/** Keep an icon inside the work area — never under the menu bar, never off-screen. */
+function clampIcon(pos: { x: number; y: number }): { x: number; y: number } {
+  if (typeof window === 'undefined') return pos
+  const maxX = Math.max(ICON_COL_X, window.innerWidth - 96)
+  const maxY = Math.max(ICON_TOP, window.innerHeight - 104)
+  return {
+    x: Math.min(Math.max(pos.x, 0), maxX),
+    y: Math.min(Math.max(pos.y, MENUBAR_HEIGHT), maxY),
+  }
+}
+
 /**
  * The home "page": cream wallpaper + draggable launcher icons.
- * The menu bar and taskbar are rendered as chrome in OSRoot (above the window
- * layer), so they live outside this component.
+ * The menu bar is rendered as chrome in OSRoot (above the window layer), so it
+ * lives outside this component.
  */
 export function Desktop() {
   const { openApp, constraintsRef } = useWindows()
   const [positions, setPositions] = useState<IconPositions>(defaultPositions)
 
-  // Load saved positions AFTER hydration, so SSR and the first client render match.
+  // Load saved positions after hydration, CLAMPED — so a stale layout that was
+  // saved under the menu bar (from before the clamp existed) self-heals.
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) setPositions((prev) => ({ ...prev, ...JSON.parse(saved) }))
+      const saved = localStorage.getItem(ICON_POSITIONS_KEY)
+      if (!saved) return
+      const parsed = JSON.parse(saved) as IconPositions
+      setPositions((prev) => {
+        const merged: IconPositions = { ...prev, ...parsed }
+        for (const id of Object.keys(merged)) merged[id] = clampIcon(merged[id])
+        return merged
+      })
     } catch {
       /* ignore malformed storage */
     }
   }, [])
 
-  function moveIcon(id: string, position: { x: number; y: number }) {
-    setPositions((prev) => {
-      const next = { ...prev, [id]: position }
+  // Menu → "Reset icon positions": clear storage and restore defaults IN PLACE
+  // (no page reload, so open windows are never lost).
+  useEffect(() => {
+    function onReset() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+        localStorage.removeItem(ICON_POSITIONS_KEY)
+      } catch {
+        /* ignore */
+      }
+      setPositions(defaultPositions())
+    }
+    window.addEventListener(RESET_ICONS_EVENT, onReset)
+    return () => window.removeEventListener(RESET_ICONS_EVENT, onReset)
+  }, [])
+
+  const moveIcon = useCallback((id: string, position: { x: number; y: number }) => {
+    const clamped = clampIcon(position)
+    setPositions((prev) => {
+      const next = { ...prev, [id]: clamped }
+      try {
+        localStorage.setItem(ICON_POSITIONS_KEY, JSON.stringify(next))
       } catch {
         /* ignore quota / private-mode errors */
       }
       return next
     })
-  }
+  }, [])
 
   return (
     <div className="relative flex h-full w-full flex-col">
@@ -60,7 +97,7 @@ export function Desktop() {
           <DesktopIcon
             key={app.id}
             app={app}
-            position={positions[app.id] ?? { x: 24, y: 56 }}
+            position={positions[app.id] ?? { x: ICON_COL_X, y: ICON_TOP }}
             constraintsRef={constraintsRef}
             onOpen={() => openApp(app.id)}
             onMove={(position) => moveIcon(app.id, position)}

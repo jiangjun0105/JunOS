@@ -162,10 +162,25 @@
     background: rgb(var(--accent) / 0.18);
   }
 
-  /* ---- wallpaper: clean cream with a very subtle dot grid ---- */
-  .os-wallpaper {
-    @apply absolute inset-0 bg-desktop;
-    background-image: radial-gradient(rgb(var(--border) / 0.35) 1px, transparent 1px);
-    background-size: 22px 22px;
+  /* ---- keyboard focus ring (shown only for keyboard users) ---- */
+  .os-btn:focus-visible,
+  .os-menubar-trigger:focus-visible,
+  .os-menu-item:focus-visible,
+  .os-tray-item:focus-visible,
+  .os-icon:focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+  }
+}
+
+/* Respect the OS "reduce motion" setting: neutralize CSS transitions/animations.
+   (Framer Motion transform animations are handled via <MotionConfig reducedMotion="user">.) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

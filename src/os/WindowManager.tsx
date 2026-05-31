@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -33,7 +34,7 @@ interface WindowManagerValue {
   closeWindow: (id: string) => void
   focusWindow: (id: string) => void
   updateWindow: (id: string, patch: Partial<Pick<WindowInstance, 'position' | 'size'>>) => void
-  /** Hide a window (it stays open, just parked in the taskbar). */
+  /** Hide a window (it stays open, parked in the menu-bar tray). */
   minimizeWindow: (id: string) => void
   /** Un-hide a window and bring it to the front. */
   restoreWindow: (id: string) => void
@@ -47,8 +48,11 @@ interface WindowManagerValue {
 
 const WindowManagerContext = createContext<WindowManagerValue | null>(null)
 
-/** Monotonic id source (avoids Math.random/Date.now so SSR + client stay aligned). */
-let windowCounter = 0
+/** The work-area size a maximized window fills (below the menu bar, to the bottom). */
+function maximizedSize(): { width: number; height: number } {
+  if (typeof window === 'undefined') return { width: 1024, height: 768 }
+  return { width: window.innerWidth, height: window.innerHeight - MENUBAR_HEIGHT }
+}
 
 /** Push `id` to the top and shift everything that was above it down by one. */
 function raise(windows: WindowInstance[], id: string): WindowInstance[] {
@@ -63,6 +67,8 @@ function raise(windows: WindowInstance[], id: string): WindowInstance[] {
 export function WindowManagerProvider({ children }: { children: ReactNode }) {
   const [windows, setWindows] = useState<WindowInstance[]>([])
   const constraintsRef = useRef<HTMLDivElement>(null)
+  // Per-provider id source (scoped to this instance, SSR-safe — no random/time).
+  const counter = useRef(0)
 
   // focus == the window with the highest zIndex (derived, never stored separately)
   const focusedId = useMemo(
@@ -82,15 +88,20 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
     const def = apps[appId]
     if (!def) return
     setWindows((ws) => {
-      // Already open? Just focus it instead of spawning a duplicate.
+      // Already open? Un-minimize (in case it was parked) and focus it — don't duplicate.
       const existing = ws.find((w) => w.appId === appId)
-      if (existing) return raise(ws, existing.id)
+      if (existing) {
+        return raise(
+          ws.map((w) => (w.id === existing.id ? { ...w, minimized: false } : w)),
+          existing.id
+        )
+      }
 
       // Otherwise create a fresh window, cascaded a little so stacks don't overlap exactly.
-      windowCounter += 1
+      counter.current += 1
       const offset = (ws.length % 6) * 26
       const instance: WindowInstance = {
-        id: `win-${windowCounter}`,
+        id: `win-${counter.current}`,
         appId,
         title: def.title,
         zIndex: ws.length + 1,
@@ -106,9 +117,11 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
   const closeWindow = useCallback((id: string) => {
     setWindows((ws) => {
       const remaining = ws.filter((w) => w.id !== id)
-      // re-pack zIndex so it stays a dense 1..N range
-      const order = [...remaining].sort((a, b) => a.zIndex - b.zIndex)
-      return remaining.map((w) => ({ ...w, zIndex: order.indexOf(w) + 1 }))
+      // re-pack zIndex into a dense 1..N range (Map keyed by id, not object identity)
+      const rank = new Map(
+        [...remaining].sort((a, b) => a.zIndex - b.zIndex).map((w, i) => [w.id, i + 1])
+      )
+      return remaining.map((w) => ({ ...w, zIndex: rank.get(w.id) ?? w.zIndex }))
     })
   }, [])
 
@@ -135,14 +148,12 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
         if (w.id !== id) return w
         if (!w.maximized) {
           // Going maximized — stash the current geometry so we can restore it.
-          const vw = typeof window !== 'undefined' ? window.innerWidth : w.size.width
-          const vh = typeof window !== 'undefined' ? window.innerHeight : w.size.height
           return {
             ...w,
             maximized: true,
             prevRect: { position: { ...w.position }, size: { ...w.size } },
             position: { x: 0, y: MENUBAR_HEIGHT },
-            size: { width: vw, height: vh - MENUBAR_HEIGHT },
+            size: maximizedSize(),
           }
         }
         // Restoring — fall back to current geometry if there's no saved rect.
@@ -163,6 +174,21 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
 
   const closeAllWindows = useCallback(() => {
     setWindows([])
+  }, [])
+
+  // Keep maximized windows fitted to the work area when the viewport resizes.
+  useEffect(() => {
+    function onResize() {
+      setWindows((ws) =>
+        ws.some((w) => w.maximized)
+          ? ws.map((w) =>
+              w.maximized ? { ...w, position: { x: 0, y: MENUBAR_HEIGHT }, size: maximizedSize() } : w
+            )
+          : ws
+      )
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
   }, [])
 
   const value = useMemo<WindowManagerValue>(
