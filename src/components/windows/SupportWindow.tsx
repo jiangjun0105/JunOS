@@ -19,8 +19,8 @@ export function SupportWindow() {
       />
 
       <div className="space-y-0.5">
-        <h1 className="font-display text-2xl font-bold">Need a hand?</h1>
-        <p className="text-muted">Our support team is one tap away.</p>
+        <h1 className="font-body text-[22px] font-bold">Need a hand?</h1>
+        <p className="text-[18px] text-muted">Our support team is one tap away.</p>
       </div>
 
       {/* Placeholder — wire up the phone-call feature here. */}

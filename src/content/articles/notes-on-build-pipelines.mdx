@@ -1,0 +1,23 @@
+# Notes on Build Pipelines
+
+Mostly a reminder to myself about where build time actually goes.
+
+## Where the time goes
+
+- Cold installs and uncached dependencies.
+- Type-checking the whole graph instead of only what changed.
+- Re-doing work that an incremental cache could have kept.
+
+```bash
+# the cheap wins, in order
+pnpm install --frozen-lockfile
+turbo run build --cache-dir=.turbo
+```
+
+<Video
+  src="/media/notes-on-build-pipelines/trace.mp4"
+  caption="Placeholder: drop a build-trace screen recording here."
+/>
+
+> If a step isn't cached and isn't incremental, assume you'll pay for it on every
+> run — then decide whether that's OK.

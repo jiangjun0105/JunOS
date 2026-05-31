@@ -1,0 +1,33 @@
+# Positional Encodings, Three Ways
+
+Self-attention is permutation-invariant, so _something_ has to tell the model
+where each token sits. Three families I keep comparing:
+
+## Sinusoidal
+
+Fixed sine/cosine waves at geometric frequencies — no parameters, and in
+principle it extrapolates to sequences longer than anything seen in training.
+
+## Learned
+
+A trainable vector per position. Simple and strong in-distribution, but it can't
+say anything about positions it never saw.
+
+## Rotary (RoPE)
+
+Rotates query/key vectors by an angle proportional to position, so the dot
+product depends on _relative_ distance. My current default.
+
+<Figure
+  src="/icons/finance.png"
+  alt="Placeholder frequency chart"
+  caption="Placeholder — swap for a real frequency / rotation diagram."
+/>
+
+> Rule of thumb: if relative position is what matters, reach for RoPE first.
+
+```python
+# the rotation, in spirit
+theta = pos / (10000 ** (2 * i / d))
+q_rot = rotate(q, theta)
+```

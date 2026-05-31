@@ -50,8 +50,8 @@
   /* ---- title bar: steel-blue gradient, white Dosis caps ---- */
   .os-titlebar {
     @apply flex flex-none cursor-grab select-none items-center gap-2 active:cursor-grabbing;
-    height: 30px;
-    padding: 0 5px 0 7px;
+    height: var(--titlebar-h);
+    padding: 0 5px 0 6px;
     color: rgb(var(--title-text));
     background: linear-gradient(rgb(var(--title-hi)), rgb(var(--title)) 60%, rgb(var(--title-lo)));
     border-bottom: 2px solid rgb(var(--ink));
@@ -62,8 +62,8 @@
   }
   .os-title {
     @apply min-w-0 flex-1 truncate font-display text-[18px] font-bold uppercase;
-    letter-spacing: 0.4px;
-    line-height: 1.4;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
     text-shadow: 1px 1px 0 rgb(20 28 38 / 0.45);
   }
 
@@ -72,8 +72,8 @@
     @apply flex flex-none items-center gap-1;
   }
   .os-btn {
-    @apply grid h-[21px] w-[23px] place-items-center rounded-[6px] text-[15px] leading-none;
-    font-family: var(--font-display);
+    @apply grid h-[22px] w-[24px] place-items-center rounded-[6px] text-[15px] leading-none;
+    font-family: var(--font-chrome);
     background: rgb(var(--btn-face));
     border: 2px solid rgb(var(--btn-line));
     color: rgb(var(--ink));
@@ -94,20 +94,31 @@
     background: rgb(228 123 93);
   }
 
-  /* ---- resize grip: hatched corner ---- */
+  /* ---- resize zones: invisible right + bottom edges, plus a hatched corner ---- */
+  /* right edge → horizontal resize. Starts below the title bar so it never
+     swallows the window buttons; sits over the scrollbar's outer few px. */
+  .os-resize-e {
+    @apply absolute right-0 bottom-0 z-20 w-1.5 cursor-ew-resize touch-none;
+    top: var(--titlebar-h);
+  }
+  /* bottom edge → vertical resize */
+  .os-resize-s {
+    @apply absolute bottom-0 left-0 right-0 z-20 h-1.5 cursor-ns-resize touch-none;
+  }
+  /* corner → both axes; z-30 sits above the edges so the very corner is diagonal */
   .os-resize {
-    @apply absolute bottom-0.5 right-0.5 h-3.5 w-3.5 cursor-nwse-resize;
+    @apply absolute bottom-0.5 right-0.5 z-30 h-3.5 w-3.5 cursor-nwse-resize touch-none;
     background-image: repeating-linear-gradient(135deg, rgb(var(--ink)) 0 1.4px, transparent 1.4px 3.4px);
     opacity: 0.7;
-    touch-action: none;
   }
 
   /* ---- per-window toolbar (File / Edit / View / Help), opt-in per app ---- */
   .win-menu {
     @apply flex flex-none select-none items-center border-b-2 border-line font-display font-semibold text-ink;
     gap: 18px;
-    padding: 3px 10px 4px;
+    padding: 3px 10px;
     font-size: 18px;
+    line-height: 1.2;
     background: rgb(var(--paper-hi));
   }
   .win-menu span {
@@ -133,7 +144,7 @@
     border-left: 2px solid rgb(var(--ink));
   }
   .os-scroll-btn {
-    @apply grid h-[17px] flex-none cursor-pointer place-items-center text-[11px] leading-none text-ink;
+    @apply grid h-[17px] flex-none cursor-pointer place-items-center font-display text-[15px] leading-none text-ink;
     background: rgb(var(--btn-face));
   }
   .os-scroll-btn:hover {
@@ -161,7 +172,7 @@
 
   /* ---- file-explorer tree ---- */
   .tree {
-    @apply font-body text-[15px] text-ink;
+    @apply font-body text-[16px] text-ink;
     line-height: 1.4;
   }
   .tree-row {
@@ -207,7 +218,7 @@
     box-shadow: var(--shadow-soft);
   }
   .os-icon-label {
-    @apply text-center font-display text-[13px] font-semibold uppercase leading-tight text-ink;
+    @apply text-center font-display text-[15px] font-semibold uppercase leading-tight text-ink;
     letter-spacing: 0.3px;
     text-shadow: 0 1px 0 rgb(255 255 255 / 0.4);
   }
@@ -265,6 +276,17 @@
       rgb(var(--desktop-bg)) 60%,
       rgb(var(--desktop-lo)) 100%
     );
+  }
+
+  /* ---- bottom-right desktop photo: decorative, hand-drawn drop shadow ---- */
+  .os-desktop-photo {
+    @apply pointer-events-none absolute select-none object-contain;
+    right: clamp(10px, 2.5vw, 32px);
+    bottom: clamp(10px, 2.5vw, 32px);
+    width: clamp(300px, 44vw, 560px);
+    height: auto;
+    filter: drop-shadow(2px 3px 0 rgb(37 40 30 / 0.22));
+    transform: rotate(-2deg);
   }
 }
 

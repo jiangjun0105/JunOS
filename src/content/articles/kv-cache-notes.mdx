@@ -1,0 +1,25 @@
+# KV-Cache Notes
+
+Generation is autoregressive, so without a cache you'd recompute every previous
+token's keys and values at each step. The KV-cache trades memory for a lot of
+saved compute.
+
+## The trade
+
+- **Saves:** re-encoding the whole prefix on every step — huge at long context.
+- **Costs:** memory that grows linearly with sequence length × layers × heads.
+
+<Figure
+  src="/icons/earnings.png"
+  alt="Placeholder memory-vs-length chart"
+  caption="Placeholder: cache size vs. context length."
+/>
+
+## Things that bite
+
+- Memory, not FLOPs, is usually the wall at long context.
+- Batching requests of very different lengths wastes cache.
+- Eviction / sliding windows change behavior subtly — measure, don't assume.
+
+> Open question I keep poking at: how much of the cache can you drop before
+> quality visibly degrades?

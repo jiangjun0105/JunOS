@@ -94,6 +94,13 @@ export function Desktop() {
     <div className="relative flex h-full w-full flex-col">
       <Wallpaper />
 
+      {/* A family photo tucked into the bottom-right corner — pure decoration,
+          so it's aria-hidden and pointer-events-none (it never blocks dragging
+          an icon over it). No z-index: it paints above the wallpaper but below
+          the z-10 icon layer, so icons always sit on top. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/background/family.png" alt="" aria-hidden draggable={false} className="os-desktop-photo" />
+
       {/* Icon layer — icons are absolutely positioned and draggable. */}
       <div className="relative z-10 flex-1">
         {launchers.map((app) => (

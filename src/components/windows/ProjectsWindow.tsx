@@ -8,8 +8,8 @@ const projects = [
 export function ProjectsWindow() {
   return (
     <div className="space-y-3">
-      <h1 className="font-display text-2xl font-bold">Projects</h1>
-      <p className="text-muted">A few things I have been making.</p>
+      <h1 className="font-body text-[22px] font-bold">Projects</h1>
+      <p className="text-[18px] text-muted">A few things I have been making.</p>
       <ul className="space-y-2">
         {projects.map((project) => (
           <li
@@ -17,7 +17,7 @@ export function ProjectsWindow() {
             className="rounded-tile border border-line bg-surface-2/50 p-3"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="font-display font-bold">{project.name}</span>
+              <span className="font-body font-bold">{project.name}</span>
               <span className="rounded-full border border-line bg-surface px-2 py-0.5 text-xs">
                 {project.tag}
               </span>

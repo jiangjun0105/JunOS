@@ -38,16 +38,17 @@ export const apps: Record<AppId, AppDefinition> = {
   research: {
     id: 'research',
     title: 'Research',
-    icon: '📚', // emoji → clay tile (no PNG needed)
+    icon: '📚', // emoji fallback if the image is unavailable
+    image: '/icons/research.png',
     toolbar: true,
     defaultSize: { width: 480, height: 420 },
     Component: ResearchWindow,
   },
   support: {
     id: 'support',
-    title: 'Support',
-    icon: '🎧', // emoji fallback if the image is unavailable
-    image: '/icons/support.svg',
+    title: 'Call Me',
+    icon: '📞', // emoji fallback if the image is unavailable
+    image: '/icons/phone-call.png',
     defaultSize: { width: 320, height: 360 },
     Component: SupportWindow,
   },

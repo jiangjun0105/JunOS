@@ -36,7 +36,7 @@ export function ArticleWindow({ params }: WindowComponentProps) {
   if (!meta || !Body) {
     return (
       <div className="space-y-2">
-        <h1 className="font-display text-xl font-bold">Article not found</h1>
+        <h1 className="font-body text-[22px] font-bold">Article not found</h1>
         <p className="text-muted">No article matches “{slug ?? '—'}”.</p>
       </div>
     )

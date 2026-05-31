@@ -18,10 +18,10 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     ...components,
 
-    h1: (props) => <h1 className="mb-2 mt-1 font-display text-2xl font-bold text-ink" {...props} />,
-    h2: (props) => <h2 className="mb-2 mt-5 font-display text-xl font-bold text-ink" {...props} />,
-    h3: (props) => <h3 className="mb-1.5 mt-4 font-display text-lg font-bold text-ink" {...props} />,
-    p: (props) => <p className="my-2.5 text-[15px] leading-relaxed text-ink" {...props} />,
+    h1: (props) => <h1 className="mb-2 mt-1 font-body text-[22px] font-bold text-ink" {...props} />,
+    h2: (props) => <h2 className="mb-2 mt-5 font-body text-xl font-bold text-ink" {...props} />,
+    h3: (props) => <h3 className="mb-1.5 mt-4 font-body text-lg font-bold text-ink" {...props} />,
+    p: (props) => <p className="my-2.5 text-[18px] leading-relaxed text-ink" {...props} />,
     a: (props) => (
       <a
         className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
@@ -29,10 +29,10 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       />
     ),
     ul: (props) => (
-      <ul className="my-2.5 ml-5 list-disc space-y-1 text-[15px] text-ink marker:text-accent" {...props} />
+      <ul className="my-2.5 ml-5 list-disc space-y-1 text-[18px] text-ink marker:text-accent" {...props} />
     ),
     ol: (props) => (
-      <ol className="my-2.5 ml-5 list-decimal space-y-1 text-[15px] text-ink marker:text-muted" {...props} />
+      <ol className="my-2.5 ml-5 list-decimal space-y-1 text-[18px] text-ink marker:text-muted" {...props} />
     ),
     li: (props) => <li className="leading-relaxed" {...props} />,
     blockquote: (props) => (

@@ -40,9 +40,14 @@
   /* ---- scrollbar ---- */
   --scroll-thumb: 194 185 156; /* tan thumb #C2B99C */
 
+  /* ---- fonts ---- */
+  --font-chrome: 'Dosis', system-ui, sans-serif; /* OS chrome / UI text */
+  --font-body: 'Hanken Grotesque', system-ui, sans-serif; /* readable document content */
+
   /* ---- shape ---- */
   --radius-window: 15px;
   --radius-tile: 8px;
+  --titlebar-h: 29px; /* window header height — the right-edge resize zone keys off this too */
 
   /* ---- shadows: the cozy hard offset cast ---- */
   --shadow-window: 5px 8px 0 -1px rgb(40 28 18 / 0.22);

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { articlesByKind, type ArticleKind } from '@/content/articles'
+import { sectionsByKind, type ArticleKind } from '@/content/articles'
 import type { AppId } from '@/os/types'
 import { useWindows } from '@/os/WindowManager'
 
@@ -13,14 +13,21 @@ type TreeNode =
   | { kind: 'folder'; name: string; children: TreeNode[] }
   | { kind: 'file'; name: string; appId: AppId; fileKind?: FileKind; params?: Record<string, unknown> }
 
-/** Article files for a kind become tree nodes that open the reader with their slug. */
-function articleFiles(kind: ArticleKind): TreeNode[] {
-  return articlesByKind(kind).map((a) => ({
-    kind: 'file' as const,
-    name: a.title,
-    appId: 'article' as AppId,
-    fileKind: 'doc' as const,
-    params: { slug: a.slug },
+/**
+ * A kind's articles become a two-layer tree: one sub-folder per section, each
+ * holding the article "files" that open the reader with their slug.
+ */
+function articleFolders(kind: ArticleKind): TreeNode[] {
+  return sectionsByKind(kind).map((section) => ({
+    kind: 'folder' as const,
+    name: section.name,
+    children: section.articles.map((a) => ({
+      kind: 'file' as const,
+      name: a.title,
+      appId: 'article' as AppId,
+      fileKind: 'doc' as const,
+      params: { slug: a.slug },
+    })),
   }))
 }
 
@@ -39,8 +46,8 @@ const TREE: TreeNode[] = [
       { kind: 'file', name: 'Support', appId: 'support', fileKind: 'exe' },
     ],
   },
-  { kind: 'folder', name: 'Research', children: articleFiles('research') },
-  { kind: 'folder', name: 'Personal', children: articleFiles('personal') },
+  { kind: 'folder', name: 'Research', children: articleFolders('research') },
+  { kind: 'folder', name: 'Personal', children: articleFolders('personal') },
 ]
 
 /** File Explorer — an expandable folder tree (like the Hand-drawn OS design). */

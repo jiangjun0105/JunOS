@@ -10,6 +10,18 @@ import type { WindowInstance } from './types'
 
 const MIN = { width: 240, height: 160 }
 
+/**
+ * The drag zones that resize a window. Each is an invisible strip pinned to a
+ * border (or the corner); `axes` says which dimension(s) it grows. Right edge →
+ * width, bottom edge → height, corner → both. The window's top-left never moves,
+ * so width/height are all we ever touch.
+ */
+const RESIZE_HANDLES = [
+  { key: 'e', className: 'os-resize-e', axes: { x: true } },
+  { key: 's', className: 'os-resize-s', axes: { y: true } },
+  { key: 'se', className: 'os-resize', axes: { x: true, y: true } },
+] as const
+
 /** Keep a window on-screen: never under the menu bar, and never fully off any edge. */
 function clampPosition(x: number, y: number): { x: number; y: number } {
   if (typeof window === 'undefined') return { x, y }
@@ -75,12 +87,13 @@ export function Window({ win }: { win: WindowInstance }) {
     })
   }
 
-  function handleResize(_event: unknown, info: PanInfo) {
-    // cap growth at the viewport edges (relative to the window's current position)
+  // Apply the pointer delta to width and/or height (the `axes` flags say which).
+  // Growth is capped at the viewport edges, relative to the window's fixed top-left.
+  function handleResize(info: PanInfo, axes: { x?: boolean; y?: boolean }) {
     const maxW = typeof window !== 'undefined' ? window.innerWidth - win.position.x : Infinity
     const maxH = typeof window !== 'undefined' ? window.innerHeight - win.position.y : Infinity
-    width.set(Math.min(Math.max(width.get() + info.delta.x, MIN.width), maxW))
-    height.set(Math.min(Math.max(height.get() + info.delta.y, MIN.height), maxH))
+    if (axes.x) width.set(Math.min(Math.max(width.get() + info.delta.x, MIN.width), maxW))
+    if (axes.y) height.set(Math.min(Math.max(height.get() + info.delta.y, MIN.height), maxH))
   }
 
   function handleResizeEnd() {
@@ -177,21 +190,23 @@ export function Window({ win }: { win: WindowInstance }) {
         <WindowScrollbar targetRef={contentRef} />
       </div>
 
-      {!win.maximized && (
-        <motion.div
-          className="os-resize"
-          drag
-          dragMomentum={false}
-          dragElastic={0}
-          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-          onPointerDown={(e) => e.stopPropagation()}
-          onDragStart={() => {
-            resizing.current = true
-          }}
-          onDrag={handleResize}
-          onDragEnd={handleResizeEnd}
-        />
-      )}
+      {!win.maximized &&
+        RESIZE_HANDLES.map((handle) => (
+          <motion.div
+            key={handle.key}
+            className={handle.className}
+            drag
+            dragMomentum={false}
+            dragElastic={0}
+            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onDragStart={() => {
+              resizing.current = true
+            }}
+            onDrag={(_event, info) => handleResize(info, handle.axes)}
+            onDragEnd={handleResizeEnd}
+          />
+        ))}
     </motion.div>
   )
 }

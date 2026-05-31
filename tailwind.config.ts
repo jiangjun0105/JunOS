@@ -32,8 +32,10 @@ const config: Config = {
         soft: 'var(--shadow-soft)',
       },
       fontFamily: {
-        display: ['Dosis', 'system-ui', 'sans-serif'],
-        body: ['"Hanken Grotesque"', 'system-ui', 'sans-serif'],
+        // Families live as CSS vars in theme.css (--font-chrome / --font-body).
+        chrome: ['var(--font-chrome)'],
+        display: ['var(--font-chrome)'], // back-compat alias: font-display === chrome
+        body: ['var(--font-body)'],
       },
     },
   },

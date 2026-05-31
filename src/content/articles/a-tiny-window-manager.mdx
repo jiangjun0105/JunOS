@@ -1,0 +1,30 @@
+# Anatomy of a Tiny Window Manager
+
+The whole desktop is one array of window objects in React state. "Opening" an app
+pushes an entry; "focusing" is just whichever window has the highest z-index.
+
+## The data model
+
+```ts
+type WindowInstance = {
+  id: string
+  appId: string
+  zIndex: number // focus is DERIVED from this
+  position: { x: number; y: number }
+  size: { width: number; height: number }
+}
+```
+
+## Why derive focus instead of storing it
+
+A separate `focusedId` can drift out of sync with the array. Deriving focus from
+the max z-index means there's exactly one source of truth.
+
+<Figure
+  src="/icons/projects.png"
+  alt="Placeholder window-stack sketch"
+  caption="Placeholder: the window stack, highest z on top."
+/>
+
+> The same idea scales surprisingly far — tabs, modals, and toasts are all just
+> "ordered things with a top".
