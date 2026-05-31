@@ -133,11 +133,8 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
-  .os-menubar-brand {
-    @apply flex items-center gap-2 pr-2;
-  }
   .os-menubar-trigger {
-    @apply rounded-tile px-2.5 py-1 font-display text-[13px] font-semibold text-ink transition-colors hover:bg-accent/15;
+    @apply flex items-center gap-2 rounded-tile px-2.5 py-1 font-display text-[13px] font-semibold text-ink transition-colors hover:bg-accent/15;
   }
   .os-menubar-trigger[data-open='true'] {
     @apply bg-accent/15;

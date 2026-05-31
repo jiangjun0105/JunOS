@@ -74,14 +74,13 @@ export function MenuBar() {
 
   return (
     <div ref={barRef} className="os-menubar relative z-30" style={{ height: MENUBAR_HEIGHT }}>
-      {/* Brand mark */}
-      <span className="os-menubar-brand">
-        <span aria-hidden className="h-3 w-3 rounded-sm bg-accent" />
-        cozy-os
-      </span>
-
       <MenuTrigger
-        label="cozy-os"
+        label={
+          <>
+            <span aria-hidden className="h-3 w-3 rounded-sm bg-accent" />
+            cozy-os
+          </>
+        }
         isOpen={openMenu === 'cozy-os'}
         onToggle={() => toggleMenu('cozy-os')}
       >
@@ -135,7 +134,7 @@ export function MenuBar() {
 }
 
 interface MenuTriggerProps {
-  label: string
+  label: ReactNode
   isOpen: boolean
   onToggle: () => void
   children: ReactNode
