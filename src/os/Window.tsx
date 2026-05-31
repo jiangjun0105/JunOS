@@ -123,8 +123,8 @@ export function Window({ win }: { win: WindowInstance }) {
           if (!win.maximized) controls.start(e)
         }}
       >
-        {/* left controls — also balance the title so it stays centered */}
-        <div className="flex items-center gap-1.5">
+        <span className="os-title">{win.title}</span>
+        <div className="os-btns">
           <button
             type="button"
             aria-label="Minimize window"
@@ -143,19 +143,16 @@ export function Window({ win }: { win: WindowInstance }) {
           >
             <span>{win.maximized ? '❐' : '▢'}</span>
           </button>
+          <button
+            type="button"
+            aria-label="Close window"
+            className="os-btn os-btn-close"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => closeWindow(win.id)}
+          >
+            <span>✕</span>
+          </button>
         </div>
-        <span className="os-title">
-          {def?.icon} {win.title}
-        </span>
-        <button
-          type="button"
-          aria-label="Close window"
-          className="os-btn os-btn-close"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => closeWindow(win.id)}
-        >
-          <span>✕</span>
-        </button>
       </div>
 
       <div className="flex-1 overflow-auto p-4">{Body ? <Body /> : <p>Unknown app.</p>}</div>

@@ -1,36 +1,43 @@
 /* ============================================================================
    cozy-os design tokens — THE WHOLE LOOK LIVES HERE.
-   Studio Ghibli "My Neighbor Totoro" palette: a sunny forest meadow — soft sky
-   blue, warm cream paper, rolling forest greens, acorn amber, dark moss text.
-   Cozy, gentle, storybook, with soft green-tinted shadows.
+   "Hand-drawn OS — Cozy" palette (from the Claude Design handoff): warm-white
+   paper windows with bold slate-ink outlines, steel-blue title bars, modern
+   rounded chrome with a coral close button, on a warm-yellow desktop.
 
    Colors are space-separated RGB triples so Tailwind can inject opacity
-   (e.g. `bg-accent/10`). Friendly names are wired up in tailwind.config.ts.
+   (e.g. `bg-accent/10`). Friendly names are wired up in tailwind.config.ts;
+   the raw title/desktop vars are used directly in globals.css.
    ========================================================================== */
 
 :root {
-  /* ---- surfaces (warm cream paper / soft sage) ---- */
-  --surface: 247 243 231; /* window body — warm cream paper */
-  --surface-2: 232 236 218; /* titlebar / panel — soft sage tint */
-  --desktop-bg: 174 217 232; /* sky-blue desktop behind windows */
+  /* ---- surfaces ---- */
+  --surface: 255 251 240; /* window body — warm-white "paper" #FFFBF0 */
+  --surface-2: 240 233 207; /* panels / menus / table headers — paper tint */
+  --desktop-bg: 242 220 121; /* wallpaper — warm yellow #F2DC79 */
+  --desktop-hi: 247 231 154; /* lighter top of the wallpaper gradient */
+  --desktop-lo: 236 205 95; /* deeper bottom */
 
-  /* ---- text (dark moss) ---- */
-  --ink: 59 74 58; /* dark moss green */
-  --muted: 92 104 82; /* soft moss-grey (darkened to clear WCAG AA on the cream surfaces) */
+  /* ---- ink (outlines + text) ---- */
+  --ink: 37 50 63; /* slate ink #25323F */
+  --muted: 65 82 95; /* softer ink #41525F */
+  --border: 37 50 63; /* element outlines = ink */
 
-  /* ---- lines (gentle sage borders) ---- */
-  --border: 175 181 152; /* sage line */
+  /* ---- title bar (steel blue) ---- */
+  --title: 59 114 196; /* #3B72C4 */
+  --title-hi: 92 142 214; /* gradient top */
+  --title-lo: 42 92 166; /* gradient bottom */
+  --title-text: 244 237 214; /* warm-white title text */
 
-  /* ---- Totoro accents ---- */
-  --accent: 94 140 78; /* forest green (primary / CTA) */
-  --accent-2: 127 181 214; /* sky blue */
-  --accent-3: 224 167 76; /* acorn amber */
+  /* ---- accents ---- */
+  --accent: 59 114 196; /* blue — active window + hover tints */
+  --accent-2: 79 141 91; /* green — "ok" status #4F8D5B */
+  --accent-3: 217 105 74; /* coral — close button / "critical" #D9694A */
 
-  /* ---- shape: soft storybook rounding ---- */
-  --radius-window: 14px;
-  --radius-tile: 16px;
+  /* ---- shape ---- */
+  --radius-window: 15px;
+  --radius-tile: 8px;
 
-  /* ---- shadows: soft, green-tinted lifts ---- */
-  --shadow-window: 0 16px 36px -16px rgb(47 60 45 / 0.4), 0 3px 8px -3px rgb(47 60 45 / 0.16);
-  --shadow-soft: 0 8px 18px -8px rgb(47 60 45 / 0.3);
+  /* ---- shadows: the cozy hard offset cast ---- */
+  --shadow-window: 5px 8px 0 -1px rgb(40 28 18 / 0.22);
+  --shadow-soft: 0 4px 0 -1px rgb(40 28 18 / 0.16);
 }

@@ -32,8 +32,8 @@ const config: Config = {
         soft: 'var(--shadow-soft)',
       },
       fontFamily: {
-        display: ['var(--font-sans)', 'system-ui', 'sans-serif'],
-        body: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['Dosis', 'system-ui', 'sans-serif'],
+        body: ['"Hanken Grotesque"', 'system-ui', 'sans-serif'],
       },
     },
   },

@@ -1,4 +1,6 @@
-/* tokens first (plain CSS variables), then Tailwind, then our component "skins" */
+/* Google Fonts (Dosis for chrome, Hanken Grotesque for body) — @import must come first */
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@500;600;700;800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap');
+/* design tokens (plain CSS variables), then Tailwind, then our component "skins" */
 @import '../styles/theme.css';
 
 @tailwind base;
@@ -19,144 +21,153 @@
 }
 
 /* ============================================================================
-   Component "skins" — Studio Ghibli "Totoro" storybook look: soft cream paper
-   surfaces, gentle moss-green borders, rounded corners, soft green-tinted
-   shadows, and translucent blurred chrome so the painted forest shows through.
-   These reference the tokens, so editing theme.css restyles them automatically.
-   ========================================================================== */
+   Component "skins" — "Hand-drawn OS — Cozy": warm-white paper windows with
+   bold slate-ink outlines, steel-blue title bars, modern rounded chrome, and a
+   coral close button. Token-driven, so editing theme.css reskins everything.
+   ============================================================================ */
 @layer components {
-  /* ---- window: nearly-opaque cream paper, soft green border, rounded, gentle
-     green-tinted lift so it reads like a card resting on the meadow ---- */
+  /* ---- window: paper body, 2px ink outline, rounded, hard offset cast ---- */
   .os-window {
-    @apply flex flex-col overflow-hidden border border-line text-ink;
-    background: rgb(var(--surface) / 0.97);
+    @apply relative flex flex-col overflow-hidden bg-surface text-ink;
+    border: 2px solid rgb(var(--ink));
     border-radius: var(--radius-window);
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-window);
   }
-  /* The focused window reads as clearly "lifted": forest-green border + a
-     deeper, softer shadow. Window.tsx toggles `is-active` on the frame when it
-     is focused. */
+  /* faint paper grain across the window */
+  .os-window::after {
+    content: '';
+    @apply pointer-events-none absolute inset-0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+  }
+  /* the focused window reads as clearly active: deeper outline */
   .os-window.is-active {
-    border-color: rgb(var(--accent) / 0.6);
+    border-color: rgb(var(--ink));
     box-shadow: var(--shadow-window), 0 0 0 1px rgb(var(--accent) / 0.25);
   }
 
+  /* ---- title bar: steel-blue gradient, white Dosis caps ---- */
   .os-titlebar {
-    @apply flex cursor-grab select-none items-center gap-2 border-b border-line px-3 py-2 active:cursor-grabbing;
-    background: rgb(var(--surface-2) / 0.92);
+    @apply flex cursor-grab select-none items-center gap-2 px-2 active:cursor-grabbing;
+    min-height: 32px;
+    color: rgb(var(--title-text));
+    background: linear-gradient(rgb(var(--title-hi)), rgb(var(--title)) 55%, rgb(var(--title-lo)));
+    border-bottom: 2px solid rgb(var(--ink));
   }
-
+  /* inactive windows get a muted, warm-taupe bar */
+  .os-window:not(.is-active) .os-titlebar {
+    background: linear-gradient(#b9a48f, #9c8773 55%, #7e6a57);
+  }
   .os-title {
-    @apply flex-1 truncate text-center font-display text-[13px] font-semibold;
+    @apply min-w-0 flex-1 truncate pl-1 font-display text-[15px] font-bold uppercase;
+    letter-spacing: 0.4px;
+    text-shadow: 1px 1px 0 rgb(20 28 38 / 0.45);
   }
 
-  /* ---- soft "pebble" pressable button ----
-     A gentle rounded acorn/pebble: an outer element painted with a soft moss
-     "shadow" color; an inner cream face is translated up ~2px so the pebble
-     looks softly raised, and settles down on hover / active. Used for the
-     window min / max / close controls. Cozy and storybook, not corporate. */
+  /* ---- window control buttons: modern rounded ---- */
+  .os-btns {
+    @apply flex flex-none items-center gap-1.5;
+  }
   .os-btn {
-    @apply relative inline-grid h-5 w-5 place-items-center rounded-full p-0 text-[10px] font-bold leading-none;
-    background: rgb(var(--border) / 0.7);
-    border: 1px solid rgb(var(--border) / 0.8);
-    transition: filter 0.16s ease;
+    @apply grid h-[19px] w-[22px] place-items-center rounded-md text-[13px] font-bold leading-none;
+    font-family: var(--font-display);
+    background: rgb(226 220 198);
+    border: 2px solid rgb(var(--ink));
+    color: rgb(var(--ink));
   }
-  .os-btn::before {
-    content: '';
-    @apply absolute inset-0 rounded-full;
-    background: rgb(var(--surface));
-    border: 1px solid rgb(var(--border) / 0.55);
-    transform: translateY(-2px);
-    transition: transform 0.12s ease, background 0.16s ease, border-color 0.16s ease;
+  .os-btn:hover {
+    background: rgb(241 236 217);
   }
-  .os-btn > * {
-    @apply relative z-10;
-    transform: translateY(-2px);
-    transition: transform 0.12s ease, color 0.16s ease;
+  .os-btn:active {
+    background: rgb(207 200 178);
   }
-  .os-btn:hover::before {
-    transform: translateY(-1px);
+  .os-btn-close {
+    background: rgb(var(--accent-3));
+    border-color: rgb(121 48 31);
+    color: rgb(251 230 214);
   }
-  .os-btn:hover > * {
-    transform: translateY(-1px);
-  }
-  .os-btn:active::before,
-  .os-btn:active > * {
-    transform: translateY(0);
-  }
-  /* close gently tints to forest green on hover */
   .os-btn-close:hover {
-    background: rgb(var(--accent) / 0.5);
-  }
-  .os-btn-close:hover::before {
-    background: rgb(var(--accent));
-    border-color: rgb(var(--accent));
-  }
-  .os-btn-close:hover > * {
-    color: white;
+    background: rgb(228 123 93);
   }
 
+  /* ---- resize grip: hatched corner ---- */
   .os-resize {
-    @apply absolute bottom-1 right-1 h-3.5 w-3.5 cursor-nwse-resize rounded-[6px];
-    background: rgb(var(--ink) / 0.08);
-    border: 1px solid rgb(var(--border) / 0.8);
+    @apply absolute bottom-0.5 right-0.5 h-3.5 w-3.5 cursor-nwse-resize;
+    background-image: repeating-linear-gradient(135deg, rgb(var(--ink)) 0 1.4px, transparent 1.4px 3.4px);
+    opacity: 0.7;
     touch-action: none;
   }
 
-  /* ---- desktop icon: PostHog product-icon tile (drag motion via Framer) ---- */
-  .os-icon {
-    @apply flex w-24 cursor-grab flex-col items-center gap-2 rounded-tile p-2;
+  /* ---- cozy pill scrollbars inside windows ---- */
+  .os-window *::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  .os-window *::-webkit-scrollbar-thumb {
+    background: rgb(var(--surface-2));
+    border: 2px solid rgb(var(--ink));
+    border-radius: 9px;
+  }
+  .os-window *::-webkit-scrollbar-track {
     background: transparent;
   }
-  .os-icon-tile {
-    @apply grid h-16 w-16 place-items-center rounded-tile border border-line text-3xl;
-    background: rgb(var(--surface) / 0.95);
-    box-shadow: var(--shadow-soft);
+
+  /* ---- desktop launcher icon ---- */
+  .os-icon {
+    @apply flex w-24 cursor-grab flex-col items-center gap-1.5 rounded-md p-1;
+    background: transparent;
   }
-  /* if an app supplies a real (3D-rendered) image, show it bare with a soft,
-     green-tinted contact shadow so it sits gently on the meadow */
+  .os-icon:hover {
+    background: rgb(255 255 255 / 0.18);
+  }
+  /* the app's PNG icon, with a hand-drawn-style hard drop shadow */
   .os-icon-img {
-    @apply h-16 w-16 object-contain;
-    filter: drop-shadow(0 8px 8px rgb(47 60 45 / 0.22));
+    @apply h-12 w-12 object-contain;
+    filter: drop-shadow(1.5px 2px 0 rgb(37 40 30 / 0.28));
+  }
+  /* emoji fallback when an app has no image */
+  .os-icon-tile {
+    @apply grid h-12 w-12 place-items-center rounded-tile text-3xl;
+    background: rgb(var(--surface));
+    border: 2px solid rgb(var(--ink));
+    box-shadow: var(--shadow-soft);
   }
   .os-icon-label {
-    @apply rounded-tile border border-line/70 px-2.5 py-0.5 font-body text-[13px] font-medium text-ink;
-    background: rgb(var(--surface) / 0.92);
-    box-shadow: var(--shadow-soft);
+    @apply text-center font-display text-[13px] font-semibold uppercase leading-tight text-ink;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 0 rgb(255 255 255 / 0.4);
   }
 
-  /* ---- top menu bar: softly translucent cream with a gentle blur so the
-     painted forest shows through; thin soft moss bottom border ---- */
+  /* ---- top menu bar: cream with an ink underline ---- */
   .os-menubar {
-    @apply flex w-full select-none items-center gap-1 border-b border-line px-3 font-display text-[13px] font-semibold text-ink;
-    background: rgb(var(--surface) / 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    @apply flex w-full select-none items-center gap-1 border-b-2 border-line bg-surface px-3 font-display text-[14px] font-bold text-ink;
   }
   .os-menubar-trigger {
-    @apply flex items-center gap-2 rounded-tile px-2.5 py-1 font-display text-[13px] font-semibold text-ink transition-colors hover:bg-accent/15;
+    @apply flex items-center gap-2 rounded-md px-2.5 py-1 font-display text-[14px] font-bold text-ink transition-colors hover:bg-accent/15;
   }
   .os-menubar-trigger[data-open='true'] {
     @apply bg-accent/15;
   }
-  /* dropdown panel: soft cream paper, rounded, soft green-tinted lift */
+  /* dropdown panel: paper, ink outline, rounded, offset cast */
   .os-menu-panel {
-    @apply absolute left-0 top-full z-40 mt-1 min-w-[200px] rounded-tile border border-line py-1;
-    background: rgb(var(--surface) / 0.98);
+    @apply absolute left-0 top-full z-40 mt-1 min-w-[210px] rounded-md bg-surface py-1;
+    border: 2px solid rgb(var(--ink));
     box-shadow: var(--shadow-window);
   }
   .os-menu-item {
-    @apply flex w-full items-center rounded-[8px] px-3 py-1.5 text-left font-body text-[13px] font-medium text-ink transition-colors hover:bg-accent/15 disabled:cursor-default disabled:text-muted disabled:hover:bg-transparent;
+    @apply flex w-full items-center rounded-[6px] px-3 py-1.5 text-left font-body text-[14px] font-medium text-ink transition-colors hover:bg-accent/15 disabled:cursor-default disabled:text-muted disabled:hover:bg-transparent;
   }
   .os-menu-separator {
-    @apply my-1 h-px bg-line;
+    @apply my-1 h-px bg-ink/20;
   }
 
-  /* ---- minimized-window tray (top-right of the menu bar), macOS-style ---- */
+  /* ---- minimized-window tray (top-right of the menu bar) ---- */
   .os-tray-item {
-    @apply grid h-7 w-7 place-items-center rounded-full text-base leading-none transition-colors;
-    background: rgb(var(--surface-2) / 0.8);
-    border: 1px solid rgb(var(--border) / 0.7);
+    @apply grid h-7 w-7 place-items-center rounded-md text-base leading-none;
+    background: rgb(var(--surface));
+    border: 2px solid rgb(var(--ink));
+    transition: background-color 0.12s ease;
   }
   .os-tray-item:hover {
     background: rgb(var(--accent) / 0.18);
@@ -170,6 +181,17 @@
   .os-icon:focus-visible {
     outline: 2px solid rgb(var(--accent));
     outline-offset: 2px;
+  }
+
+  /* ---- wallpaper: warm-yellow gradient ---- */
+  .os-wallpaper {
+    @apply absolute inset-0;
+    background: radial-gradient(
+      125% 95% at 50% 0%,
+      rgb(var(--desktop-hi)) 0%,
+      rgb(var(--desktop-bg)) 60%,
+      rgb(var(--desktop-lo)) 100%
+    );
   }
 }
 
