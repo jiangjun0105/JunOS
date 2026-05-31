@@ -1,4 +1,5 @@
 import { AboutWindow } from '@/components/windows/AboutWindow'
+import { ProjectsWindow } from '@/components/windows/ProjectsWindow'
 import type { AppDefinition, AppId } from './types'
 
 /**
@@ -15,6 +16,13 @@ export const apps: Record<AppId, AppDefinition> = {
     // image: '/icons/about.png', // ← drop a real 3D-render PNG in /public/icons to replace the emoji tile
     defaultSize: { width: 440, height: 340 },
     Component: AboutWindow,
+  },
+  projects: {
+    id: 'projects',
+    title: 'Projects',
+    icon: '🗂️',
+    defaultSize: { width: 440, height: 380 },
+    Component: ProjectsWindow,
   },
 }
 
