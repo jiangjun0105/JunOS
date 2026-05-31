@@ -12,7 +12,7 @@ import {
   type RefObject,
 } from 'react'
 import { apps } from './apps'
-import { MENUBAR_HEIGHT } from './constants'
+import { getWorkArea, placeWindow, type Rect } from './placement'
 import type { AppId, WindowInstance } from './types'
 
 /**
@@ -24,6 +24,8 @@ import type { AppId, WindowInstance } from './types'
  *  - "Focus" is DERIVED — it's whichever window has the highest zIndex, so we
  *    never store a separate `focusedId` that could drift out of sync.
  *  - Focusing re-packs zIndex into a dense 1..N range so it never balloons.
+ *  - WHERE a new window opens is decided by the pure `placeWindow` strategy in
+ *    ./placement, and the work-area bounds come from the shared `getWorkArea`.
  */
 interface WindowManagerValue {
   windows: WindowInstance[]
@@ -48,10 +50,9 @@ interface WindowManagerValue {
 
 const WindowManagerContext = createContext<WindowManagerValue | null>(null)
 
-/** The work-area size a maximized window fills (below the menu bar, to the bottom). */
-function maximizedSize(): { width: number; height: number } {
-  if (typeof window === 'undefined') return { width: 1024, height: 768 }
-  return { width: window.innerWidth, height: window.innerHeight - MENUBAR_HEIGHT }
+/** A window's geometry as a plain Rect (for the placement helpers). */
+function toRect(w: WindowInstance): Rect {
+  return { x: w.position.x, y: w.position.y, width: w.size.width, height: w.size.height }
 }
 
 /** Push `id` to the top and shift everything that was above it down by one. */
@@ -97,16 +98,29 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
         )
       }
 
-      // Otherwise create a fresh window, cascaded a little so stacks don't overlap exactly.
+      // Place the new window relative to the current (top-most visible) one,
+      // avoiding overlap where possible — see ./placement.
+      const size = { ...def.defaultSize }
+      const visible = ws.filter((w) => !w.minimized)
+      const anchor = visible.reduce<WindowInstance | undefined>(
+        (top, w) => (w.zIndex > (top?.zIndex ?? -1) ? w : top),
+        undefined
+      )
+      const position = placeWindow({
+        size,
+        anchor: anchor ? toRect(anchor) : undefined,
+        others: visible.map(toRect),
+        workArea: getWorkArea(),
+      })
+
       counter.current += 1
-      const offset = (ws.length % 6) * 26
       const instance: WindowInstance = {
         id: `win-${counter.current}`,
         appId,
         title: def.title,
         zIndex: ws.length + 1,
-        position: { x: 140 + offset, y: 96 + offset },
-        size: { ...def.defaultSize },
+        position,
+        size,
         minimized: false,
         maximized: false,
       }
@@ -148,12 +162,13 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
         if (w.id !== id) return w
         if (!w.maximized) {
           // Going maximized — stash the current geometry so we can restore it.
+          const area = getWorkArea()
           return {
             ...w,
             maximized: true,
             prevRect: { position: { ...w.position }, size: { ...w.size } },
-            position: { x: 0, y: MENUBAR_HEIGHT },
-            size: maximizedSize(),
+            position: { x: area.x, y: area.y },
+            size: { width: area.width, height: area.height },
           }
         }
         // Restoring — fall back to current geometry if there's no saved rect.
@@ -179,13 +194,15 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
   // Keep maximized windows fitted to the work area when the viewport resizes.
   useEffect(() => {
     function onResize() {
-      setWindows((ws) =>
-        ws.some((w) => w.maximized)
-          ? ws.map((w) =>
-              w.maximized ? { ...w, position: { x: 0, y: MENUBAR_HEIGHT }, size: maximizedSize() } : w
-            )
-          : ws
-      )
+      setWindows((ws) => {
+        if (!ws.some((w) => w.maximized)) return ws
+        const area = getWorkArea()
+        return ws.map((w) =>
+          w.maximized
+            ? { ...w, position: { x: area.x, y: area.y }, size: { width: area.width, height: area.height } }
+            : w
+        )
+      })
     }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
