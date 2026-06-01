@@ -8,7 +8,7 @@ const projects = [
 export function ProjectsWindow() {
   return (
     <div className="space-y-3">
-      <h1 className="font-body text-[22px] font-bold">Projects</h1>
+      <h1 className="font-body text-[22px] font-bold">Development</h1>
       <p className="text-[18px] text-muted">A few things I have been making.</p>
       <ul className="space-y-2">
         {projects.map((project) => (

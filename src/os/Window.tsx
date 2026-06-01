@@ -3,12 +3,10 @@
 import { motion, useDragControls, useMotionValue, type PanInfo } from 'framer-motion'
 import { useEffect, useRef, type RefObject } from 'react'
 import { apps } from './apps'
-import { MENUBAR_HEIGHT } from './constants'
+import { MENUBAR_HEIGHT, MIN_WINDOW_SIZE as MIN } from './constants'
 import { useWindows } from './WindowManager'
 import { WindowScrollbar } from './WindowScrollbar'
 import type { WindowInstance } from './types'
-
-const MIN = { width: 240, height: 160 }
 
 /**
  * The drag zones that resize a window. Each is an invisible strip pinned to a
@@ -146,6 +144,7 @@ export function Window({ win }: { win: WindowInstance }) {
           <button
             type="button"
             aria-label="Minimize window"
+            title="Minimize"
             className="os-btn"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => minimizeWindow(win.id)}
@@ -155,6 +154,7 @@ export function Window({ win }: { win: WindowInstance }) {
           <button
             type="button"
             aria-label={win.maximized ? 'Restore window' : 'Maximize window'}
+            title={win.maximized ? 'Restore' : 'Maximize'}
             className="os-btn"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => toggleMaximize(win.id)}
@@ -164,6 +164,7 @@ export function Window({ win }: { win: WindowInstance }) {
           <button
             type="button"
             aria-label="Close window"
+            title="Close"
             className="os-btn os-btn-close"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => closeWindow(win.id)}
@@ -184,7 +185,7 @@ export function Window({ win }: { win: WindowInstance }) {
       )}
 
       <div className="relative flex min-h-0 flex-1">
-        <div ref={contentRef} className="os-scroll-host min-h-0 flex-1 overflow-auto p-4 pr-5">
+        <div ref={contentRef} className="os-scroll-host min-h-0 flex-1 overflow-auto px-10 py-4">
           {Body ? <Body params={win.params} /> : <p>Unknown app.</p>}
         </div>
         <WindowScrollbar targetRef={contentRef} />

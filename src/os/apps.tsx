@@ -1,5 +1,7 @@
+import { AboutJunOSWindow } from '@/components/windows/AboutJunOSWindow'
 import { AboutWindow } from '@/components/windows/AboutWindow'
 import { ArticleWindow } from '@/components/windows/ArticleWindow'
+import { BooksWindow } from '@/components/windows/BooksWindow'
 import { FilesWindow } from '@/components/windows/FilesWindow'
 import { ProjectsWindow } from '@/components/windows/ProjectsWindow'
 import { ResearchWindow } from '@/components/windows/ResearchWindow'
@@ -21,18 +23,18 @@ export const apps: Record<AppId, AppDefinition> = {
     id: 'about',
     title: 'About me',
     icon: '🌳', // emoji fallback if the image is unavailable
-    image: '/icons/about.png',
+    image: '/icons/about_me.png',
     toolbar: true,
-    defaultSize: { width: 440, height: 340 },
+    defaultSize: { width: 520, height: 400 },
     Component: AboutWindow,
   },
   projects: {
     id: 'projects',
-    title: 'Projects',
+    title: 'Development',
     icon: '🗂️',
-    image: '/icons/projects.png',
+    image: '/icons/development.png',
     toolbar: true,
-    defaultSize: { width: 440, height: 380 },
+    defaultSize: { width: 500, height: 440 },
     Component: ProjectsWindow,
   },
   research: {
@@ -41,7 +43,7 @@ export const apps: Record<AppId, AppDefinition> = {
     icon: '📚', // emoji fallback if the image is unavailable
     image: '/icons/research.png',
     toolbar: true,
-    defaultSize: { width: 480, height: 420 },
+    defaultSize: { width: 560, height: 580 },
     Component: ResearchWindow,
   },
   support: {
@@ -49,16 +51,36 @@ export const apps: Record<AppId, AppDefinition> = {
     title: 'Call Me',
     icon: '📞', // emoji fallback if the image is unavailable
     image: '/icons/phone-call.png',
-    defaultSize: { width: 320, height: 360 },
+    defaultSize: { width: 470, height: 600 },
     Component: SupportWindow,
   },
   files: {
     id: 'files',
     title: 'Files',
     icon: '📁', // emoji fallback
-    image: '/icons/folder.svg',
-    defaultSize: { width: 300, height: 360 },
+    image: '/icons/folder.png',
+    defaultSize: { width: 430, height: 560 },
     Component: FilesWindow,
+  },
+  books: {
+    id: 'books',
+    title: 'Books',
+    icon: '📖', // emoji fallback if the image is unavailable
+    image: '/icons/books.png',
+    toolbar: true,
+    defaultSize: { width: 460, height: 560 },
+    Component: BooksWindow,
+  },
+  // Not a desktop launcher — opened from the brand menu ("About JunOS", like
+  // macOS's "About This Mac"). No image: it never shows a launcher icon.
+  'about-junos': {
+    id: 'about-junos',
+    title: 'About JunOS',
+    icon: 'ℹ️', // emoji fallback (only ever seen if this window is minimized)
+    toolbar: true,
+    launcher: false,
+    defaultSize: { width: 520, height: 420 },
+    Component: AboutJunOSWindow,
   },
   // Opened from the Research index / File Explorer (not a desktop launcher); the
   // article slug is passed through the window's params.
@@ -68,7 +90,7 @@ export const apps: Record<AppId, AppDefinition> = {
     icon: '📄',
     toolbar: true,
     launcher: false,
-    defaultSize: { width: 560, height: 520 },
+    defaultSize: { width: 680, height: 600 },
     Component: ArticleWindow,
   },
 }

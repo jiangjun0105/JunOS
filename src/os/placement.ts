@@ -1,4 +1,4 @@
-import { MENUBAR_HEIGHT } from './constants'
+import { MENUBAR_HEIGHT, MIN_WINDOW_SIZE } from './constants'
 
 export interface Rect {
   x: number
@@ -41,6 +41,24 @@ function fitsInside(r: Rect, area: Rect): boolean {
     r.x + r.width <= area.x + area.width &&
     r.y + r.height <= area.y + area.height
   )
+}
+
+/**
+ * Shrink a desired window size to fit inside the work area, leaving `margin` on
+ * every side — but never below MIN_WINDOW_SIZE. This lets each app declare a
+ * generous, readable `defaultSize` while guaranteeing a freshly opened window
+ * fits the viewport (so it never opens partly off-screen on a short or narrow
+ * display, and the user never has to resize before reading).
+ */
+export function fitSize(
+  size: { width: number; height: number },
+  area: Rect,
+  margin = GAP
+): { width: number; height: number } {
+  return {
+    width: Math.max(MIN_WINDOW_SIZE.width, Math.min(size.width, area.width - margin * 2)),
+    height: Math.max(MIN_WINDOW_SIZE.height, Math.min(size.height, area.height - margin * 2)),
+  }
 }
 
 /** Center a size within the work area. */

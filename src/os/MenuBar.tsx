@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { appList } from './apps'
+import { appList, apps } from './apps'
 import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { useWindows } from './WindowManager'
 
@@ -21,7 +21,8 @@ type MenuId = 'junos' | 'apps' | 'view'
  * clicking one restores it. Every menu item is wired to a real useWindows() action.
  */
 export function MenuBar() {
-  const { windows, openApp, minimizeAllWindows, closeAllWindows, restoreWindow } = useWindows()
+  const { windows, openApp, minimizeAllWindows, restoreAllWindows, closeAllWindows, restoreWindow } =
+    useWindows()
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null)
   const barRef = useRef<HTMLDivElement>(null)
 
@@ -72,7 +73,8 @@ export function MenuBar() {
       <MenuTrigger
         label={
           <>
-            <span aria-hidden className="h-3 w-3 rounded-sm bg-accent" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/icons/gear.png" alt="" className="h-5 w-5 object-contain" draggable={false} />
             JunOS
           </>
         }
@@ -80,11 +82,8 @@ export function MenuBar() {
         onToggle={() => toggleMenu('junos')}
         onClose={() => setOpenMenu(null)}
       >
-        <MenuItem onSelect={() => run(() => openApp('about'))}>About</MenuItem>
+        <MenuItem onSelect={() => run(() => openApp('about-junos'))}>About JunOS</MenuItem>
         <MenuSeparator />
-        <MenuItem disabled={!hasWindows} onSelect={() => run(minimizeAllWindows)}>
-          Minimize all
-        </MenuItem>
         <MenuItem disabled={!hasWindows} onSelect={() => run(closeAllWindows)}>
           Close all windows
         </MenuItem>
@@ -114,25 +113,42 @@ export function MenuBar() {
         onToggle={() => toggleMenu('view')}
         onClose={() => setOpenMenu(null)}
       >
+        <MenuItem disabled={minimized.length === windows.length} onSelect={() => run(minimizeAllWindows)}>
+          Minimize all
+        </MenuItem>
+        <MenuItem disabled={minimized.length === 0} onSelect={() => run(restoreAllWindows)}>
+          Restore all
+        </MenuItem>
+        <MenuSeparator />
         <MenuItem onSelect={() => run(resetIconPositions)}>Reset icon positions</MenuItem>
-        <MenuItem disabled>Theme: Cozy</MenuItem>
       </MenuTrigger>
 
-      {/* Minimized windows: small icons in the top-right tray (macOS-style); click to restore. */}
+      {/* Minimized windows park in the top-right tray (macOS-style); each shows its
+          own app icon, shrunk to fit. Click to restore. */}
       {minimized.length > 0 && (
         <div className="ml-auto flex items-center gap-1.5 pl-2">
-          {minimized.map((win) => (
-            <button
-              key={win.id}
-              type="button"
-              title={`Restore ${win.title}`}
-              aria-label={`Restore ${win.title}`}
-              onClick={() => restoreWindow(win.id)}
-              className="os-tray-item"
-            >
-              <AppGlyph />
-            </button>
-          ))}
+          {minimized.map((win) => {
+            const app = apps[win.appId]
+            return (
+              <button
+                key={win.id}
+                type="button"
+                title={`Restore ${win.title}`}
+                aria-label={`Restore ${win.title}`}
+                onClick={() => restoreWindow(win.id)}
+                className="os-tray-item"
+              >
+                {app?.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={app.image} alt="" className="os-tray-img" draggable={false} />
+                ) : (
+                  <span aria-hidden className="os-tray-emoji">
+                    {app?.icon ?? <AppGlyph />}
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </div>
       )}
     </div>

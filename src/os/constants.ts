@@ -8,6 +8,13 @@
  */
 export const MENUBAR_HEIGHT = 40
 
+/**
+ * Smallest a window may get — the floor for BOTH interactive resize and the
+ * open-size clamp, so a window never opens (or shrinks) below this even on a
+ * tiny viewport.
+ */
+export const MIN_WINDOW_SIZE = { width: 360, height: 280 }
+
 /** localStorage key for persisted desktop-icon positions (shared by Desktop + MenuBar). */
 export const ICON_POSITIONS_KEY = 'junos:icon-positions'
 

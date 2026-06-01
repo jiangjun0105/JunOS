@@ -1,5 +1,5 @@
 /* Google Fonts (Dosis for chrome, Hanken Grotesque for body) — @import must come first */
-@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@500;600;700;800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@400;500;600;700;800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap');
 /* design tokens (plain CSS variables), then Tailwind, then our component "skins" */
 @import '../styles/theme.css';
 
@@ -26,10 +26,10 @@
    coral close button. Token-driven, so editing theme.css reskins everything.
    ============================================================================ */
 @layer components {
-  /* ---- window: paper body, 2px ink outline, rounded, hard offset cast ---- */
+  /* ---- window: paper body, 1px ink outline, rounded, hard offset cast ---- */
   .os-window {
     @apply relative flex flex-col overflow-hidden bg-surface text-ink;
-    border: 2px solid rgb(var(--ink));
+    border: 1px solid rgb(var(--ink));
     border-radius: var(--radius-window);
     box-shadow: var(--shadow-window);
   }
@@ -54,7 +54,7 @@
     padding: 0 5px 0 6px;
     color: rgb(var(--title-text));
     background: linear-gradient(rgb(var(--title-hi)), rgb(var(--title)) 60%, rgb(var(--title-lo)));
-    border-bottom: 2px solid rgb(var(--ink));
+    border-bottom: 1px solid rgb(var(--ink));
   }
   /* inactive windows get a muted, warm-taupe bar */
   .os-window:not(.is-active) .os-titlebar {
@@ -62,7 +62,7 @@
   }
   .os-title {
     @apply min-w-0 flex-1 truncate font-display text-[18px] font-bold uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
     line-height: 1.2;
     text-shadow: 1px 1px 0 rgb(20 28 38 / 0.45);
   }
@@ -75,7 +75,7 @@
     @apply grid h-[22px] w-[24px] place-items-center rounded-[6px] text-[15px] leading-none;
     font-family: var(--font-chrome);
     background: rgb(var(--btn-face));
-    border: 2px solid rgb(var(--btn-line));
+    border: 1px solid rgb(var(--btn-line));
     color: rgb(var(--ink));
   }
   .os-btn:hover {
@@ -94,7 +94,7 @@
     background: rgb(228 123 93);
   }
 
-  /* ---- resize zones: invisible right + bottom edges, plus a hatched corner ---- */
+  /* ---- resize zones: invisible right + bottom edges, plus a corner ---- */
   /* right edge → horizontal resize. Starts below the title bar so it never
      swallows the window buttons; sits over the scrollbar's outer few px. */
   .os-resize-e {
@@ -105,16 +105,15 @@
   .os-resize-s {
     @apply absolute bottom-0 left-0 right-0 z-20 h-1.5 cursor-ns-resize touch-none;
   }
-  /* corner → both axes; z-30 sits above the edges so the very corner is diagonal */
+  /* corner → both axes; invisible (no hatch), z-30 sits above the edges so the
+     very corner gives the diagonal resize cursor */
   .os-resize {
-    @apply absolute bottom-0.5 right-0.5 z-30 h-3.5 w-3.5 cursor-nwse-resize touch-none;
-    background-image: repeating-linear-gradient(135deg, rgb(var(--ink)) 0 1.4px, transparent 1.4px 3.4px);
-    opacity: 0.7;
+    @apply absolute bottom-0 right-0 z-30 h-3.5 w-3.5 cursor-nwse-resize touch-none;
   }
 
   /* ---- per-window toolbar (File / Edit / View / Help), opt-in per app ---- */
   .win-menu {
-    @apply flex flex-none select-none items-center border-b-2 border-line font-display font-semibold text-ink;
+    @apply flex flex-none select-none items-center border-b border-line font-display font-medium text-ink;
     gap: 18px;
     padding: 3px 10px;
     font-size: 18px;
@@ -141,7 +140,7 @@
   .os-scrollbar {
     @apply absolute bottom-0 right-0 top-0 flex w-[17px] flex-col;
     background: rgb(var(--paper-lo));
-    border-left: 2px solid rgb(var(--ink));
+    border-left: 1px solid rgb(var(--ink));
   }
   .os-scroll-btn {
     @apply grid h-[17px] flex-none cursor-pointer place-items-center font-display text-[15px] leading-none text-ink;
@@ -151,10 +150,10 @@
     background: rgb(241 236 217);
   }
   .os-scroll-btn:first-child {
-    border-bottom: 2px solid rgb(var(--ink));
+    border-bottom: 1px solid rgb(var(--ink));
   }
   .os-scroll-btn:last-child {
-    border-top: 2px solid rgb(var(--ink));
+    border-top: 1px solid rgb(var(--ink));
   }
   .os-scroll-track {
     @apply relative flex-1;
@@ -164,7 +163,7 @@
     min-height: 20px;
     border-radius: 9px;
     background: rgb(var(--scroll-thumb));
-    border: 2px solid rgb(var(--ink));
+    border: 1px solid rgb(var(--ink));
   }
   .os-scroll-thumb:active {
     cursor: grabbing;
@@ -217,18 +216,21 @@
     border: 2px solid rgb(var(--ink));
     box-shadow: var(--shadow-soft);
   }
+  /* Desktop icon caption — uppercased like the design (whose captions are DOS-
+     style filenames), but in light Dosis 400 at 15px with normal (tight)
+     tracking — no letter-spacing. text-transform keeps the underlying app titles
+     proper-case for the title bar, tray tooltips, and screen readers. */
   .os-icon-label {
-    @apply text-center font-display text-[15px] font-semibold uppercase leading-tight text-ink;
-    letter-spacing: 0.3px;
+    @apply text-center font-display text-[15px] font-normal uppercase leading-[1.05] text-ink;
     text-shadow: 0 1px 0 rgb(255 255 255 / 0.4);
   }
 
-  /* ---- top menu bar: cream with an ink underline ---- */
+  /* ---- top menu bar: cream with a faint hairline underline ---- */
   .os-menubar {
-    @apply flex w-full select-none items-center gap-1 border-b-2 border-line bg-surface px-3 font-display text-[14px] font-bold text-ink;
+    @apply flex w-full select-none items-center gap-1 border-b border-line/30 bg-surface px-3 font-display text-[14px] font-bold text-ink;
   }
   .os-menubar-trigger {
-    @apply flex items-center gap-2 rounded-md px-2.5 py-1 font-display text-[14px] font-bold text-ink transition-colors hover:bg-accent/15;
+    @apply flex items-center gap-2 rounded-md px-2.5 py-1 font-display text-[14px] font-medium text-ink transition-colors hover:bg-accent/15;
   }
   .os-menubar-trigger[data-open='true'] {
     @apply bg-accent/15;
@@ -236,7 +238,7 @@
   /* dropdown panel: paper, ink outline, rounded, offset cast */
   .os-menu-panel {
     @apply absolute left-0 top-full z-40 mt-1 min-w-[210px] rounded-md bg-surface py-1;
-    border: 2px solid rgb(var(--ink));
+    border: 1px solid rgb(var(--ink));
     box-shadow: var(--shadow-window);
   }
   .os-menu-item {
@@ -247,14 +249,24 @@
   }
 
   /* ---- minimized-window tray (top-right of the menu bar) ---- */
+  /* no box — each icon sits bare on the bar; the button is just a hover/click
+     target, with a soft rounded highlight on hover. */
   .os-tray-item {
-    @apply grid h-7 w-7 place-items-center rounded-md text-base leading-none;
-    background: rgb(var(--surface));
-    border: 2px solid rgb(var(--ink));
+    @apply grid h-7 w-7 place-items-center rounded-md leading-none;
     transition: background-color 0.12s ease;
   }
   .os-tray-item:hover {
     background: rgb(var(--accent) / 0.18);
+  }
+  /* the app's own icon, shown bare with a soft hand-drawn shadow so it reads
+     crisply against the cream bar (echoes the desktop launcher treatment) */
+  .os-tray-img {
+    @apply h-[22px] w-[22px] object-contain;
+    filter: drop-shadow(1px 1.5px 0 rgb(37 40 30 / 0.22));
+  }
+  /* emoji fallback for windows with no image (e.g. an article reader) */
+  .os-tray-emoji {
+    @apply text-[20px] leading-none;
   }
 
   /* ---- keyboard focus ring (shown only for keyboard users) ---- */

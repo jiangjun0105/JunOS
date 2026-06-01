@@ -27,7 +27,7 @@
   --btn-face: 226 220 198; /* window-button face #E2DCC6 */
 
   /* ---- title bar (steel-blue gradient over the chosen blue) ---- */
-  --title: 59 114 196; /* #3B72C4 */
+  --title: 63 93 134; /* active title bar — muted steel-blue #3F5D86 (matched to the Claude Design handoff) */
   --title-hi: 82 112 153; /* #527099 */
   --title-lo: 52 78 116; /* #344E74 */
   --title-text: 244 237 214; /* warm-white title text #F4EDD6 */
@@ -45,7 +45,7 @@
   --font-body: 'Hanken Grotesque', system-ui, sans-serif; /* readable document content */
 
   /* ---- shape ---- */
-  --radius-window: 15px;
+  --radius-window: 10px;
   --radius-tile: 8px;
   --titlebar-h: 29px; /* window header height — the right-edge resize zone keys off this too */
 

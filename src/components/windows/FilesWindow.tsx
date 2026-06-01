@@ -42,7 +42,7 @@ const TREE: TreeNode[] = [
     name: 'JunOS',
     children: [
       { kind: 'file', name: 'About me', appId: 'about', fileKind: 'doc' },
-      { kind: 'file', name: 'Projects', appId: 'projects', fileKind: 'csv' },
+      { kind: 'file', name: 'Development', appId: 'projects', fileKind: 'csv' },
       { kind: 'file', name: 'Support', appId: 'support', fileKind: 'exe' },
     ],
   },

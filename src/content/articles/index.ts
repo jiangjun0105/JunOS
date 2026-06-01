@@ -166,7 +166,7 @@ export const articles: ArticleMeta[] = [
     tags: ['now'],
     kind: 'personal',
     section: 'Now',
-    cover: '/icons/support-agent.svg',
+    cover: '/media/support-agent.svg',
   },
 ]
 

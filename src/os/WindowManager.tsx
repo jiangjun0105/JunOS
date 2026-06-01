@@ -12,7 +12,7 @@ import {
   type RefObject,
 } from 'react'
 import { apps } from './apps'
-import { getWorkArea, placeWindow, type Rect } from './placement'
+import { fitSize, getWorkArea, placeWindow, type Rect } from './placement'
 import type { AppId, WindowInstance } from './types'
 
 /**
@@ -44,6 +44,8 @@ interface WindowManagerValue {
   toggleMaximize: (id: string) => void
   /** Minimize every open window at once. */
   minimizeAllWindows: () => void
+  /** Un-minimize every parked window at once. */
+  restoreAllWindows: () => void
   /** Close every open window at once. */
   closeAllWindows: () => void
 }
@@ -104,8 +106,11 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
       }
 
       // Place the new window relative to the current (top-most visible) one,
-      // avoiding overlap where possible — see ./placement.
-      const size = { ...def.defaultSize }
+      // avoiding overlap where possible — see ./placement. The app's declared
+      // defaultSize is clamped to the work area so a generous, readable default
+      // still opens fully on-screen on short/narrow displays.
+      const workArea = getWorkArea()
+      const size = fitSize(def.defaultSize, workArea)
       const visible = ws.filter((w) => !w.minimized)
       const anchor = visible.reduce<WindowInstance | undefined>(
         (top, w) => (w.zIndex > (top?.zIndex ?? -1) ? w : top),
@@ -115,7 +120,7 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
         size,
         anchor: anchor ? toRect(anchor) : undefined,
         others: visible.map(toRect),
-        workArea: getWorkArea(),
+        workArea,
       })
 
       counter.current += 1
@@ -193,6 +198,10 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
     setWindows((ws) => ws.map((w) => ({ ...w, minimized: true })))
   }, [])
 
+  const restoreAllWindows = useCallback(() => {
+    setWindows((ws) => ws.map((w) => (w.minimized ? { ...w, minimized: false } : w)))
+  }, [])
+
   const closeAllWindows = useCallback(() => {
     setWindows([])
   }, [])
@@ -227,6 +236,7 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
       restoreWindow,
       toggleMaximize,
       minimizeAllWindows,
+      restoreAllWindows,
       closeAllWindows,
     }),
     [
@@ -240,6 +250,7 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
       restoreWindow,
       toggleMaximize,
       minimizeAllWindows,
+      restoreAllWindows,
       closeAllWindows,
     ]
   )
