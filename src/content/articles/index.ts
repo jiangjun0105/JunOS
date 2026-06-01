@@ -9,17 +9,26 @@ import type { ComponentType } from 'react'
  * To add an article:
  *   1. create `my-slug.mdx` in this folder (write prose; use <Figure>, <Video>,
  *      <Embed>, <Gallery> freely — they're globally available);
- *   2. add a metadata entry to `articles` below (pick a `kind` + `section`);
- *   3. add a matching loader to `articleLoaders`;
- *   4. drop any images / short clips in /public/media/my-slug/.
+ *   2. add a metadata entry to `articles` below (pick a `kind` + `section`),
+ *      INCLUDING its `load: () => import('./my-slug.mdx')` — the loader is
+ *      co-located on the metadata so a new article is a single object, with no
+ *      second parallel map to keep in sync;
+ *   3. drop any images / short clips in /public/media/my-slug/.
  * It then appears automatically in the Research window and the File Explorer —
  * nested under its `section` sub-folder.
  */
 
 export type ArticleKind = 'research' | 'personal'
 
+/**
+ * The lazy loader for an article body. Returns the article's .mdx module
+ * (code-split, fetched on demand). `articleLoaders` below is derived from these,
+ * and `ArticleWindow` feeds the result straight to Next's `dynamic()`.
+ */
+export type ArticleLoader = () => Promise<{ default: ComponentType }>
+
 export interface ArticleMeta {
-  /** Must match the .mdx filename and the key in `articleLoaders`. */
+  /** Must match the .mdx filename (and so the key in the derived `articleLoaders`). */
   slug: string
   title: string
   /** ISO date (YYYY-MM-DD) — used for sorting + display. */
@@ -32,6 +41,13 @@ export interface ArticleMeta {
   section: string
   /** Optional cover image path under /public (shown by the Research index). */
   cover?: string
+  /**
+   * Lazy import of this article's .mdx body. Co-located with the rest of the
+   * metadata so an article is one self-contained object — `articleLoaders` is
+   * derived from these (see below), not maintained as a separate parallel map.
+   * The path MUST match `slug` (e.g. slug 'foo' → `() => import('./foo.mdx')`).
+   */
+  load: ArticleLoader
 }
 
 /**
@@ -49,6 +65,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Attention & Transformers',
     cover: '/icons/projects.png',
+    load: () => import('./field-notes-on-attention.mdx'),
   },
   {
     slug: 'positional-encodings',
@@ -59,6 +76,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Attention & Transformers',
     cover: '/icons/finance.png',
+    load: () => import('./positional-encodings.mdx'),
   },
   {
     slug: 'kv-cache-notes',
@@ -69,6 +87,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Attention & Transformers',
     cover: '/icons/earnings.png',
+    load: () => import('./kv-cache-notes.mdx'),
   },
 
   // ── Research / Systems & Tooling ──────────────────────────────────────────
@@ -81,6 +100,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Systems & Tooling',
     cover: '/icons/about.png',
+    load: () => import('./building-junos.mdx'),
   },
   {
     slug: 'a-tiny-window-manager',
@@ -91,6 +111,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Systems & Tooling',
     cover: '/icons/projects.png',
+    load: () => import('./a-tiny-window-manager.mdx'),
   },
   {
     slug: 'notes-on-build-pipelines',
@@ -101,6 +122,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Systems & Tooling',
     cover: '/icons/support.svg',
+    load: () => import('./notes-on-build-pipelines.mdx'),
   },
 
   // ── Research / Theory & Reading ───────────────────────────────────────────
@@ -113,6 +135,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Theory & Reading',
     cover: '/icons/earnings.png',
+    load: () => import('./scaling-laws-reading-group.mdx'),
   },
   {
     slug: 'on-generalization',
@@ -123,6 +146,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Theory & Reading',
     cover: '/icons/about.png',
+    load: () => import('./on-generalization.mdx'),
   },
   {
     slug: 'open-problems',
@@ -133,6 +157,7 @@ export const articles: ArticleMeta[] = [
     kind: 'research',
     section: 'Theory & Reading',
     cover: '/icons/finance.png',
+    load: () => import('./open-problems.mdx'),
   },
 
   // ── Personal / Life ───────────────────────────────────────────────────────
@@ -145,6 +170,7 @@ export const articles: ArticleMeta[] = [
     kind: 'personal',
     section: 'Life',
     cover: '/icons/about.png',
+    load: () => import('./about-me.mdx'),
   },
   {
     slug: 'forest-walks',
@@ -155,6 +181,7 @@ export const articles: ArticleMeta[] = [
     kind: 'personal',
     section: 'Life',
     cover: '/icons/projects.png',
+    load: () => import('./forest-walks.mdx'),
   },
 
   // ── Personal / Now ────────────────────────────────────────────────────────
@@ -167,27 +194,23 @@ export const articles: ArticleMeta[] = [
     kind: 'personal',
     section: 'Now',
     cover: '/media/support-agent.svg',
+    load: () => import('./what-im-doing-now.mdx'),
   },
 ]
 
 /**
  * Lazy component loaders, keyed by slug. Each article is code-split and only
  * fetched when its reader window opens (see ArticleWindow).
+ *
+ * DERIVED from `articles` rather than hand-maintained: each article carries its
+ * own `load` (co-located with its metadata), so this map can't drift out of sync
+ * with the metadata the way a second hand-written table used to. The exported
+ * name, shape, and type are unchanged, so existing consumers (e.g. ArticleWindow's
+ * `articleLoaders[slug]`) keep working exactly as before.
  */
-export const articleLoaders: Record<string, () => Promise<{ default: ComponentType }>> = {
-  'field-notes-on-attention': () => import('./field-notes-on-attention.mdx'),
-  'positional-encodings': () => import('./positional-encodings.mdx'),
-  'kv-cache-notes': () => import('./kv-cache-notes.mdx'),
-  'building-junos': () => import('./building-junos.mdx'),
-  'a-tiny-window-manager': () => import('./a-tiny-window-manager.mdx'),
-  'notes-on-build-pipelines': () => import('./notes-on-build-pipelines.mdx'),
-  'scaling-laws-reading-group': () => import('./scaling-laws-reading-group.mdx'),
-  'on-generalization': () => import('./on-generalization.mdx'),
-  'open-problems': () => import('./open-problems.mdx'),
-  'about-me': () => import('./about-me.mdx'),
-  'forest-walks': () => import('./forest-walks.mdx'),
-  'what-im-doing-now': () => import('./what-im-doing-now.mdx'),
-}
+export const articleLoaders: Record<string, ArticleLoader> = Object.fromEntries(
+  articles.map((a) => [a.slug, a.load]),
+)
 
 /** Look up a single article's metadata by slug. */
 export function getArticle(slug: string): ArticleMeta | undefined {

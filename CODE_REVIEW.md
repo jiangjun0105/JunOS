@@ -79,26 +79,26 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Touches:** `layout.tsx`, `globals.css`, `tailwind.config.ts` *(coordinate with THEME-2)*.
 - **Done when:** No external font request in the network panel; fonts still render; no layout shift.
 
-### ☐ PERF-3 — No per-page metadata / SEO surface 🟡 *(judgment call: only if discoverability matters)*
+### ☑ PERF-3 — No per-page metadata / SEO surface 🟡 — DONE (generateMetadata + sitemap.ts + robots.ts; per-article OG)
 - **Where:** single static `metadata` in `src/app/layout.tsx:9-12`; no `generateMetadata`, no `sitemap.ts`/`robots.ts`.
 - **Problem:** Every URL serves identical `<head>` ("JunOS") and no article text in initial HTML (MDX is `ssr:false`), so crawlers/social unfurls see nothing for `/article/<slug>`.
 - **Fix:** Add `generateMetadata({ params })` in `src/app/[[...segments]]/page.tsx` using `parseWindowPath` + `getArticle(slug)` → `{ title, description: meta.summary, openGraph: {...} }`. Add `src/app/sitemap.ts` and `src/app/robots.ts` enumerating `/` + every article/launcher path. Article metadata already exists as typed objects in `content/articles/index.ts:41`.
 - **Touches:** `page.tsx` (+ new `sitemap.ts`, `robots.ts`) *(coordinate with PERF-4 — same file)*.
 - **Done when:** `/article/<slug>` returns a slug-specific title/description/OG; sitemap & robots resolve.
 
-### ☐ PERF-4 — Catch-all route is dynamic when it could be static 🟡
+### ☑ PERF-4 — Catch-all route is dynamic when it could be static 🟡 — DONE (generateStaticParams; route now ● SSG, 26 static pages)
 - **Where:** `src/app/[[...segments]]/page.tsx` (builds as `ƒ`).
 - **Problem:** An optional catch-all with no `generateStaticParams` opts into on-demand rendering, even though the body is a constant `<Desktop />` — higher TTFB for identical HTML.
 - **Fix:** Add `generateStaticParams()` returning `/` + `['article', slug]` for each article + each launcher id, so the route prerenders to CDN-served static HTML. Pairs with PERF-3.
 - **Done when:** The route builds as `○`/static; deep links prerender.
 
-### ☐ PERF-5 — All app components eagerly imported 🟡 *(merge with ARCH-2)*
+### ☑ PERF-5 — All app components eagerly imported 🟡 — DONE (via ARCH-2: all app Components now `dynamic()`)
 - **Where:** `src/os/apps.tsx:1-8`.
 - **Problem:** Every window's code ships in first-load JS even if never opened. (Also the `os/`→`components/` coupling — see ARCH-2.)
 - **Fix:** Make `apps[id].Component` a `dynamic(() => import('...'), { ssr: false })`, mirroring the article-loader pattern.
 - **Done when:** Opening "Books" fetches a Books-only chunk; landing desktop ships ~none of the app bodies.
 
-### ☐ PERF-6 — MDX images use raw `<img>` 🟢
+### ☑ PERF-6 — MDX images use raw `<img>` 🟢 — DONE (Figure/Gallery/mdx-components → next/image; eslint-disables gone)
 - **Where:** `src/mdx-components.tsx:61-64`, `src/components/mdx/Figure.tsx:22`, `src/components/mdx/Gallery.tsx:27`.
 - **Problem:** Article imagery skips optimization and sets no dimensions (CLS risk). Low impact today (sample images are tiny) but matters before any photo-heavy post.
 - **Fix:** Migrate `Figure`/`Gallery` to `next/image` with explicit `width`/`height` (or `fill` + sized wrapper + `sizes`). *(Overlaps REUSE-7's `<Img>` idea — decide one approach.)*
@@ -147,7 +147,7 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** A tiny `<Img>` wrapper (or adopt `next/image`) to delete the repeated `// eslint-disable-next-line @next/next/no-img-element`. *(Decide vs PERF-6.)*
 - **Done when:** One place owns the `<img>` lint exception.
 
-### ☐ REUSE-8 — Article metadata & loaders are two parallel lists 🟢
+### ☑ REUSE-8 — Article metadata & loaders are two parallel lists 🟢 — DONE (`load` co-located on each ArticleMeta; `articleLoaders` derived)
 - **Where:** `src/content/articles/index.ts:41-190`.
 - **Problem:** Adding an article means editing the metadata array **and** the `() => import('./slug.mdx')` loader map; they can desync.
 - **Fix:** Co-locate the loader on each `ArticleMeta` (`load: () => import('./<slug>.mdx')`); derive `articleLoaders` or drop it.
@@ -167,12 +167,12 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** `export type AppId = keyof typeof apps` (or define the id union first and type `apps: Record<AppId, AppDefinition>`). Narrow `parseWindowPath`'s string at the one boundary; remove the cast.
 - **Done when:** A typo'd app id is a compile error; no `as AppId` casts remain.
 
-### ☐ ARCH-2 — `os/` → `components/` dependency is inverted 🟡 *(includes PERF-5)*
+### ☑ ARCH-2 — `os/` → `components/` dependency is inverted 🟡 — DONE (registry uses `dynamic()` loaders; `os/` no longer statically imports windows)
 - **Where:** `src/os/apps.tsx:1-8` (core statically imports every leaf app; apps import back from `@/os`).
 - **Fix:** Lazy-load each `Component` via `dynamic()` (also solves PERF-5). Longer-term: register apps *into* the manager (a `registerApps()` call or an `apps` prop) so `os/` depends only on `types.ts`.
 - **Done when:** Opening one app doesn't load all of them; `os/` no longer statically imports concrete windows.
 
-### ☐ ARCH-3 — `launcher !== false` predicate duplicated 3× 🟢
+### ☑ ARCH-3 — `launcher !== false` predicate duplicated 3× 🟢 — DONE (`launchableApps` + `isLaunchable` in apps.tsx)
 - **Where:** `src/os/Desktop.tsx:11`, `src/os/MenuBar.tsx:99`, `src/os/WindowUrlSync.tsx:40`.
 - **Fix:** Export `launchableApps` (and an `isLaunchable(appId)` helper) from `apps.tsx:98` and consume everywhere.
 - **Done when:** The launcher rule is defined once.
@@ -183,7 +183,7 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** Extract a `windowKey(appId, params)` helper (next to `pathForWindow` in `url.ts`); sort keys for robustness.
 - **Done when:** One helper defines window identity.
 
-### ☐ ARCH-5 — `id` field redundant with the record key 🟢
+### ☑ ARCH-5 — `id` field redundant with the record key 🟢 — DONE (id synthesized from registry keys)
 - **Where:** `src/os/apps.tsx:21-96` (every entry repeats its key as `id`).
 - **Fix:** Drop `id` from the literals and synthesize via `Object.entries`, or keep it with a dev assertion that `key === def.id`.
 - **Done when:** App ids can't silently mismatch their key.
