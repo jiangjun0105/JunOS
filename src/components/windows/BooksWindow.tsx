@@ -1,3 +1,6 @@
+import { FileGlyph as PageGlyph } from './ui/FileGlyph'
+import { WindowHeader } from './ui/WindowHeader'
+
 /** File kind drives the color-coded page glyph on each book's file chips. */
 type FileKind = 'note' | 'quote' | 'pdf'
 
@@ -63,22 +66,20 @@ const books: Book[] = [
 export function BooksWindow() {
   return (
     <div className="space-y-4">
-      <div className="space-y-1">
-        <h1 className="font-body text-[22px] font-bold">Books</h1>
-        <p className="text-[18px] text-muted">A shelf of favorites — and the notes &amp; files I keep on each.</p>
-      </div>
+      <WindowHeader
+        title="Books"
+        subtitle="A shelf of favorites — and the notes & files I keep on each."
+      />
 
       <ul className="space-y-3">
         {books.map((book) => (
-          <li key={book.title} className="rounded-tile border border-line bg-surface-2/50 p-3">
+          <li key={book.title} className="os-card">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="truncate font-body font-bold">{book.title}</p>
                 <p className="text-sm text-muted">{book.author}</p>
               </div>
-              <span className="flex-none rounded-full border border-line bg-surface px-2 py-0.5 text-xs">
-                {book.tag}
-              </span>
+              <span className="os-pill flex-none">{book.tag}</span>
             </div>
 
             <p className="mt-1.5 text-sm text-muted">{book.blurb}</p>
@@ -104,23 +105,25 @@ export function BooksWindow() {
 }
 
 /** Tiny page glyph, color-coded by file kind (a small echo of the File Explorer's).
-    Tokens mirror the File Explorer's so the shared logical colors stay in lockstep:
-    note→--accent (= Files' doc), quote→--accent-2 (= Files' csv), pdf→--file-exe. */
+    The page silhouette + folded corner come from the shared <FileGlyph> primitive;
+    only the colored rule-lines are drawn here. Tokens mirror the File Explorer's so
+    the shared logical colors stay in lockstep: note→--accent (= Files' doc),
+    quote→--accent-2 (= Files' csv), pdf→--file-exe. */
 function FileGlyph({ kind }: { kind: FileKind }) {
-  const color = { note: 'rgb(var(--accent))', quote: 'rgb(var(--accent-2))', pdf: 'rgb(var(--file-exe))' }[
-    kind
-  ]
+  const color = {
+    note: 'rgb(var(--accent))',
+    quote: 'rgb(var(--accent-2))',
+    pdf: 'rgb(var(--file-exe))',
+  }[kind]
   return (
-    <svg viewBox="0 0 19 23" width="11" height="13" aria-hidden className="flex-none">
+    <PageGlyph width={11} height={13} className="flex-none">
       <path
-        d="M3 2 h8 l5 5 v13 q0 1-1 1 H4 q-1 0-1-1 Z"
-        fill="rgb(var(--file-page))"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
+        d="M5.5 12 h7 M5.5 15 h7 M5.5 18 h5"
+        stroke={color}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        fill="none"
       />
-      <path d="M11 2 v5 h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M5.5 12 h7 M5.5 15 h7 M5.5 18 h5" stroke={color} strokeWidth="1.6" strokeLinecap="round" fill="none" />
-    </svg>
+    </PageGlyph>
   )
 }

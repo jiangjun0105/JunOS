@@ -4,6 +4,8 @@ import dynamic from 'next/dynamic'
 import { useMemo } from 'react'
 import { articleLoaders, getArticle } from '@/content/articles'
 import type { WindowComponentProps } from '@/os/types'
+import { formatKind } from './ui/formatKind'
+import { TagList } from './ui/TagList'
 
 /** Format an ISO date (YYYY-MM-DD) like "May 20, 2026"; fall back to the raw string. */
 function formatDate(iso: string): string {
@@ -48,17 +50,9 @@ export function ArticleWindow({ params }: WindowComponentProps) {
         <div className="article-meta">
           <time dateTime={meta.date}>{formatDate(meta.date)}</time>
           <span aria-hidden>·</span>
-          <span>{meta.kind}</span>
+          <span>{formatKind(meta.kind)}</span>
         </div>
-        {meta.tags.length > 0 && (
-          <div className="article-tags">
-            {meta.tags.map((t) => (
-              <span key={t} className="article-tag">
-                #{t}
-              </span>
-            ))}
-          </div>
-        )}
+        <TagList tags={meta.tags} />
       </header>
 
       <article className="article-prose">

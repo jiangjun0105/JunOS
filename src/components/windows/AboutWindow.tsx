@@ -1,3 +1,5 @@
+import { ChipRow } from './ui/ChipRow'
+
 /** Placeholder content for the "About me" app. Make it yours! */
 export function AboutWindow() {
   return (
@@ -8,17 +10,7 @@ export function AboutWindow() {
         grab the title bar to move it, and drag the handle in the bottom-right corner to resize.
       </p>
       <p className="text-[18px]">Replace this with whatever you like: a bio, links, or projects.</p>
-      <div className="flex flex-wrap gap-2 pt-1">
-        <span className="rounded-[6px] border border-line bg-accent/10 px-3 py-1 text-sm text-ink">
-          🌳 nature
-        </span>
-        <span className="rounded-[6px] border border-line bg-accent-2/10 px-3 py-1 text-sm text-ink">
-          🌧️ cozy
-        </span>
-        <span className="rounded-[6px] border border-line bg-accent-3/15 px-3 py-1 text-sm text-ink">
-          🌰 craft
-        </span>
-      </div>
+      <ChipRow items={['🌳 nature', '🌧️ cozy', '🌰 craft']} />
     </div>
   )
 }

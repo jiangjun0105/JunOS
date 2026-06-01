@@ -44,7 +44,9 @@
   /* the focused window reads as clearly active: deeper outline */
   .os-window.is-active {
     border-color: rgb(var(--ink));
-    box-shadow: var(--shadow-window), 0 0 0 1px rgb(var(--accent) / 0.25);
+    box-shadow:
+      var(--shadow-window),
+      0 0 0 1px rgb(var(--accent) / 0.25);
   }
 
   /* ---- title bar: steel-blue gradient, white Dosis caps ---- */
@@ -106,7 +108,7 @@
   /* right edge → horizontal resize. Starts below the title bar so it never
      swallows the window buttons; sits over the scrollbar's outer few px. */
   .os-resize-e {
-    @apply absolute right-0 bottom-0 z-20 w-1.5 cursor-ew-resize touch-none;
+    @apply absolute bottom-0 right-0 z-20 w-1.5 cursor-ew-resize touch-none;
     top: var(--titlebar-h);
   }
   /* bottom edge → vertical resize */
@@ -202,6 +204,24 @@
   .tree-children {
     @apply ml-2 pl-2;
     border-left: 1.5px solid rgb(var(--ink) / 0.18);
+  }
+
+  /* ---- accent "tag chips" (About windows) ----
+     The shared chip SHAPE lives here; the accent COLOR stays per-variant so the
+     three-accent cycle (accent → accent-2 → accent-3) reads at a glance. Mirrors
+     how .article-tag carries its own shape+skin in one class. The opacities match
+     the hand-written originals: accent/-2 at /10, accent-3 at /15 (it's lighter). */
+  .os-chip {
+    @apply rounded-[6px] border border-line px-3 py-1 text-sm text-ink;
+  }
+  .os-chip-1 {
+    @apply bg-accent/10;
+  }
+  .os-chip-2 {
+    @apply bg-accent-2/10;
+  }
+  .os-chip-3 {
+    @apply bg-accent-3/15;
   }
 
   /* ---- desktop launcher icon ---- */
@@ -338,15 +358,32 @@
     @apply border-0 bg-transparent p-0;
   }
 
-  /* index cards in the Research window */
-  .article-card {
-    @apply block w-full rounded-tile border border-line bg-surface-2/50 p-3 text-left transition-colors;
+  /* ---- shared list card + pill ----
+     Originally the Research index's `.article-card` / `.article-card-kind`; now
+     generalized since Development and Books inline the exact same shape.
+
+     `.os-card` is JUST the rounded list tile shape — the common ground shared by
+     Research (a clickable <button>), Development, and Books (plain <li>s). The
+     interactive bits the Research button additionally needs (it's a <button>, so
+     it must be told to fill width, lay out as a block, left-align, and animate its
+     hover tint) live in `.os-card-button` so the plain <li> cards don't silently
+     gain a hover-darken/transition they never had.
+
+     `.os-pill` is the small tag/status pill (top-right of a card). It carries NO
+     `capitalize`: Development/Books tags ("🪟 web") must stay as authored, and the
+     Research index's kind is now title-cased in JS via formatKind() instead — one
+     source of truth for casing (see ui/formatKind.ts), no CSS text-transform. */
+  .os-card {
+    @apply rounded-tile border border-line bg-surface-2/50 p-3;
   }
-  .article-card:hover {
+  .os-card-button {
+    @apply block w-full text-left transition-colors;
+  }
+  .os-card-button:hover {
     @apply bg-surface-2/80;
   }
-  .article-card-kind {
-    @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs capitalize;
+  .os-pill {
+    @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs;
   }
 
   /* ---- media blocks ---- */

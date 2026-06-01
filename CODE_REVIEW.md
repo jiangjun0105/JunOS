@@ -110,34 +110,34 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 
 > Heavy file overlap across `components/windows/*` and `globals.css`. Run REUSE-1…8 as **one sequential package** (create primitives, then refactor consumers). Suggest a new `src/components/windows/ui/` folder.
 
-### ☐ REUSE-1 — Duplicated `FileGlyph` SVG 🔴
+### ☑ REUSE-1 — Duplicated `FileGlyph` SVG 🔴 — DONE (`ui/FileGlyph.tsx`; page glyph now exists once)
 - **Where:** `src/components/windows/FilesWindow.tsx:127-152` and `src/components/windows/BooksWindow.tsx:107-121`.
 - **Problem:** Byte-identical page-outline path + kind-color concept, differing only in the color map; the two maps have already drifted, and the hexes (`#3b72c4`, `#4f8d5b`, `#b3473b`) are repeated literals.
 - **Fix:** Extract `ui/FileGlyph.tsx` with props `{ kind?: string; color?: string; size?: number }`; single shared color map (ideally tokens — see THEME-1).
 - **Done when:** Both windows render the same component; one color map.
 
-### ☐ REUSE-2 — Accent "tag chips" hand-inlined 8× 🔴
+### ☑ REUSE-2 — Accent "tag chips" hand-inlined 8× 🔴 — DONE (`ui/ChipRow.tsx` + `.os-chip`)
 - **Where:** `src/components/windows/AboutWindow.tsx:11-21`, `src/components/windows/AboutJunOSWindow.tsx:24-40`.
 - **Problem:** `rounded-[6px] border border-line bg-accent{,-2,-3}/… px-3 py-1 …` repeated with a manual 3-color rotation.
 - **Fix:** `ui/ChipRow.tsx` (`items: string[]`, auto-cycles accent/accent-2/accent-3 by index) backed by an `.os-chip` class in `globals.css` (mirror `.article-tag`).
 - **Done when:** Both About windows render `<ChipRow items={[...]} />`; chip markup defined once.
 
-### ☐ REUSE-3 — Window heading repeated in 7 files 🟡
+### ☑ REUSE-3 — Window heading repeated in 7 files 🟡 — DONE (`ui/WindowHeader.tsx`; 3 windows kept bespoke to preserve their `space-y-3` gap)
 - **Where:** `font-body text-[22px] font-bold` in `AboutWindow:5`, `AboutJunOSWindow:9`, `ProjectsWindow:11`, `ResearchWindow:21`, `BooksWindow:67`, `SupportWindow:21`, `ArticleWindow:39` (+ `text-[18px] text-muted` subtitle in 6).
 - **Fix:** `ui/WindowHeader.tsx` with `{ title: string; subtitle?: ReactNode }` rendering the `space-y-1` heading/subtitle pair (optionally backed by a `.window-h1` class so the size lives in CSS).
 - **Done when:** Windows use `<WindowHeader>`; the `22px`/`18px` magic numbers live in one place.
 
-### ☐ REUSE-4 — Card + pill pattern duplicated (and re-spells existing CSS) 🟡
+### ☑ REUSE-4 — Card + pill pattern duplicated (and re-spells existing CSS) 🟡 — DONE (`.article-card`→`.os-card`, `.article-card-kind`→`.os-pill`, + `.os-card-button` for the clickable variant)
 - **Where:** `src/components/windows/ProjectsWindow.tsx:13-28`, `src/components/windows/BooksWindow.tsx:71-101`; the strings already exist as `.article-card`/`.article-card-kind` (`globals.css:335,341`) which nobody reused.
 - **Fix:** Promote those classes to generic `.os-card`/`.os-pill` (or `<Card>`/`<Pill>` components); make Books' `truncate`/`min-w-0`/`flex-none` opt-in props. Reuse in Projects, Books, and the article index.
 - **Done when:** One card + one pill definition shared across all three surfaces.
 
-### ☐ REUSE-5 — Tag-chip loop duplicated 🟢
+### ☑ REUSE-5 — Tag-chip loop duplicated 🟢 — DONE (`ui/TagList.tsx`)
 - **Where:** `src/components/windows/ResearchWindow.tsx:44-51`, `src/components/windows/ArticleWindow.tsx:53-60`.
 - **Fix:** `ui/TagList.tsx` rendering the guarded `.article-tags` wrapper with the `#`-prefix convention. Pairs with REUSE-2 (a `prefix` prop on one chip primitive).
 - **Done when:** Both render `<TagList tags={...} />`.
 
-### ☐ REUSE-6 — Inconsistent `kind` casing 🟢
+### ☑ REUSE-6 — Inconsistent `kind` casing 🟢 — DONE (`ui/formatKind.ts`; single source of casing)
 - **Where:** index uses `.article-card-kind` (`capitalize`, `globals.css:341`); header renders raw lowercase `{meta.kind}` (`ArticleWindow.tsx:51`).
 - **Fix:** A single `formatKind(kind)` util (or one `<KindBadge>`) so casing is defined once.
 - **Done when:** "Research"/"research" render identically everywhere.

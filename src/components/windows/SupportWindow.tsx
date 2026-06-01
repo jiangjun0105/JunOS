@@ -1,3 +1,5 @@
+import { WindowHeader } from './ui/WindowHeader'
+
 /**
  * "Call Me" app — a contact card for talking to AI Jun: a round photo above a
  * short intro and a call button.
@@ -17,14 +19,10 @@ export function SupportWindow() {
         className="h-64 w-64 rounded-full object-cover shadow-soft"
       />
 
-      <div className="space-y-1">
-        <h1 className="font-body text-[22px] font-bold">Talk to AI Jun</h1>
-        <p className="text-[18px] text-muted">
-          You can talk to my AI digital double to learn more about Jun&apos;s
-          experience, development projects, or research interests, and also
-          anything else you&apos;d like to let Jun know.
-        </p>
-      </div>
+      <WindowHeader
+        title="Talk to AI Jun"
+        subtitle="You can talk to my AI digital double to learn more about Jun's experience, development projects, or research interests, and also anything else you'd like to let Jun know."
+      />
 
       {/* Placeholder — wire up the phone-call feature here. */}
       <button
