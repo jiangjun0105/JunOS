@@ -99,7 +99,7 @@ export function Desktop() {
           an icon over it). No z-index: it paints above the wallpaper but below
           the z-10 icon layer, so icons always sit on top. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/background/family.png" alt="" aria-hidden draggable={false} className="os-desktop-photo" />
+      <img src="/background/family.webp" alt="" aria-hidden draggable={false} className="os-desktop-photo" />
 
       {/* Icon layer — icons are absolutely positioned and draggable. */}
       <div className="relative z-10 flex-1">

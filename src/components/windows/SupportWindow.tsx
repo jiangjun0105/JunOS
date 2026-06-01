@@ -4,14 +4,14 @@
  *
  * The call itself isn't wired up yet — the button is a placeholder. To make it
  * real, drop a handler on it (e.g. a `tel:` link, a dialer, or a callback form).
- * The photo is /icons/jun_photo.png.
+ * The photo is /icons/jun_photo.webp.
  */
 export function SupportWindow() {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 py-1 text-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/icons/jun_photo.png"
+        src="/icons/jun_photo.webp"
         alt="Jun"
         draggable={false}
         className="h-64 w-64 rounded-full object-cover shadow-soft"
