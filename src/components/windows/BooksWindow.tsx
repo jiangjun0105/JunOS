@@ -103,14 +103,18 @@ export function BooksWindow() {
   )
 }
 
-/** Tiny page glyph, color-coded by file kind (a small echo of the File Explorer's). */
+/** Tiny page glyph, color-coded by file kind (a small echo of the File Explorer's).
+    Tokens mirror the File Explorer's so the shared logical colors stay in lockstep:
+    note→--accent (= Files' doc), quote→--accent-2 (= Files' csv), pdf→--file-exe. */
 function FileGlyph({ kind }: { kind: FileKind }) {
-  const color = { note: '#3b72c4', quote: '#4f8d5b', pdf: '#b3473b' }[kind]
+  const color = { note: 'rgb(var(--accent))', quote: 'rgb(var(--accent-2))', pdf: 'rgb(var(--file-exe))' }[
+    kind
+  ]
   return (
     <svg viewBox="0 0 19 23" width="11" height="13" aria-hidden className="flex-none">
       <path
         d="M3 2 h8 l5 5 v13 q0 1-1 1 H4 q-1 0-1-1 Z"
-        fill="#fdfaf0"
+        fill="rgb(var(--file-page))"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinejoin="round"

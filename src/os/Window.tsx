@@ -2,7 +2,8 @@
 
 import { motion, useDragControls, useMotionValue, type PanInfo } from 'framer-motion'
 import { useEffect, useRef, type RefObject } from 'react'
-import { apps } from './apps'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { apps, isAppId } from './apps'
 import { MENUBAR_HEIGHT, MIN_WINDOW_SIZE as MIN } from './constants'
 import { useWindows } from './WindowManager'
 import { WindowScrollbar } from './WindowScrollbar'
@@ -56,7 +57,10 @@ export function Window({ win }: { win: WindowInstance }) {
   const { focusedId, focusWindow, closeWindow, updateWindow, minimizeWindow, toggleMaximize, constraintsRef } =
     useWindows()
   const controls = useDragControls()
-  const def = apps[win.appId]
+  // `win.appId` is typed `string` (kept loose to avoid a types<->apps cycle);
+  // `isAppId` narrows it to the strict `AppId` so the lookup is cast-free. The
+  // optional chain below already tolerates an unknown id.
+  const def = isAppId(win.appId) ? apps[win.appId] : undefined
   const Body = def?.Component
   const focused = focusedId === win.id
 
@@ -186,7 +190,9 @@ export function Window({ win }: { win: WindowInstance }) {
 
       <div className="relative flex min-h-0 flex-1">
         <div ref={contentRef} className="os-scroll-host min-h-0 flex-1 overflow-auto px-10 py-4">
-          {Body ? <Body params={win.params} /> : <p>Unknown app.</p>}
+          {/* A crash in a window body (e.g. a failed lazy MDX chunk) is contained
+              here so it can't take down the whole desktop; see ErrorBoundary. */}
+          <ErrorBoundary>{Body ? <Body params={win.params} /> : <p>Unknown app.</p>}</ErrorBoundary>
         </div>
         <WindowScrollbar targetRef={contentRef} />
       </div>

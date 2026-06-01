@@ -11,9 +11,9 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react'
-import { apps } from './apps'
+import { apps, type AppId } from './apps'
 import { fitSize, getWorkArea, placeWindow, type Rect } from './placement'
-import type { AppId, WindowInstance } from './types'
+import type { WindowInstance } from './types'
 
 /**
  * The window manager: a single React context that owns ONE array of window

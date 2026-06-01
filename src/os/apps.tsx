@@ -6,7 +6,7 @@ import { FilesWindow } from '@/components/windows/FilesWindow'
 import { ProjectsWindow } from '@/components/windows/ProjectsWindow'
 import { ResearchWindow } from '@/components/windows/ResearchWindow'
 import { SupportWindow } from '@/components/windows/SupportWindow'
-import type { AppDefinition, AppId } from './types'
+import type { AppDefinition } from './types'
 
 /**
  * The app registry. To add a new launchable window:
@@ -18,7 +18,7 @@ import type { AppDefinition, AppId } from './types'
  *
  * Icons live in /public/icons. Spares ready for future apps: finance.png, earnings.png.
  */
-export const apps: Record<AppId, AppDefinition> = {
+const registry = {
   about: {
     id: 'about',
     title: 'About me',
@@ -93,6 +93,37 @@ export const apps: Record<AppId, AppDefinition> = {
     defaultSize: { width: 680, height: 600 },
     Component: ArticleWindow,
   },
+  // `satisfies` (not `: Record<string, AppDefinition>`) keeps the precise literal
+  // key set so `AppId` below can be derived from it, while STILL type-checking
+  // every entry against `AppDefinition`.
+} satisfies Record<string, AppDefinition>
+
+/**
+ * The closed set of valid app ids, derived straight from the registry — adding
+ * an app here automatically widens `AppId`, and a typo'd id (`openApp('artcle')`)
+ * is a compile error. This is the single source of truth for app ids; it lives
+ * here (not in ./types) because ./types is imported by this file, so deriving it
+ * there would be circular.
+ */
+export type AppId = keyof typeof registry
+
+/**
+ * The registry, re-exposed as `Record<AppId, AppDefinition>` so that indexing
+ * (`apps[id]`) yields a full `AppDefinition` with its optional fields
+ * (`image` / `toolbar` / `launcher`) intact. Indexing the bare `satisfies`
+ * object would instead give a union of each entry's exact literal type, on which
+ * those optional fields don't exist.
+ */
+export const apps: Record<AppId, AppDefinition> = registry
+
+/**
+ * Runtime guard that narrows an untrusted `string` (e.g. an app id parsed out of
+ * the URL) to the closed `AppId` set — so callers like `openApp` get a checked
+ * value WITHOUT an `as AppId` cast. The `in` operator confirms the key exists on
+ * the registry; the `is AppId` predicate threads that proof through to the type.
+ */
+export function isAppId(value: string): value is AppId {
+  return value in apps
 }
 
 export const appList: AppDefinition[] = Object.values(apps)

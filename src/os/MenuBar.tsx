@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { appList, apps } from './apps'
+import { appList, apps, isAppId } from './apps'
 import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { useWindows } from './WindowManager'
 
@@ -98,7 +98,9 @@ export function MenuBar() {
         {appList
           .filter((app) => app.launcher !== false)
           .map((app) => (
-            <MenuItem key={app.id} onSelect={() => run(() => openApp(app.id))}>
+            // `isAppId` narrows AppDefinition's loose `string` id to the strict
+            // `AppId` `openApp` expects (cast-free; always true for a registry app).
+            <MenuItem key={app.id} onSelect={() => run(() => isAppId(app.id) && openApp(app.id))}>
             <span className="flex items-center gap-2">
               <AppGlyph />
               {app.title}
@@ -128,7 +130,11 @@ export function MenuBar() {
       {minimized.length > 0 && (
         <div className="ml-auto flex items-center gap-1.5 pl-2">
           {minimized.map((win) => {
-            const app = apps[win.appId]
+            // `win.appId` is a loose `string` (see WindowInstance); narrow it with
+            // `isAppId` before indexing the registry. The existing `app?.` usage
+            // below already tolerates a miss, so an unknown id just renders the
+            // emoji fallback — no cast needed.
+            const app = isAppId(win.appId) ? apps[win.appId] : undefined
             return (
               <button
                 key={win.id}

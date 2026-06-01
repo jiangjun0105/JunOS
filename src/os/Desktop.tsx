@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { appList } from './apps'
+import { appList, isAppId } from './apps'
 import { ICON_POSITIONS_KEY, MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { DesktopIcon } from './DesktopIcon'
 import { Wallpaper } from './Wallpaper'
@@ -109,7 +109,11 @@ export function Desktop() {
             app={app}
             position={positions[app.id] ?? { x: ICON_COL_X, y: ICON_TOP }}
             constraintsRef={constraintsRef}
-            onOpen={() => openApp(app.id)}
+            // `app.id` is typed `string` on AppDefinition (kept loose to avoid a
+            // types<->apps cycle); `isAppId` narrows it to the strict `AppId`
+            // that `openApp` wants — without a cast. Always true for a registry
+            // entry, so it's a type bridge, not a real runtime gate.
+            onOpen={() => isAppId(app.id) && openApp(app.id)}
             onMove={(position) => moveIcon(app.id, position)}
           />
         ))}
