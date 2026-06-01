@@ -45,7 +45,9 @@ export function ArticleWindow({ params }: WindowComponentProps) {
   }
 
   return (
-    <div className="article">
+    // Plain wrapper grouping the meta header + prose body. (No `.article` rule
+    // exists — the styling lives on `.article-head` / `.article-prose`.)
+    <div>
       <header className="article-head">
         <div className="article-meta">
           <time dateTime={meta.date}>{formatDate(meta.date)}</time>

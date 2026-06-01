@@ -14,6 +14,7 @@ import {
 import { apps, type AppId } from './apps'
 import { fitSize, getWorkArea, placeWindow, type Rect } from './placement'
 import type { WindowInstance } from './types'
+import { windowKey } from './url'
 
 /**
  * The window manager: a single React context that owns ONE array of window
@@ -93,9 +94,10 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
     const params = opts?.params
     // A window's identity is its app PLUS its params, so two different articles
     // open as two windows — but re-opening the same one just focuses it.
-    const wantKey = appId + (params ? JSON.stringify(params) : '')
+    // `windowKey` (in ./url) sorts the param keys so identity is order-agnostic.
+    const wantKey = windowKey(appId, params)
     setWindows((ws) => {
-      const keyOf = (w: WindowInstance) => w.appId + (w.params ? JSON.stringify(w.params) : '')
+      const keyOf = (w: WindowInstance) => windowKey(w.appId, w.params)
       // Already open? Un-minimize (in case it was parked) and focus it — don't duplicate.
       const existing = ws.find((w) => keyOf(w) === wantKey)
       if (existing) {

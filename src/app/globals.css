@@ -3,6 +3,14 @@
 /* design tokens (plain CSS variables), then Tailwind, then our component "skins" */
 @import '../styles/theme.css';
 
+/* DESIGN DECISION — desktop-first, mobile-degraded (by design, not an oversight).
+   JunOS is a draggable/resizable desktop OS, so it targets a pointer + roomy
+   viewport. There are deliberately NO responsive breakpoints: layout doesn't
+   reflow for small screens. Instead, windows clamp themselves to the viewport
+   (the window manager constrains size/position), so on a phone it stays usable
+   but cramped rather than re-laid-out. The only @media query here is the
+   prefers-reduced-motion accessibility rule at the bottom of this file. */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -82,7 +90,7 @@
     @apply flex flex-none items-center gap-1;
   }
   .os-btn {
-    @apply grid h-[22px] w-[24px] place-items-center rounded-[6px] text-[15px] leading-none;
+    @apply grid h-[22px] w-[24px] place-items-center rounded-btn text-[15px] leading-none;
     font-family: var(--font-chrome);
     background: rgb(var(--btn-face));
     border: 1px solid rgb(var(--btn-line));
@@ -185,7 +193,7 @@
     line-height: 1.4;
   }
   .tree-row {
-    @apply flex w-full items-center gap-1.5 rounded-md px-1.5 py-1 text-left;
+    @apply flex w-full items-center gap-1.5 rounded-btn px-1.5 py-1 text-left;
     white-space: nowrap;
   }
   .tree-row:hover {
@@ -212,7 +220,7 @@
      how .article-tag carries its own shape+skin in one class. The opacities match
      the hand-written originals: accent/-2 at /10, accent-3 at /15 (it's lighter). */
   .os-chip {
-    @apply rounded-[6px] border border-line px-3 py-1 text-sm text-ink;
+    @apply rounded-btn border border-line px-3 py-1 text-sm text-ink;
   }
   .os-chip-1 {
     @apply bg-accent/10;
@@ -226,7 +234,7 @@
 
   /* ---- desktop launcher icon ---- */
   .os-icon {
-    @apply flex w-24 cursor-grab flex-col items-center gap-1.5 rounded-md p-1;
+    @apply flex w-24 cursor-grab flex-col items-center gap-1.5 rounded-btn p-1;
     background: transparent;
   }
   .os-icon:hover {
@@ -235,7 +243,7 @@
   /* the app's PNG icon, with a hand-drawn-style hard drop shadow */
   .os-icon-img {
     @apply h-12 w-12 object-contain;
-    filter: drop-shadow(1.5px 2px 0 rgb(37 40 30 / 0.28));
+    filter: drop-shadow(1.5px 2px 0 rgb(var(--shadow-ink) / 0.28));
   }
   /* emoji fallback when an app has no image */
   .os-icon-tile {
@@ -258,19 +266,19 @@
     @apply flex w-full select-none items-center gap-1 border-b border-line/30 bg-surface px-3 font-display text-[14px] font-bold text-ink;
   }
   .os-menubar-trigger {
-    @apply flex items-center gap-2 rounded-md px-2.5 py-1 font-display text-[14px] font-medium text-ink transition-colors hover:bg-accent/15;
+    @apply flex items-center gap-2 rounded-btn px-2.5 py-1 font-display text-[14px] font-medium text-ink transition-colors hover:bg-accent/15;
   }
   .os-menubar-trigger[data-open='true'] {
     @apply bg-accent/15;
   }
   /* dropdown panel: paper, ink outline, rounded, offset cast */
   .os-menu-panel {
-    @apply absolute left-0 top-full z-40 mt-1 min-w-[210px] rounded-md bg-surface py-1;
+    @apply absolute left-0 top-full z-40 mt-1 min-w-[210px] rounded-btn bg-surface py-1;
     border: 1px solid rgb(var(--ink));
     box-shadow: var(--shadow-window);
   }
   .os-menu-item {
-    @apply flex w-full items-center rounded-[6px] px-3 py-1.5 text-left font-body text-[14px] font-medium text-ink transition-colors hover:bg-accent/15 disabled:cursor-default disabled:text-muted disabled:hover:bg-transparent;
+    @apply flex w-full items-center rounded-btn px-3 py-1.5 text-left font-body text-[14px] font-medium text-ink transition-colors hover:bg-accent/15 disabled:cursor-default disabled:text-muted disabled:hover:bg-transparent;
   }
   .os-menu-separator {
     @apply my-1 h-px bg-ink/20;
@@ -280,7 +288,7 @@
   /* no box — each icon sits bare on the bar; the button is just a hover/click
      target, with a soft rounded highlight on hover. */
   .os-tray-item {
-    @apply grid h-7 w-7 place-items-center rounded-md leading-none;
+    @apply grid h-7 w-7 place-items-center rounded-btn leading-none;
     transition: background-color 0.12s ease;
   }
   .os-tray-item:hover {
@@ -290,7 +298,7 @@
      crisply against the cream bar (echoes the desktop launcher treatment) */
   .os-tray-img {
     @apply h-[22px] w-[22px] object-contain;
-    filter: drop-shadow(1px 1.5px 0 rgb(37 40 30 / 0.22));
+    filter: drop-shadow(1px 1.5px 0 rgb(var(--shadow-ink) / 0.22));
   }
   /* emoji fallback for windows with no image (e.g. an article reader) */
   .os-tray-emoji {
@@ -325,7 +333,7 @@
     bottom: clamp(10px, 2.5vw, 32px);
     width: clamp(300px, 44vw, 560px);
     height: auto;
-    filter: drop-shadow(2px 3px 0 rgb(37 40 30 / 0.22));
+    filter: drop-shadow(2px 3px 0 rgb(var(--shadow-ink) / 0.22));
     transform: rotate(-2deg);
   }
 }
@@ -402,7 +410,7 @@
   }
   .media-video {
     @apply block w-full rounded-tile border-2 border-line;
-    background: #000;
+    background: rgb(var(--media-letterbox));
     box-shadow: var(--shadow-soft);
   }
   .media-embed {

@@ -11,8 +11,8 @@ import './globals.css'
 // fonts.googleapis.com / fonts.gstatic.com on the critical path.
 //
 // Each call exposes its family as a CSS variable (--font-chrome / --font-body),
-// which we attach to <html> below. tailwind.config.ts maps the `font-chrome` /
-// `font-display` / `font-body` utilities to those same vars, so next/font is now
+// which we attach to <html> below. tailwind.config.ts maps the `font-display`
+// (chrome) / `font-body` utilities to those same vars, so next/font is now
 // the single source of truth for the families (theme.css no longer hardcodes them).
 // The weights mirror the old @import: Dosis 400–800, Hanken Grotesk 400–700.
 const dosis = Dosis({
