@@ -69,6 +69,7 @@ const registry = {
     icon: '✉️', // emoji fallback if the image is unavailable
     image: '/icons/email.png',
     defaultSize: { width: 540, height: 600 },
+    bodyPadding: 'px-5 py-4', // tighter side margins than the default px-10 — more room for the compose form
     Component: dynamic(
       () => import('@/components/windows/EmailWindow').then((m) => m.EmailWindow)
     ),

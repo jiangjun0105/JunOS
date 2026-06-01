@@ -13,6 +13,10 @@ import type { WindowInstance } from './types'
 /** Pixels a window moves (or grows/shrinks) per arrow-key press — see ACC-2. */
 const KEYBOARD_STEP = 16
 
+/** Default padding for a window's scrollable body. Apps can override it via
+ *  `AppDefinition.bodyPadding` (e.g. Email tightens its side margins). */
+const DEFAULT_BODY_PADDING = 'px-10 py-4'
+
 /**
  * The drag zones that resize a window. Each is an invisible strip pinned to a
  * border (or the corner); `axes` says which dimension(s) it grows. Right edge →
@@ -261,7 +265,10 @@ export function Window({ win }: { win: WindowInstance }) {
       )}
 
       <div className="relative flex min-h-0 flex-1">
-        <div ref={contentRef} className="os-scroll-host min-h-0 flex-1 overflow-auto px-10 py-4">
+        <div
+          ref={contentRef}
+          className={`os-scroll-host min-h-0 flex-1 overflow-auto ${def?.bodyPadding ?? DEFAULT_BODY_PADDING}`}
+        >
           {/* A crash in a window body (e.g. a failed lazy MDX chunk) is contained
               here so it can't take down the whole desktop; see ErrorBoundary. */}
           <ErrorBoundary>{Body ? <Body params={win.params} /> : <p>Unknown app.</p>}</ErrorBoundary>
