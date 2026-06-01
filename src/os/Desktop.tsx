@@ -1,14 +1,14 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { appList, isAppId } from './apps'
+import { isAppId, launchableApps } from './apps'
 import { ICON_POSITIONS_KEY, MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { DesktopIcon } from './DesktopIcon'
 import { Wallpaper } from './Wallpaper'
 import { useWindows } from './WindowManager'
 
 /** Apps that get a desktop launcher icon (hidden ones — like the article reader — open indirectly). */
-const launchers = appList.filter((app) => app.launcher !== false)
+const launchers = launchableApps
 
 type IconPositions = Record<string, { x: number; y: number }>
 
