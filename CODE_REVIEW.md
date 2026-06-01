@@ -177,7 +177,7 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** Export `launchableApps` (and an `isLaunchable(appId)` helper) from `apps.tsx:98` and consume everywhere.
 - **Done when:** The launcher rule is defined once.
 
-### ☐ ARCH-4 — Window-identity key via `JSON.stringify(params)` 🟢
+### ☑ ARCH-4 — Window-identity key via `JSON.stringify(params)` 🟢 — DONE (`windowKey` in url.ts, sorts param keys)
 - **Where:** `src/os/WindowManager.tsx:96,98`.
 - **Problem:** Key-order-sensitive; `{a,b}` vs `{b,a}` would be treated as different windows. Safe today (author-controlled params) but implicit.
 - **Fix:** Extract a `windowKey(appId, params)` helper (next to `pathForWindow` in `url.ts`); sort keys for robustness.
@@ -193,7 +193,7 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** A single typed helper (e.g. `asElementRef()`) or a single documented cast.
 - **Done when:** The Framer typing workaround is written/explained once. *(Fits naturally in the A11Y package since both files are touched there.)*
 
-### ☐ ARCH-7 — No tests despite test-friendly design 💭
+### ☑ ARCH-7 — No tests despite test-friendly design 💭 — DONE (Vitest; 27 tests for placement + url)
 - **Where:** `placement.ts`, `url.ts` were written to be pure/unit-testable; `package.json` has no test runner.
 - **Fix:** Add Vitest; cover `placeWindow`/`fitSize` (overlap/fallback) and `pathForWindow`/`parseWindowPath` (round-trip).
 - **Done when:** `pnpm test` runs and these two modules are covered.
@@ -211,34 +211,34 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** Add tokens (`--btn-face-hi/-lo`, `--accent-3-hi`, `--title-muted-*`, a `--file-*` set or reuse `--accent*`) and reference them. Unify the two SVG color maps (with REUSE-1).
 - **Done when:** Changing `theme.css` updates hover/active/title/glyph colors; no raw hex/rgb in components.
 
-### ☐ THEME-2 — `font-display` vs `font-chrome` alias confusion 🟢
+### ☑ THEME-2 — `font-display` vs `font-chrome` alias confusion 🟢 — DONE (dropped unused `chrome` key; `display` canonical)
 - **Where:** `tailwind.config.ts:37`.
 - **Problem:** `font-display` is documented as a back-compat alias but is the name actually used (8×); the "real" `font-chrome` is unused in components.
 - **Fix:** Pick one name and drop the other (coordinate with PERF-2, which rewires fonts).
 - **Done when:** One font utility name; no misleading alias.
 
-### ☐ THEME-3 — Dead `rounded-window` Tailwind mapping 🟢
+### ☑ THEME-3 — Dead `rounded-window` Tailwind mapping 🟢 — DONE (removed)
 - **Where:** `tailwind.config.ts:27`.
 - **Problem:** `rounded-window` utility is never used (`.os-window` applies `--radius-window` in CSS directly).
 - **Fix:** Remove the mapping, or use `rounded-window` in the class. (`rounded-tile` is used 11× — keep it.)
 - **Done when:** No dead config entries.
 
-### ☐ THEME-4 — Three spellings of the same ~6px radius 🟢
+### ☑ THEME-4 — Three spellings of the same ~6px radius 🟢 — DONE (`--radius-btn`/`rounded-btn`; `rounded-[5px]` code folded to 6px; EmailWindow left to you)
 - **Where:** `rounded-[6px]` (10×), `rounded-md` (5×), `rounded-[5px]` (1×, mdx `code`).
 - **Fix:** Add a `--radius-btn`/`rounded-btn` token (6px) and use it everywhere; fold in the stray `rounded-[5px]`. *(Touches many component files — coordinate with REUSE.)*
 - **Done when:** One radius token for the 6px corner.
 
-### ☐ THEME-5 — `className="article"` is inert 💭
+### ☑ THEME-5 — `className="article"` is inert 💭 — DONE (dropped)
 - **Where:** `src/components/windows/ArticleWindow.tsx:46` (no `.article` rule exists; only `.article-head/-prose/...`).
 - **Fix:** Add a rule or drop the class.
 - **Done when:** No dead class names.
 
-### ☐ THEME-6 — Minor token gaps 💭
+### ☑ THEME-6 — Minor token gaps 💭 — DONE (`--shadow-ink`, `--media-letterbox`; `--border`/`--ink` coupling documented)
 - **Where:** `--border` duplicates `--ink` (`theme.css:25`); two near-identical shadow inks (`globals.css:210,265,300` vs `theme.css:53-54`); `.media-video { background:#000 }` (`globals.css:360`).
 - **Fix:** Document the `--border`/`--ink` coupling (or collapse); unify into one `--shadow-ink`; tokenize the letterbox black.
 - **Done when:** No silent duplicate tokens.
 
-### ☐ THEME-7 — No responsive breakpoints (decision, not a bug) 💭
+### ☑ THEME-7 — No responsive breakpoints (decision, not a bug) 💭 — DONE (documented as desktop-first in globals.css)
 - **Where:** entire codebase (only `@media` is reduced-motion).
 - **Note:** Reasonable as "desktop-first, mobile-degraded" for a window manager, but tiny 22×24px window buttons and the 17px chrome scrollbar are cramped on phones, and `w-screen` (`OSRoot.tsx:30`) can overflow vs `100vw`. Decide whether to support mobile; if not, document it.
 
