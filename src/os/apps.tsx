@@ -2,6 +2,7 @@ import { AboutJunOSWindow } from '@/components/windows/AboutJunOSWindow'
 import { AboutWindow } from '@/components/windows/AboutWindow'
 import { ArticleWindow } from '@/components/windows/ArticleWindow'
 import { BooksWindow } from '@/components/windows/BooksWindow'
+import { EmailWindow } from '@/components/windows/EmailWindow'
 import { FilesWindow } from '@/components/windows/FilesWindow'
 import { ProjectsWindow } from '@/components/windows/ProjectsWindow'
 import { ResearchWindow } from '@/components/windows/ResearchWindow'
@@ -53,6 +54,14 @@ const registry = {
     image: '/icons/phone-call.png',
     defaultSize: { width: 470, height: 600 },
     Component: SupportWindow,
+  },
+  email: {
+    id: 'email',
+    title: 'Email',
+    icon: '✉️', // emoji fallback if the image is unavailable
+    image: '/icons/email.png',
+    defaultSize: { width: 540, height: 600 },
+    Component: EmailWindow,
   },
   files: {
     id: 'files',
