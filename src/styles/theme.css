@@ -18,11 +18,17 @@
   --desktop-bg: 242 220 121; /* wallpaper — warm yellow #F2DC79 */
   --desktop-hi: 247 231 154; /* lighter top of the wallpaper gradient */
   --desktop-lo: 236 205 95; /* deeper bottom */
+  --media-letterbox: 0 0 0; /* video letterbox fill behind <video> (.media-video) — pure black */
 
   /* ---- ink (outlines + text) ---- */
   --ink: 37 50 63; /* slate ink #25323F */
   --muted: 65 82 95; /* softer ink #41525F */
-  --border: 37 50 63; /* element outlines = ink */
+  /* --border intentionally mirrors --ink: in this hand-drawn look every outline
+     is drawn in the same slate ink as the text, so they share a value. It stays a
+     SEPARATE token (mapped to Tailwind `line`) so a future skin can give outlines
+     their own color without disturbing text. Keep these two in sync unless you
+     deliberately want them to diverge. */
+  --border: 37 50 63; /* element outlines = ink (see note above) */
   --btn-line: 43 58 71; /* window-button outline #2B3A47 */
   --btn-face: 226 220 198; /* window-button face #E2DCC6 */
 
@@ -69,15 +75,23 @@
      --font-chrome (Dosis, OS chrome/UI) and --font-body (Hanken Grotesk,
      readable document content) are NOT defined here. next/font/google sets them
      on <html> in src/app/layout.tsx — including its own size-adjusted fallback —
-     so it's the single source of truth. Tailwind's font-chrome/font-display/
+     so it's the single source of truth. Tailwind's font-display (chrome) and
      font-body utilities still read var(--font-chrome)/var(--font-body). */
 
   /* ---- shape ---- */
   --radius-window: 10px;
   --radius-tile: 8px;
+  --radius-btn: 6px; /* small corner — window/scroll buttons, chips, menu items */
   --titlebar-h: 29px; /* window header height — the right-edge resize zone keys off this too */
 
-  /* ---- shadows: the cozy hard offset cast ---- */
-  --shadow-window: 5px 8px 0 -1px rgb(40 28 18 / 0.22);
-  --shadow-soft: 0 4px 0 -1px rgb(40 28 18 / 0.16);
+  /* ---- shadows: the cozy hard offset cast ----
+     --shadow-ink is the single near-black brown all shadows are cast in: the
+     window/soft box-shadows below AND the hand-drawn drop-shadows on icons/photo
+     in globals.css. (It previously lived as two ~identical literals — 40 28 18
+     here and 37 40 30 there; unified to one token. At these low alphas the
+     0.16–0.28 cast is imperceptibly different, so this reads the same.) Each
+     shadow keeps its own offsets/alpha; only the color is tokenized. */
+  --shadow-ink: 40 28 18;
+  --shadow-window: 5px 8px 0 -1px rgb(var(--shadow-ink) / 0.22);
+  --shadow-soft: 0 4px 0 -1px rgb(var(--shadow-ink) / 0.16);
 }

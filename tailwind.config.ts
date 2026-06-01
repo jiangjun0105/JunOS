@@ -24,8 +24,8 @@ const config: Config = {
         'accent-3': 'rgb(var(--accent-3) / <alpha-value>)',
       },
       borderRadius: {
-        window: 'var(--radius-window)',
         tile: 'var(--radius-tile)',
+        btn: 'var(--radius-btn)', // small ~6px corner for buttons/chips/menu items
       },
       boxShadow: {
         window: 'var(--shadow-window)',
@@ -33,9 +33,9 @@ const config: Config = {
       },
       fontFamily: {
         // Families come from next/font/google in src/app/layout.tsx, which sets
-        // the --font-chrome / --font-body CSS vars on <html>.
-        chrome: ['var(--font-chrome)'],
-        display: ['var(--font-chrome)'], // back-compat alias: font-display === chrome
+        // the --font-chrome / --font-body CSS vars on <html>. `display` is the OS
+        // chrome family (it reads --font-chrome); `body` is the document family.
+        display: ['var(--font-chrome)'],
         body: ['var(--font-body)'],
       },
     },

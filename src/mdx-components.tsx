@@ -46,7 +46,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     em: (props) => <em className="italic" {...props} />,
     code: (props) => (
       <code
-        className="rounded-[5px] border border-line/40 bg-surface-2/60 px-1.5 py-0.5 font-mono text-[13px]"
+        className="rounded-btn border border-line/40 bg-surface-2/60 px-1.5 py-0.5 font-mono text-[13px]"
         {...props}
       />
     ),
