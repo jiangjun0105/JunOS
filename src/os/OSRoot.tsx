@@ -1,7 +1,7 @@
 'use client'
 
 import { AnimatePresence, MotionConfig } from 'framer-motion'
-import { type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { MenuBar } from './MenuBar'
 import { useWindows } from './WindowManager'
 import { Window } from './Window'
@@ -23,7 +23,28 @@ import { WindowUrlSync } from './WindowUrlSync'
  * "reduce motion" setting (transforms/scales are dropped, opacity kept).
  */
 export function OSRoot({ children }: { children: ReactNode }) {
-  const { windows, constraintsRef } = useWindows()
+  const { windows, focusedId, constraintsRef } = useWindows()
+
+  // ACC-4: when the window that HAD focus leaves the visible set (closed or
+  // minimized), move keyboard focus to its successor — the new top-most window —
+  // by element id. We drive this from the window-state change rather than from
+  // `document.activeElement`, because the closing window stays mounted through
+  // its exit animation, so the old focus holder lingers and an activeElement
+  // check can't fire in time. Gating on "the previously-focused window left"
+  // means a normal click/raise (which removes no window) never yanks focus.
+  const prev = useRef<{ focusedId: string | undefined; visibleIds: string[] }>({
+    focusedId: undefined,
+    visibleIds: [],
+  })
+  useEffect(() => {
+    const visibleIds = windows.filter((win) => !win.minimized).map((win) => win.id)
+    const prevFocusedLeft =
+      prev.current.focusedId !== undefined && !visibleIds.includes(prev.current.focusedId)
+    prev.current = { focusedId, visibleIds }
+    if (prevFocusedLeft && focusedId) {
+      document.getElementById(`window-${focusedId}`)?.focus({ preventScroll: true })
+    }
+  }, [windows, focusedId])
 
   return (
     <MotionConfig reducedMotion="user">

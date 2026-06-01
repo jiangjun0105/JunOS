@@ -1,7 +1,5 @@
 import type { ComponentType } from 'react'
 
-export type AppId = string
-
 /**
  * Props every window-body component receives. `params` carries per-window data —
  * e.g. which article a reader window should render (`{ slug }`).
@@ -15,7 +13,11 @@ export interface WindowComponentProps {
  * Add new apps in src/os/apps.tsx.
  */
 export interface AppDefinition {
-  id: AppId
+  // Loose `string` here (rather than `AppId`) is deliberate: `AppId` is derived
+  // from the `apps` registry (`keyof typeof apps`), and `apps.tsx` imports this
+  // type — so referencing `AppId` here would be a circular dependency. The
+  // strict, closed-set typing lives at the call boundaries (e.g. `openApp`).
+  id: string
   title: string
   /** Emoji fallback, shown on a clay tile when no `image` is provided. */
   icon: string
@@ -34,7 +36,10 @@ export interface AppDefinition {
 /** A live, open window on the desktop. The desktop is just an array of these. */
 export interface WindowInstance {
   id: string
-  appId: AppId
+  // `string` (not `AppId`) for the same circular-dependency reason as
+  // `AppDefinition.id` above; live windows are always created via `openApp`,
+  // which already enforces the closed `AppId` set at the call site.
+  appId: string
   title: string
   /** Per-window data passed to the app component (e.g. an article `{ slug }`). */
   params?: Record<string, unknown>

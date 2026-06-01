@@ -40,9 +40,37 @@
   /* ---- scrollbar ---- */
   --scroll-thumb: 194 185 156; /* tan thumb #C2B99C */
 
-  /* ---- fonts ---- */
-  --font-chrome: 'Dosis', system-ui, sans-serif; /* OS chrome / UI text */
-  --font-body: 'Hanken Grotesque', system-ui, sans-serif; /* readable document content */
+  /* ---- muted (inactive) title bar — warm-taupe gradient on unfocused windows ---- */
+  --title-muted-hi: 185 164 143; /* #B9A48F */
+  --title-muted-mid: 156 135 115; /* #9C8773 */
+  --title-muted-lo: 126 106 87; /* #7E6A57 */
+  --title-text-shadow: 20 28 38; /* #141C26 — title caption shadow (used at /0.45) */
+
+  /* ---- window/scroll button states (hover + active faces over --btn-face) ---- */
+  --btn-face-hi: 241 236 217; /* hover face #F1ECD9 */
+  --btn-face-lo: 207 200 178; /* active (pressed) face #CFC8B2 */
+
+  /* ---- close button extras (paired with --accent-3 coral) ---- */
+  --accent-3-hi: 228 123 93; /* hover face #E47B5D */
+  --accent-3-line: 121 48 31; /* deep outline #79301F */
+  --accent-3-text: 251 230 214; /* glyph color #FBE6D6 */
+
+  /* ---- file-kind glyphs (File Explorer + Books page icons) ----
+     doc/note reuse --accent and csv/quote reuse --accent-2 (same literal), so the
+     shared logical colors can't drift; only the kinds without an existing match
+     get their own token. exe and Books' pdf share --file-exe. */
+  --file-page: 253 250 240; /* page body #FDFAF0 (close to --surface but not equal) */
+  --file-folder: 240 194 78; /* folder body #F0C24E */
+  --file-txt: 95 102 112; /* plain-text gray #5F6670 */
+  --file-exe: 179 71 59; /* executable red #B3473B (also Books' pdf) */
+  --file-default: 138 143 152; /* fallback for files with no kind #8A8F98 */
+
+  /* ---- fonts ----
+     --font-chrome (Dosis, OS chrome/UI) and --font-body (Hanken Grotesk,
+     readable document content) are NOT defined here. next/font/google sets them
+     on <html> in src/app/layout.tsx — including its own size-adjusted fallback —
+     so it's the single source of truth. Tailwind's font-chrome/font-display/
+     font-body utilities still read var(--font-chrome)/var(--font-body). */
 
   /* ---- shape ---- */
   --radius-window: 10px;

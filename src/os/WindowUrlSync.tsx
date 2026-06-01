@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { getArticle } from '@/content/articles'
-import { apps } from './apps'
+import { apps, isAppId } from './apps'
 import { parseWindowPath, pathForWindow } from './url'
 import { useWindows } from './WindowManager'
 
@@ -37,7 +37,13 @@ export function WindowUrlSync() {
     if (parsed.appId === 'article') {
       if (!parsed.slug) return
       openApp('article', { params: { slug: parsed.slug }, title: getArticle(parsed.slug)?.title })
-    } else if (apps[parsed.appId] && apps[parsed.appId].launcher !== false) {
+      return
+    }
+    // `parsed.appId` is an arbitrary `string` from the URL. `isAppId` guards
+    // against unknown paths AND narrows it to `AppId`, so `apps[...]` and
+    // `openApp(...)` are sound without a cast. Indirect-only apps
+    // (launcher === false, e.g. About JunOS) aren't deep-linkable by their bare id.
+    if (isAppId(parsed.appId) && apps[parsed.appId].launcher !== false) {
       openApp(parsed.appId)
     }
   }, [pathname, openApp])

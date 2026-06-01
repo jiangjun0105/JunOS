@@ -1,5 +1,5 @@
-/* Google Fonts (Dosis for chrome, Hanken Grotesque for body) — @import must come first */
-@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@400;500;600;700;800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap');
+/* Fonts (Dosis + Hanken Grotesk) are now self-hosted via next/font/google in
+   src/app/layout.tsx — no render-blocking Google Fonts @import here. */
 /* design tokens (plain CSS variables), then Tailwind, then our component "skins" */
 @import '../styles/theme.css';
 
@@ -44,7 +44,9 @@
   /* the focused window reads as clearly active: deeper outline */
   .os-window.is-active {
     border-color: rgb(var(--ink));
-    box-shadow: var(--shadow-window), 0 0 0 1px rgb(var(--accent) / 0.25);
+    box-shadow:
+      var(--shadow-window),
+      0 0 0 1px rgb(var(--accent) / 0.25);
   }
 
   /* ---- title bar: steel-blue gradient, white Dosis caps ---- */
@@ -55,16 +57,24 @@
     color: rgb(var(--title-text));
     background: linear-gradient(rgb(var(--title-hi)), rgb(var(--title)) 60%, rgb(var(--title-lo)));
     border-bottom: 1px solid rgb(var(--ink));
+    /* ACC-6: the drag is started from this child (controls.start), so Framer can't
+       auto-apply touch-action here the way it does for a `dragListener` element.
+       Without this, dragging the title bar on a touchscreen also pans the page. */
+    touch-action: none;
   }
   /* inactive windows get a muted, warm-taupe bar */
   .os-window:not(.is-active) .os-titlebar {
-    background: linear-gradient(#b9a48f, #9c8773 55%, #7e6a57);
+    background: linear-gradient(
+      rgb(var(--title-muted-hi)),
+      rgb(var(--title-muted-mid)) 55%,
+      rgb(var(--title-muted-lo))
+    );
   }
   .os-title {
     @apply min-w-0 flex-1 truncate font-display text-[18px] font-bold uppercase;
     letter-spacing: 0.4px;
     line-height: 1.2;
-    text-shadow: 1px 1px 0 rgb(20 28 38 / 0.45);
+    text-shadow: 1px 1px 0 rgb(var(--title-text-shadow) / 0.45);
   }
 
   /* ---- window control buttons: modern rounded ---- */
@@ -79,26 +89,26 @@
     color: rgb(var(--ink));
   }
   .os-btn:hover {
-    background: rgb(241 236 217);
+    background: rgb(var(--btn-face-hi));
   }
   .os-btn:active {
-    background: rgb(207 200 178);
+    background: rgb(var(--btn-face-lo));
   }
   .os-btn-close {
     background: rgb(var(--accent-3));
-    border-color: rgb(121 48 31);
-    color: rgb(251 230 214);
+    border-color: rgb(var(--accent-3-line));
+    color: rgb(var(--accent-3-text));
     font-weight: 700;
   }
   .os-btn-close:hover {
-    background: rgb(228 123 93);
+    background: rgb(var(--accent-3-hi));
   }
 
   /* ---- resize zones: invisible right + bottom edges, plus a corner ---- */
   /* right edge → horizontal resize. Starts below the title bar so it never
      swallows the window buttons; sits over the scrollbar's outer few px. */
   .os-resize-e {
-    @apply absolute right-0 bottom-0 z-20 w-1.5 cursor-ew-resize touch-none;
+    @apply absolute bottom-0 right-0 z-20 w-1.5 cursor-ew-resize touch-none;
     top: var(--titlebar-h);
   }
   /* bottom edge → vertical resize */
@@ -147,7 +157,7 @@
     background: rgb(var(--btn-face));
   }
   .os-scroll-btn:hover {
-    background: rgb(241 236 217);
+    background: rgb(var(--btn-face-hi));
   }
   .os-scroll-btn:first-child {
     border-bottom: 1px solid rgb(var(--ink));
@@ -194,6 +204,24 @@
   .tree-children {
     @apply ml-2 pl-2;
     border-left: 1.5px solid rgb(var(--ink) / 0.18);
+  }
+
+  /* ---- accent "tag chips" (About windows) ----
+     The shared chip SHAPE lives here; the accent COLOR stays per-variant so the
+     three-accent cycle (accent → accent-2 → accent-3) reads at a glance. Mirrors
+     how .article-tag carries its own shape+skin in one class. The opacities match
+     the hand-written originals: accent/-2 at /10, accent-3 at /15 (it's lighter). */
+  .os-chip {
+    @apply rounded-[6px] border border-line px-3 py-1 text-sm text-ink;
+  }
+  .os-chip-1 {
+    @apply bg-accent/10;
+  }
+  .os-chip-2 {
+    @apply bg-accent-2/10;
+  }
+  .os-chip-3 {
+    @apply bg-accent-3/15;
   }
 
   /* ---- desktop launcher icon ---- */
@@ -330,15 +358,32 @@
     @apply border-0 bg-transparent p-0;
   }
 
-  /* index cards in the Research window */
-  .article-card {
-    @apply block w-full rounded-tile border border-line bg-surface-2/50 p-3 text-left transition-colors;
+  /* ---- shared list card + pill ----
+     Originally the Research index's `.article-card` / `.article-card-kind`; now
+     generalized since Development and Books inline the exact same shape.
+
+     `.os-card` is JUST the rounded list tile shape — the common ground shared by
+     Research (a clickable <button>), Development, and Books (plain <li>s). The
+     interactive bits the Research button additionally needs (it's a <button>, so
+     it must be told to fill width, lay out as a block, left-align, and animate its
+     hover tint) live in `.os-card-button` so the plain <li> cards don't silently
+     gain a hover-darken/transition they never had.
+
+     `.os-pill` is the small tag/status pill (top-right of a card). It carries NO
+     `capitalize`: Development/Books tags ("🪟 web") must stay as authored, and the
+     Research index's kind is now title-cased in JS via formatKind() instead — one
+     source of truth for casing (see ui/formatKind.ts), no CSS text-transform. */
+  .os-card {
+    @apply rounded-tile border border-line bg-surface-2/50 p-3;
   }
-  .article-card:hover {
+  .os-card-button {
+    @apply block w-full text-left transition-colors;
+  }
+  .os-card-button:hover {
     @apply bg-surface-2/80;
   }
-  .article-card-kind {
-    @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs capitalize;
+  .os-pill {
+    @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs;
   }
 
   /* ---- media blocks ---- */

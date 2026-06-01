@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { sectionsByKind, type ArticleKind } from '@/content/articles'
-import type { AppId } from '@/os/types'
+import type { AppId } from '@/os/apps'
 import { useWindows } from '@/os/WindowManager'
+import { FileGlyph as PageGlyph } from './ui/FileGlyph'
 
 /** File kind drives the color-coded page glyph (matching the sample project). */
 type FileKind = 'doc' | 'txt' | 'csv' | 'exe'
@@ -11,7 +12,13 @@ type FileKind = 'doc' | 'txt' | 'csv' | 'exe'
 /** A node in the file tree: a folder (expandable) or a file that opens an app. */
 type TreeNode =
   | { kind: 'folder'; name: string; children: TreeNode[] }
-  | { kind: 'file'; name: string; appId: AppId; fileKind?: FileKind; params?: Record<string, unknown> }
+  | {
+      kind: 'file'
+      name: string
+      appId: AppId
+      fileKind?: FileKind
+      params?: Record<string, unknown>
+    }
 
 /**
  * A kind's articles become a two-layer tree: one sub-folder per section, each
@@ -24,7 +31,7 @@ function articleFolders(kind: ArticleKind): TreeNode[] {
     children: section.articles.map((a) => ({
       kind: 'file' as const,
       name: a.title,
-      appId: 'article' as AppId,
+      appId: 'article',
       fileKind: 'doc' as const,
       params: { slug: a.slug },
     })),
@@ -114,7 +121,7 @@ function FolderGlyph() {
     <svg viewBox="0 0 24 20" width="19" height="16" aria-hidden>
       <path
         d="M2 4 h7 l2 2.5 H22 v11 H2 Z"
-        fill="#f0c24e"
+        fill="rgb(var(--file-folder))"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinejoin="round"
@@ -123,21 +130,30 @@ function FolderGlyph() {
   )
 }
 
-/** Simple page glyph, color-coded by file kind (matches the sample). */
+/** Simple page glyph, color-coded by file kind (matches the sample).
+    The page silhouette + folded corner come from the shared <FileGlyph> primitive;
+    only the colored rule-lines (a small grid for csv, horizontal rules otherwise)
+    are drawn here. Colors are theme tokens (theme.css) so the palette is
+    reskinnable; doc reuses --accent and csv reuses --accent-2 — the same tokens
+    Books' note/quote use. */
 function FileGlyph({ kind }: { kind?: FileKind }) {
-  const color = kind ? { doc: '#3b72c4', txt: '#5f6670', csv: '#4f8d5b', exe: '#b3473b' }[kind] : '#8a8f98'
+  const color = kind
+    ? {
+        doc: 'rgb(var(--accent))',
+        txt: 'rgb(var(--file-txt))',
+        csv: 'rgb(var(--accent-2))',
+        exe: 'rgb(var(--file-exe))',
+      }[kind]
+    : 'rgb(var(--file-default))'
   return (
-    <svg viewBox="0 0 19 23" width="15" height="18" aria-hidden>
-      <path
-        d="M3 2 h8 l5 5 v13 q0 1-1 1 H4 q-1 0-1-1 Z"
-        fill="#fdfaf0"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path d="M11 2 v5 h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    <PageGlyph width={15} height={18}>
       {kind === 'csv' ? (
-        <path d="M5 11.5 h8 M5 14.5 h8 M5 17.5 h8 M9 10.5 v8" stroke={color} strokeWidth="1.2" fill="none" />
+        <path
+          d="M5 11.5 h8 M5 14.5 h8 M5 17.5 h8 M9 10.5 v8"
+          stroke={color}
+          strokeWidth="1.2"
+          fill="none"
+        />
       ) : (
         <path
           d={`M5 11.5 h7 M5 14.5 h${kind === 'txt' ? 5 : 7} M5 17.5 h6`}
@@ -147,6 +163,6 @@ function FileGlyph({ kind }: { kind?: FileKind }) {
           fill="none"
         />
       )}
-    </svg>
+    </PageGlyph>
   )
 }

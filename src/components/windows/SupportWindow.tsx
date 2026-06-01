@@ -1,30 +1,28 @@
+import { WindowHeader } from './ui/WindowHeader'
+
 /**
  * "Call Me" app — a contact card for talking to AI Jun: a round photo above a
  * short intro and a call button.
  *
  * The call itself isn't wired up yet — the button is a placeholder. To make it
  * real, drop a handler on it (e.g. a `tel:` link, a dialer, or a callback form).
- * The photo is /icons/jun_photo.png.
+ * The photo is /icons/jun_photo.webp.
  */
 export function SupportWindow() {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 py-1 text-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/icons/jun_photo.png"
+        src="/icons/jun_photo.webp"
         alt="Jun"
         draggable={false}
         className="h-64 w-64 rounded-full object-cover shadow-soft"
       />
 
-      <div className="space-y-1">
-        <h1 className="font-body text-[22px] font-bold">Talk to AI Jun</h1>
-        <p className="text-[18px] text-muted">
-          You can talk to my AI digital double to learn more about Jun&apos;s
-          experience, development projects, or research interests, and also
-          anything else you&apos;d like to let Jun know.
-        </p>
-      </div>
+      <WindowHeader
+        title="Talk to AI Jun"
+        subtitle="You can talk to my AI digital double to learn more about Jun's experience, development projects, or research interests, and also anything else you'd like to let Jun know."
+      />
 
       {/* Placeholder — wire up the phone-call feature here. */}
       <button

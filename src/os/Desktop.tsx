@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { appList } from './apps'
+import { appList, isAppId } from './apps'
 import { ICON_POSITIONS_KEY, MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { DesktopIcon } from './DesktopIcon'
 import { Wallpaper } from './Wallpaper'
@@ -99,7 +99,7 @@ export function Desktop() {
           an icon over it). No z-index: it paints above the wallpaper but below
           the z-10 icon layer, so icons always sit on top. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/background/family.png" alt="" aria-hidden draggable={false} className="os-desktop-photo" />
+      <img src="/background/family.webp" alt="" aria-hidden draggable={false} className="os-desktop-photo" />
 
       {/* Icon layer — icons are absolutely positioned and draggable. */}
       <div className="relative z-10 flex-1">
@@ -109,7 +109,11 @@ export function Desktop() {
             app={app}
             position={positions[app.id] ?? { x: ICON_COL_X, y: ICON_TOP }}
             constraintsRef={constraintsRef}
-            onOpen={() => openApp(app.id)}
+            // `app.id` is typed `string` on AppDefinition (kept loose to avoid a
+            // types<->apps cycle); `isAppId` narrows it to the strict `AppId`
+            // that `openApp` wants — without a cast. Always true for a registry
+            // entry, so it's a type bridge, not a real runtime gate.
+            onOpen={() => isAppId(app.id) && openApp(app.id)}
             onMove={(position) => moveIcon(app.id, position)}
           />
         ))}
