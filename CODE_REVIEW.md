@@ -142,7 +142,7 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** A single `formatKind(kind)` util (or one `<KindBadge>`) so casing is defined once.
 - **Done when:** "Research"/"research" render identically everywhere.
 
-### ☐ REUSE-7 — Raw `<img>` + eslint-disable repeated 8× 💭
+### ☑ REUSE-7 — Raw `<img>` + eslint-disable repeated 8× 💭 — DONE (`src/components/Img.tsx` wrapper; MDX spots covered by PERF-6's next/image)
 - **Where:** `Figure:21`, `Gallery:26`, `mdx-components:62`, `MenuBar:76,142`, `Desktop:101`, `DesktopIcon:85` (and `SupportWindow:12`).
 - **Fix:** A tiny `<Img>` wrapper (or adopt `next/image`) to delete the repeated `// eslint-disable-next-line @next/next/no-img-element`. *(Decide vs PERF-6.)*
 - **Done when:** One place owns the `<img>` lint exception.

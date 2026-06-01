@@ -2,6 +2,7 @@
 
 import { animate, motion, useDragControls, useMotionValue } from 'framer-motion'
 import { useEffect, useRef, type RefObject } from 'react'
+import { Img } from '@/components/Img'
 import { asElementRef } from './refs'
 import type { AppDefinition } from './types'
 
@@ -92,8 +93,7 @@ export function DesktopIcon({ app, position, constraintsRef, onOpen, onMove }: D
       }}
     >
       {app.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={app.image} alt="" className="os-icon-img" draggable={false} />
+        <Img src={app.image} alt="" className="os-icon-img" draggable={false} />
       ) : (
         <span className="os-icon-tile">{app.icon}</span>
       )}

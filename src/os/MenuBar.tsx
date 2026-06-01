@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Img } from '@/components/Img'
 import { apps, isAppId, launchableApps } from './apps'
 import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { useWindows } from './WindowManager'
@@ -73,8 +74,7 @@ export function MenuBar() {
       <MenuTrigger
         label={
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/gear.png" alt="" className="h-5 w-5 object-contain" draggable={false} />
+            <Img src="/icons/gear.png" alt="" className="h-5 w-5 object-contain" draggable={false} />
             JunOS
           </>
         }
@@ -143,8 +143,7 @@ export function MenuBar() {
                 className="os-tray-item"
               >
                 {app?.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={app.image} alt="" className="os-tray-img" draggable={false} />
+                  <Img src={app.image} alt="" className="os-tray-img" draggable={false} />
                 ) : (
                   <span aria-hidden className="os-tray-emoji">
                     {app?.icon ?? <AppGlyph />}

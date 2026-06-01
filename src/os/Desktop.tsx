@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { Img } from '@/components/Img'
 import { isAppId, launchableApps } from './apps'
 import { ICON_POSITIONS_KEY, MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { DesktopIcon } from './DesktopIcon'
@@ -98,8 +99,7 @@ export function Desktop() {
           so it's aria-hidden and pointer-events-none (it never blocks dragging
           an icon over it). No z-index: it paints above the wallpaper but below
           the z-10 icon layer, so icons always sit on top. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/background/family.webp" alt="" aria-hidden draggable={false} className="os-desktop-photo" />
+      <Img src="/background/family.webp" alt="" aria-hidden draggable={false} className="os-desktop-photo" />
 
       {/* Icon layer — icons are absolutely positioned and draggable. */}
       <div className="relative z-10 flex-1">
