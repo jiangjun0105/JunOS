@@ -80,6 +80,7 @@
   }
   .os-title {
     @apply min-w-0 flex-1 truncate font-display text-[18px] font-bold uppercase;
+    padding-left: 12px; /* nudge the title in from the left edge (title-placement option 1) */
     letter-spacing: 0.4px;
     line-height: 1.2;
     text-shadow: 1px 1px 0 rgb(var(--title-text-shadow) / 0.45);
