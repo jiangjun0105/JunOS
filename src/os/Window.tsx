@@ -1,13 +1,17 @@
 'use client'
 
 import { motion, useDragControls, useMotionValue, type PanInfo } from 'framer-motion'
-import { useEffect, useRef, type RefObject } from 'react'
+import { useEffect, useRef } from 'react'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { apps, isAppId } from './apps'
 import { MENUBAR_HEIGHT, MIN_WINDOW_SIZE as MIN } from './constants'
+import { asElementRef } from './refs'
 import { useWindows } from './WindowManager'
 import { WindowScrollbar } from './WindowScrollbar'
 import type { WindowInstance } from './types'
+
+/** Pixels a window moves (or grows/shrinks) per arrow-key press — see ACC-2. */
+const KEYBOARD_STEP = 16
 
 /**
  * The drag zones that resize a window. Each is an invisible strip pinned to a
@@ -83,19 +87,39 @@ export function Window({ win }: { win: WindowInstance }) {
     frameRef.current?.focus({ preventScroll: true })
   }, [])
 
+  // ACC-4 focus restoration (moving focus to the next window after a close /
+  // minimize) is driven from OSRoot by window id — not from here — because the
+  // closing window lingers through its exit animation, so an activeElement-based
+  // heuristic in this component can't tell "focus was lost" apart from "the old
+  // window is still animating out". See OSRoot.tsx.
+
   function handleDragEnd(_event: unknown, info: PanInfo) {
     updateWindow(win.id, {
       position: clampPosition(win.position.x + info.offset.x, win.position.y + info.offset.y),
     })
   }
 
+  // Clamp a desired size to the floor (MIN) and the viewport cap (the window's
+  // top-left is fixed, so the cap is the distance from there to each edge). Shared
+  // by pointer-resize and keyboard-resize so both obey identical limits.
+  function clampSize(w: number, h: number): { width: number; height: number } {
+    const maxW = typeof window !== 'undefined' ? window.innerWidth - win.position.x : Infinity
+    const maxH = typeof window !== 'undefined' ? window.innerHeight - win.position.y : Infinity
+    return {
+      width: Math.min(Math.max(w, MIN.width), maxW),
+      height: Math.min(Math.max(h, MIN.height), maxH),
+    }
+  }
+
   // Apply the pointer delta to width and/or height (the `axes` flags say which).
   // Growth is capped at the viewport edges, relative to the window's fixed top-left.
   function handleResize(info: PanInfo, axes: { x?: boolean; y?: boolean }) {
-    const maxW = typeof window !== 'undefined' ? window.innerWidth - win.position.x : Infinity
-    const maxH = typeof window !== 'undefined' ? window.innerHeight - win.position.y : Infinity
-    if (axes.x) width.set(Math.min(Math.max(width.get() + info.delta.x, MIN.width), maxW))
-    if (axes.y) height.set(Math.min(Math.max(height.get() + info.delta.y, MIN.height), maxH))
+    const next = clampSize(
+      width.get() + (axes.x ? info.delta.x : 0),
+      height.get() + (axes.y ? info.delta.y : 0)
+    )
+    if (axes.x) width.set(next.width)
+    if (axes.y) height.set(next.height)
   }
 
   function handleResizeEnd() {
@@ -103,13 +127,57 @@ export function Window({ win }: { win: WindowInstance }) {
     updateWindow(win.id, { size: { width: width.get(), height: height.get() } })
   }
 
+  // ACC-2: make the window keyboard-operable from its (now focusable) frame.
+  // Arrows move it; Shift+arrows resize it. We ONLY act when the frame ITSELF is
+  // the event target (`e.target === e.currentTarget`) so we never hijack arrow
+  // keys while focus is inside the body (links, inputs, scrollable content).
+  function handleFrameKeys(e: React.KeyboardEvent<HTMLDivElement>) {
+    // A maximized window is geometry-locked (mirrors the drag/resize guards).
+    if (win.maximized || e.target !== e.currentTarget) return
+
+    // Map each arrow to a (dx, dy) unit; non-arrows fall through unhandled.
+    const deltas: Record<string, [number, number]> = {
+      ArrowLeft: [-1, 0],
+      ArrowRight: [1, 0],
+      ArrowUp: [0, -1],
+      ArrowDown: [0, 1],
+    }
+    const dir = deltas[e.key]
+    if (!dir) return
+
+    // preventDefault so arrows move/resize the window instead of scrolling the page.
+    e.preventDefault()
+    const [dx, dy] = dir
+    if (e.shiftKey) {
+      // Shift+arrow → resize. Right/Down grow, Left/Up shrink (down to MIN).
+      const size = clampSize(
+        win.size.width + dx * KEYBOARD_STEP,
+        win.size.height + dy * KEYBOARD_STEP
+      )
+      updateWindow(win.id, { size })
+    } else {
+      // Arrow → move, clamped on-screen exactly like a pointer drag.
+      const position = clampPosition(
+        win.position.x + dx * KEYBOARD_STEP,
+        win.position.y + dy * KEYBOARD_STEP
+      )
+      updateWindow(win.id, { position })
+    }
+  }
+
   return (
     <motion.div
       ref={frameRef}
+      id={`window-${win.id}`}
       className={`os-window pointer-events-auto absolute outline-none ${focused ? 'is-active' : ''}`}
       role="dialog"
       aria-label={win.title}
-      tabIndex={-1}
+      // ACC-5: these windows are intentionally non-modal (you can Tab between
+      // them; they don't trap focus), so tell AT it's not a modal it can't escape.
+      aria-modal={false}
+      // ACC-2: focusable so keyboard users can Tab to the window (and reach the
+      // titlebar's minimize/maximize/close buttons) and drive it via the keyboard.
+      tabIndex={0}
       style={{ zIndex: win.zIndex, width, height }}
       initial={{ x: win.position.x, y: win.position.y, scale: 0.85, opacity: 0 }}
       animate={{
@@ -125,15 +193,19 @@ export function Window({ win }: { win: WindowInstance }) {
       dragListener={false}
       dragMomentum={false}
       dragElastic={0}
-      dragConstraints={constraintsRef as unknown as RefObject<Element>}
+      dragConstraints={asElementRef(constraintsRef)}
       onPointerDown={() => focusWindow(win.id)}
       onDragEnd={handleDragEnd}
       onKeyDown={(e) => {
         // Escape closes the window — unless the user is typing in a field.
-        if (e.key !== 'Escape') return
-        const target = e.target as HTMLElement
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return
-        closeWindow(win.id)
+        if (e.key === 'Escape') {
+          const target = e.target as HTMLElement
+          if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return
+          closeWindow(win.id)
+          return
+        }
+        // ACC-2: arrow / Shift+arrow move/resize when the frame itself is focused.
+        handleFrameKeys(e)
       }}
     >
       <div
@@ -206,7 +278,13 @@ export function Window({ win }: { win: WindowInstance }) {
             dragMomentum={false}
             dragElastic={0}
             dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            onPointerDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => {
+              // ACC-7: grabbing a resize edge of a background window should raise it.
+              // The handle's stopPropagation (below) prevents the frame's own
+              // onPointerDown from firing, so focus it explicitly here first.
+              focusWindow(win.id)
+              e.stopPropagation()
+            }}
             onDragStart={() => {
               resizing.current = true
             }}

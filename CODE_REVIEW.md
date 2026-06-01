@@ -24,43 +24,44 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** Add a small class-based `ErrorBoundary` (or `react-error-boundary`) and wrap the body render so a crash shows an in-window "This app couldn't load" fallback. Optionally add `src/app/error.tsx` as a backstop.
 - **Done when:** Forcing a throw inside one window's body leaves the rest of the desktop + menu bar fully usable.
 
-### ☐ ACC-2 — Windows are keyboard-inoperable 🔴
+### ☑ ACC-2 — Windows are keyboard-inoperable 🔴 — DONE
 - **Where:** `src/os/Window.tsx:108` (`tabIndex={-1}` — the only tabIndex in the repo), drag at `:137-140` is pointer-only.
 - **Problem:** A keyboard user can open a window but cannot move, resize, minimize, maximize it, or even Tab to reach its own titlebar buttons.
 - **Fix:** Make the frame `tabIndex={0}`; add `onKeyDown` so arrow keys nudge `position` (e.g. 10px) and Shift+arrows adjust `size`, committing through `updateWindow`. Keep the existing Escape-to-close.
 - **Done when:** With no mouse, you can focus a window, move it, resize it, and trigger minimize/maximize/close.
 
-### ☐ ACC-3 — Desktop icons can't be activated by keyboard 🔴
+### ☑ ACC-3 — Desktop icons can't be activated by keyboard 🔴 — DONE
 - **Where:** `src/os/DesktopIcon.tsx:80-82` (`onClick` guarded by drag state, no `onKeyDown`).
 - **Problem:** Enter/Space don't reliably launch an app from the desktop; keyboard users can only open apps via the menu bar.
 - **Fix:** Add `onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen() } }}`, independent of the drag guard.
 - **Done when:** Tabbing to an icon and pressing Enter or Space opens the app.
 
-### ☐ ACC-4 — Focus is never restored on close/minimize 🟡
+### ☑ ACC-4 — Focus is never restored on close/minimize 🟡 — DONE
+*Frame re-focuses when it becomes top-most only if focus was genuinely lost (`activeElement` is body), so normal clicking/typing isn't disturbed. NOTE: `minimizeWindow` now sinks the window's z-index so the top visible window becomes focused — a behavior change (URL + active styling follow the visible window on minimize); fixes a latent bug where a hidden window stayed "focused".*
 - **Where:** `src/os/Window.tsx:78-80` (focus on open), close/minimize in `src/os/WindowManager.tsx`.
 - **Problem:** Closing/minimizing drops focus to `<body>` instead of the next-highest window or the launcher that opened it. Keyboard/screen-reader users lose their place.
 - **Fix:** After close/minimize, move focus to the new top-most window (the manager already derives `focusedId`), e.g. an effect keyed on `focusedId`. Optionally remember the opener element and restore to it.
 - **Done when:** Closing a window moves focus to the next window (or desktop), never to nowhere.
 
-### ☐ ACC-5 — `role="dialog"` but unreachable / no modal semantics 🟡
+### ☑ ACC-5 — `role="dialog"` but unreachable / no modal semantics 🟡 — DONE
 - **Where:** `src/os/Window.tsx:106-108`.
 - **Problem:** Screen readers announce a dialog the user can't enter (it's `tabIndex={-1}` and intentionally non-modal).
 - **Fix:** Largely resolved by ACC-2 (`tabIndex={0}`); also add explicit `aria-modal={false}`, or switch to a labeled `role="group"`/`region` since windows are non-modal.
 - **Done when:** AT can enter and read the window; role/modality are consistent.
 
-### ☐ ACC-6 — Touch-drag of windows likely broken 🟡
+### ☑ ACC-6 — Touch-drag of windows likely broken 🟡 — DONE
 - **Where:** titlebar `onPointerDown` → `controls.start(e)` in `src/os/Window.tsx:136-140`; no `touch-action` on `.os-titlebar`/frame (`src/app/globals.css:30-58`). Resize handles correctly use `touch-none`.
 - **Problem:** Because drag starts from a child (not the draggable element), Framer doesn't auto-apply `touch-action: none`, so on touchscreens dragging the titlebar also pans the page.
 - **Fix:** Add `touchAction: 'none'` to the titlebar (style or a CSS rule), matching `DesktopIcon.tsx:56`.
 - **Done when:** Dragging a window's titlebar on a touchscreen moves the window without scrolling the page. *(Verify on a real device/emulator.)*
 
-### ☐ ACC-7 — Resizing a non-focused window doesn't raise it 🟢
+### ☑ ACC-7 — Resizing a non-focused window doesn't raise it 🟢 — DONE
 - **Where:** `src/os/Window.tsx:203` (handle `stopPropagation`) vs `:125` (frame `onPointerDown` focus).
 - **Problem:** Grabbing a resize edge of a partially-occluded window resizes it without bringing it to front.
 - **Fix:** Call `focusWindow(win.id)` in the handle's `onPointerDown` (before `stopPropagation`) or in `onDragStart`.
 - **Done when:** Resizing any window also focuses/raises it.
 
-### ☐ ACC-8 — Custom scrollbar buttons are focusable but `aria-hidden` 🟢
+### ☑ ACC-8 — Custom scrollbar buttons are focusable but `aria-hidden` 🟢 — DONE
 - **Where:** `src/os/WindowScrollbar.tsx:76`.
 - **Problem:** The chrome is `aria-hidden` (fine — native scrolling still works) but the ▲/▼ buttons remain in the tab order, an inconsistency.
 - **Fix:** Give the decorative arrow buttons `tabIndex={-1}` to match the `aria-hidden` container.
@@ -187,7 +188,7 @@ This file is the actionable backlog. Each item is scoped so it can be handed to 
 - **Fix:** Drop `id` from the literals and synthesize via `Object.entries`, or keep it with a dev assertion that `key === def.id`.
 - **Done when:** App ids can't silently mismatch their key.
 
-### ☐ ARCH-6 — Duplicated `constraintsRef` cast 💭
+### ☑ ARCH-6 — Duplicated `constraintsRef` cast 💭 — DONE (`asElementRef` in `src/os/refs.ts`)
 - **Where:** `src/os/Window.tsx:124` and `src/os/DesktopIcon.tsx:64` (`as unknown as RefObject<Element>`).
 - **Fix:** A single typed helper (e.g. `asElementRef()`) or a single documented cast.
 - **Done when:** The Framer typing workaround is written/explained once. *(Fits naturally in the A11Y package since both files are touched there.)*

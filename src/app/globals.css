@@ -55,6 +55,10 @@
     color: rgb(var(--title-text));
     background: linear-gradient(rgb(var(--title-hi)), rgb(var(--title)) 60%, rgb(var(--title-lo)));
     border-bottom: 1px solid rgb(var(--ink));
+    /* ACC-6: the drag is started from this child (controls.start), so Framer can't
+       auto-apply touch-action here the way it does for a `dragListener` element.
+       Without this, dragging the title bar on a touchscreen also pans the page. */
+    touch-action: none;
   }
   /* inactive windows get a muted, warm-taupe bar */
   .os-window:not(.is-active) .os-titlebar {

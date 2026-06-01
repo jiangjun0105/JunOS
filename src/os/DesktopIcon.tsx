@@ -2,6 +2,7 @@
 
 import { animate, motion, useDragControls, useMotionValue } from 'framer-motion'
 import { useEffect, useRef, type RefObject } from 'react'
+import { asElementRef } from './refs'
 import type { AppDefinition } from './types'
 
 interface DesktopIconProps {
@@ -61,12 +62,21 @@ export function DesktopIcon({ app, position, constraintsRef, onOpen, onMove }: D
       dragListener={false}
       dragMomentum={false}
       dragElastic={0}
-      dragConstraints={constraintsRef as unknown as RefObject<Element>}
+      dragConstraints={asElementRef(constraintsRef)}
       whileHover={{ scale: 1.05 }}
       whileDrag={{ scale: 1.1, rotate: -3, zIndex: 20 }}
       onPointerDown={(e) => {
         draggedRef.current = false
         controls.start(e)
+      }}
+      onKeyDown={(e) => {
+        // ACC-3: keyboard users open the app with Enter/Space. This is independent
+        // of the drag guard (`draggedRef`) — a key press is never a drag — so it
+        // fires reliably even right after a pointer interaction.
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onOpen()
+        }
       }}
       onDragStart={() => {
         draggedRef.current = true

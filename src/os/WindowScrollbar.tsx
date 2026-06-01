@@ -74,7 +74,9 @@ export function WindowScrollbar({ targetRef }: { targetRef: RefObject<HTMLElemen
 
   return (
     <div className="os-scrollbar" aria-hidden>
-      <button type="button" className="os-scroll-btn" onClick={() => step(-1)}>
+      {/* ACC-8: this chrome is aria-hidden (native wheel/keyboard scrolling still
+          works), so its arrow buttons must stay out of the tab order too. */}
+      <button type="button" tabIndex={-1} className="os-scroll-btn" onClick={() => step(-1)}>
         ▲
       </button>
       <div ref={trackRef} className="os-scroll-track">
@@ -84,7 +86,7 @@ export function WindowScrollbar({ targetRef }: { targetRef: RefObject<HTMLElemen
           onPointerDown={onThumbPointerDown}
         />
       </div>
-      <button type="button" className="os-scroll-btn" onClick={() => step(1)}>
+      <button type="button" tabIndex={-1} className="os-scroll-btn" onClick={() => step(1)}>
         ▼
       </button>
     </div>

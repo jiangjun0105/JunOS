@@ -155,7 +155,26 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const minimizeWindow = useCallback((id: string) => {
-    setWindows((ws) => ws.map((w) => (w.id === id ? { ...w, minimized: true } : w)))
+    // ACC-4: a minimized window is hidden, so it must NOT remain "the focused
+    // window" (focus is derived from the highest zIndex). Sink it below all the
+    // others and re-pack into a dense 1..N range — exactly like closeWindow —
+    // so the top-most VISIBLE window becomes focused. That lets the next window's
+    // frame pick up keyboard focus (see Window.tsx) and keeps the URL/is-active
+    // styling pointed at a window the user can actually see. (Restoring it raises
+    // it back to the top via restoreWindow.)
+    setWindows((ws) => {
+      const rank = new Map(
+        [...ws]
+          // force the minimized window to the front of the order (lowest z)
+          .sort((a, b) => (a.id === id ? -1 : b.id === id ? 1 : a.zIndex - b.zIndex))
+          .map((w, i) => [w.id, i + 1])
+      )
+      return ws.map((w) => ({
+        ...w,
+        minimized: w.id === id ? true : w.minimized,
+        zIndex: rank.get(w.id) ?? w.zIndex,
+      }))
+    })
   }, [])
 
   const restoreWindow = useCallback((id: string) => {
