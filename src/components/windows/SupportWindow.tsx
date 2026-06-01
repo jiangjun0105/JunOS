@@ -1,3 +1,4 @@
+import { Img } from '@/components/Img'
 import { WindowHeader } from './ui/WindowHeader'
 
 /**
@@ -11,8 +12,7 @@ import { WindowHeader } from './ui/WindowHeader'
 export function SupportWindow() {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 py-1 text-center">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Img
         src="/icons/jun_photo.webp"
         alt="Jun"
         draggable={false}

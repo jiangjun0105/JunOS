@@ -1,4 +1,5 @@
 import type { MDXComponents } from 'mdx/types'
+import Image from 'next/image'
 import { Embed } from '@/components/mdx/Embed'
 import { Figure } from '@/components/mdx/Figure'
 import { Gallery } from '@/components/mdx/Gallery'
@@ -56,12 +57,26 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {...props}
       />
     ),
-    // Plain Markdown images (![alt](src)) render as a bordered block; for captions
-    // or sizing, use the richer <Figure> component instead.
-    img: (props) => (
-      // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-      <img className="my-3 block w-full rounded-tile border-2 border-line" loading="lazy" {...props} />
-    ),
+    // Plain Markdown images (![alt](src)) render as a bordered block via
+    // next/image (automatic optimization); for captions or sizing, use the
+    // richer <Figure> component instead. Markdown gives no intrinsic size, so we
+    // use the responsive `width={0} height={0} sizes="100vw"` recipe + CSS
+    // `height: auto` (same as <Figure>). The raw `src`/`alt` from the loader are
+    // string-typed for next/image; any other attrs are forwarded.
+    img: ({ src, alt, ...rest }) =>
+      typeof src === 'string' ? (
+        <Image
+          src={src}
+          alt={typeof alt === 'string' ? alt : ''}
+          width={0}
+          height={0}
+          sizes="100vw"
+          loading="lazy"
+          className="my-3 block rounded-tile border-2 border-line"
+          style={{ width: '100%', height: 'auto' }}
+          {...rest}
+        />
+      ) : null,
 
     Figure,
     Gallery,

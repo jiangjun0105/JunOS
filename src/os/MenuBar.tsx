@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { appList, apps, isAppId } from './apps'
+import { Img } from '@/components/Img'
+import { apps, isAppId, launchableApps } from './apps'
 import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { useWindows } from './WindowManager'
 
@@ -73,8 +74,7 @@ export function MenuBar() {
       <MenuTrigger
         label={
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/gear.png" alt="" className="h-5 w-5 object-contain" draggable={false} />
+            <Img src="/icons/gear.png" alt="" className="h-5 w-5 object-contain" draggable={false} />
             JunOS
           </>
         }
@@ -95,12 +95,10 @@ export function MenuBar() {
         onToggle={() => toggleMenu('apps')}
         onClose={() => setOpenMenu(null)}
       >
-        {appList
-          .filter((app) => app.launcher !== false)
-          .map((app) => (
-            // `isAppId` narrows AppDefinition's loose `string` id to the strict
-            // `AppId` `openApp` expects (cast-free; always true for a registry app).
-            <MenuItem key={app.id} onSelect={() => run(() => isAppId(app.id) && openApp(app.id))}>
+        {launchableApps.map((app) => (
+          // `isAppId` narrows AppDefinition's loose `string` id to the strict
+          // `AppId` `openApp` expects (cast-free; always true for a registry app).
+          <MenuItem key={app.id} onSelect={() => run(() => isAppId(app.id) && openApp(app.id))}>
             <span className="flex items-center gap-2">
               <AppGlyph />
               {app.title}
@@ -145,8 +143,7 @@ export function MenuBar() {
                 className="os-tray-item"
               >
                 {app?.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={app.image} alt="" className="os-tray-img" draggable={false} />
+                  <Img src={app.image} alt="" className="os-tray-img" draggable={false} />
                 ) : (
                   <span aria-hidden className="os-tray-emoji">
                     {app?.icon ?? <AppGlyph />}
