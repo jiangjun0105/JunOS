@@ -77,26 +77,14 @@ export function EmailWindow() {
 
   return (
     <form onSubmit={handleSubmit} className="flex min-h-full flex-col">
-      {/* The window title bar already says "Email", so this header just sets the
-          compose context and hints at why the recipient is fixed. */}
-      <header className="flex items-start gap-2.5 pb-3">
-        <span className="mt-0.5 text-accent">
-          <EnvelopeGlyph />
-        </span>
-        <div>
-          <h1 className="font-display text-[20px] font-bold leading-tight text-ink">New Message</h1>
-          <p className="text-[14px] text-muted">Send a note straight to Jun&rsquo;s inbox. Jun replies to your address.</p>
-        </div>
-      </header>
-
       {/* To — fixed recipient, shown as a locked chip (not an input). */}
-      <div className="flex items-center gap-3 border-b border-line/70 py-2.5">
+      <div className="flex items-center gap-3 border-b border-line/70 py-1.5">
         <span className="w-16 shrink-0 font-display text-[14px] font-semibold uppercase tracking-wide text-muted">
           To
         </span>
         <span
           title="Messages from this app always go to Jun"
-          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-1 text-[15px] text-ink"
+          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-[15px] text-ink"
         >
           <LockGlyph />
           {RECIPIENT}
@@ -104,7 +92,7 @@ export function EmailWindow() {
       </div>
 
       {/* From — the sender's own address (becomes Reply-To). */}
-      <div className="flex items-center gap-3 border-b border-line/70 py-2.5 transition-colors focus-within:border-accent">
+      <div className="flex items-center gap-3 border-b border-line/70 py-1.5 transition-colors focus-within:border-accent">
         <label htmlFor="email-from" className={labelClass}>
           From
         </label>
@@ -122,7 +110,7 @@ export function EmailWindow() {
       </div>
 
       {/* Subject */}
-      <div className="flex items-center gap-3 border-b border-line/70 py-2.5 transition-colors focus-within:border-accent">
+      <div className="flex items-center gap-3 border-b border-line/70 py-1.5 transition-colors focus-within:border-accent">
         <label htmlFor="email-subject" className={labelClass}>
           Subject
         </label>
@@ -158,7 +146,7 @@ export function EmailWindow() {
         value={body}
         onChange={onEdit(setBody)}
         disabled={sending}
-        placeholder="Write your message&hellip;"
+        placeholder="Write your message. This note goes straight to Jun's inbox. He'll reply to your address."
         className="mt-3 min-h-[150px] w-full flex-1 resize-none rounded-md bg-transparent text-[16px] leading-relaxed text-ink placeholder:text-muted/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/25"
       />
 
@@ -220,16 +208,6 @@ const labelClass =
   'w-16 shrink-0 font-display text-[14px] font-semibold uppercase tracking-wide text-muted'
 const inputClass =
   'min-w-0 flex-1 bg-transparent text-[16px] text-ink placeholder:text-muted/55 focus:outline-none disabled:opacity-60'
-
-/** Outline envelope; inherits color via currentColor (the header sets it to accent). */
-function EnvelopeGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden>
-      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
-      <path d="M3.5 7 12 13 20.5 7" strokeLinecap="round" />
-    </svg>
-  )
-}
 
 /** Tiny lock marking the recipient as fixed. */
 function LockGlyph() {
