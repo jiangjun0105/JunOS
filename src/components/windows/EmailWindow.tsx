@@ -85,7 +85,7 @@ export function EmailWindow() {
         </span>
         <div>
           <h1 className="font-display text-[20px] font-bold leading-tight text-ink">New Message</h1>
-          <p className="text-[14px] text-muted">Send a note straight to Jun&rsquo;s inbox.</p>
+          <p className="text-[14px] text-muted">Send a note straight to Jun&rsquo;s inbox. Jun replies to your address.</p>
         </div>
       </header>
 
@@ -162,7 +162,7 @@ export function EmailWindow() {
         className="mt-3 min-h-[150px] w-full flex-1 resize-none rounded-md bg-transparent text-[16px] leading-relaxed text-ink placeholder:text-muted/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/25"
       />
 
-      {/* Footer: send button + status (sending / error / resting hint). */}
+      {/* Footer: send button + error status. */}
       <footer className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line/70 pt-3">
         <button
           type="submit"
@@ -179,13 +179,11 @@ export function EmailWindow() {
           )}
         </button>
 
-        {status === 'error' ? (
+        {status === 'error' && (
           <p className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-accent-3">
             <span aria-hidden>⚠</span>
             {error}
           </p>
-        ) : (
-          <p className="text-[13px] text-muted">Goes to {RECIPIENT}; Jun replies to your address.</p>
         )}
       </footer>
     </form>
