@@ -219,6 +219,13 @@ export function Window({ win }: { win: WindowInstance }) {
           if (!win.maximized) controls.start(e)
         }}
       >
+        <span className="os-titlebar-icon" aria-hidden>
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
+            <rect x="4" y="6.2" width="16" height="1.8" rx="0.9" />
+            <rect x="4" y="11.1" width="16" height="1.8" rx="0.9" />
+            <rect x="4" y="16" width="16" height="1.8" rx="0.9" />
+          </svg>
+        </span>
         <span className="os-title">{win.title}</span>
         <div className="os-btns">
           <button
@@ -229,7 +236,9 @@ export function Window({ win }: { win: WindowInstance }) {
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => minimizeWindow(win.id)}
           >
-            <span>–</span>
+            <svg viewBox="0 0 12 12" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" aria-hidden>
+              <path d="M2.5 6h7" />
+            </svg>
           </button>
           <button
             type="button"
@@ -239,7 +248,16 @@ export function Window({ win }: { win: WindowInstance }) {
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => toggleMaximize(win.id)}
           >
-            <span>{win.maximized ? '❐' : '▢'}</span>
+            {win.maximized ? (
+              <svg viewBox="0 0 12 12" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.1" aria-hidden>
+                <rect x="3.5" y="4.5" width="5.5" height="5.5" rx="0.8" />
+                <path d="M4.5 4.5V3.2a.8.8 0 0 1 .8-.8h4.5a.8.8 0 0 1 .8.8v4.5a.8.8 0 0 1-.8.8H8.5" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 12 12" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.1" aria-hidden>
+                <rect x="2.5" y="2.5" width="7" height="7" rx="1" />
+              </svg>
+            )}
           </button>
           <button
             type="button"
@@ -249,7 +267,9 @@ export function Window({ win }: { win: WindowInstance }) {
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => closeWindow(win.id)}
           >
-            <span>✕</span>
+            <svg viewBox="0 0 12 12" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" aria-hidden>
+              <path d="M3 3l6 6M9 3l-6 6" />
+            </svg>
           </button>
         </div>
       </div>

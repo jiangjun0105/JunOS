@@ -60,6 +60,8 @@
   /* ---- title bar: steel-blue gradient, white Dosis caps ---- */
   .os-titlebar {
     @apply flex flex-none cursor-grab select-none items-center gap-2 active:cursor-grabbing;
+    /* positioning context for the absolutely-pinned control buttons (centered title, option 2) */
+    position: relative;
     height: var(--titlebar-h);
     padding: 0 5px 0 6px;
     color: rgb(var(--title-text));
@@ -79,20 +81,37 @@
     );
   }
   .os-title {
-    @apply min-w-0 flex-1 truncate font-display text-[18px] font-bold uppercase;
-    padding-left: 12px; /* nudge the title in from the left edge (title-placement option 1) */
+    @apply min-w-0 flex-1 truncate text-center font-display text-[18px] font-bold uppercase;
+    /* centered over the full bar: the title fills the row (buttons are pinned
+       absolutely, below) and centers its text (title-placement option 2) */
     letter-spacing: 0.4px;
     line-height: 1.2;
     text-shadow: 1px 1px 0 rgb(var(--title-text-shadow) / 0.45);
   }
 
+  /* ---- title-bar left icon: matches the control-button chrome but static ---- */
+  .os-titlebar-icon {
+    @apply grid h-[22px] w-[24px] place-items-center rounded-btn;
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgb(var(--btn-face));
+    border: 1px solid rgb(var(--btn-line));
+    color: rgb(var(--ink));
+  }
+
   /* ---- window control buttons: modern rounded ---- */
   .os-btns {
     @apply flex flex-none items-center gap-1;
+    /* pinned to the right edge so the title can center over the whole bar (option 2) */
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 5px;
   }
   .os-btn {
-    @apply grid h-[22px] w-[24px] place-items-center rounded-btn text-[15px] leading-none;
-    font-family: var(--font-chrome);
+    @apply grid h-[22px] w-[24px] place-items-center rounded-btn;
     background: rgb(var(--btn-face));
     border: 1px solid rgb(var(--btn-line));
     color: rgb(var(--ink));
