@@ -29,7 +29,7 @@ export function NotificationWindow({ params }: WindowComponentProps) {
     return (
       <div className="space-y-2">
         <h1 className="font-body text-[22px] font-bold">Notification not found</h1>
-        <p className="text-muted">No notification matches "{slug ?? '—'}".</p>
+        <p className="text-muted">No notification matches &ldquo;{slug ?? '—'}&rdquo;.</p>
       </div>
     )
   }
