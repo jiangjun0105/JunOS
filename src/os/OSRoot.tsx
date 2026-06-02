@@ -1,8 +1,9 @@
 'use client'
 
 import { AnimatePresence, MotionConfig } from 'framer-motion'
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { MenuBar } from './MenuBar'
+import { NotificationPanel } from './NotificationPanel'
 import { useWindows } from './WindowManager'
 import { Window } from './Window'
 import { WindowUrlSync } from './WindowUrlSync'
@@ -24,6 +25,8 @@ import { WindowUrlSync } from './WindowUrlSync'
  */
 export function OSRoot({ children }: { children: ReactNode }) {
   const { windows, focusedId, constraintsRef } = useWindows()
+  const [notifOpen, setNotifOpen] = useState(false)
+  const toggleNotif = useCallback(() => setNotifOpen((o) => !o), [])
 
   // ACC-4: when the window that HAD focus leaves the visible set (closed or
   // minimized), move keyboard focus to its successor — the new top-most window —
@@ -63,9 +66,14 @@ export function OSRoot({ children }: { children: ReactNode }) {
           </AnimatePresence>
         </div>
 
+        {/* notification panel — above windows, below menu bar */}
+        <div className="pointer-events-none absolute inset-0 z-[55]">
+          <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
+        </div>
+
         {/* menu bar — above the window layer so open windows can't cover it */}
         <div className="absolute inset-x-0 top-0 z-[60]">
-          <MenuBar />
+          <MenuBar onNotificationToggle={toggleNotif} />
         </div>
       </div>
     </MotionConfig>

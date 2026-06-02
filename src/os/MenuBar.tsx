@@ -5,6 +5,7 @@ import { Img } from '@/components/Img'
 import { apps, isAppId } from './apps'
 import { useBookmarks } from './bookmarks'
 import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
+import { NotificationBell } from './NotificationPanel'
 import { useWindows } from './WindowManager'
 
 type MenuId = 'junos' | 'bookmarks' | 'view'
@@ -22,7 +23,7 @@ type MenuId = 'junos' | 'bookmarks' | 'view'
  * Minimized windows appear as small icons in the top-right tray (macOS-style);
  * clicking one restores it. Every menu item is wired to a real useWindows() action.
  */
-export function MenuBar() {
+export function MenuBar({ onNotificationToggle }: { onNotificationToggle: () => void }) {
   const { windows, openApp, minimizeAllWindows, restoreAllWindows, closeAllWindows, restoreWindow } =
     useWindows()
   const { bookmarks, removeBookmark } = useBookmarks()
@@ -152,37 +153,31 @@ export function MenuBar() {
         <MenuItem onSelect={() => run(resetIconPositions)}>Reset icon positions</MenuItem>
       </MenuTrigger>
 
-      {/* Minimized windows park in the top-right tray (macOS-style); each shows its
-          own app icon, shrunk to fit. Click to restore. */}
-      {minimized.length > 0 && (
-        <div className="ml-auto flex items-center gap-1.5 pl-2">
-          {minimized.map((win) => {
-            // `win.appId` is a loose `string` (see WindowInstance); narrow it with
-            // `isAppId` before indexing the registry. The existing `app?.` usage
-            // below already tolerates a miss, so an unknown id just renders the
-            // emoji fallback — no cast needed.
-            const app = isAppId(win.appId) ? apps[win.appId] : undefined
-            return (
-              <button
-                key={win.id}
-                type="button"
-                title={`Restore ${win.title}`}
-                aria-label={`Restore ${win.title}`}
-                onClick={() => restoreWindow(win.id)}
-                className="os-tray-item"
-              >
-                {app?.image ? (
-                  <Img src={app.image} alt="" className="os-tray-img" draggable={false} />
-                ) : (
-                  <span aria-hidden className="os-tray-emoji">
-                    {app?.icon ?? <AppGlyph />}
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      )}
+      {/* Right side: minimized tray + notification bell */}
+      <div className="ml-auto flex items-center gap-1.5 pl-2">
+        {minimized.map((win) => {
+          const app = isAppId(win.appId) ? apps[win.appId] : undefined
+          return (
+            <button
+              key={win.id}
+              type="button"
+              title={`Restore ${win.title}`}
+              aria-label={`Restore ${win.title}`}
+              onClick={() => restoreWindow(win.id)}
+              className="os-tray-item"
+            >
+              {app?.image ? (
+                <Img src={app.image} alt="" className="os-tray-img" draggable={false} />
+              ) : (
+                <span aria-hidden className="os-tray-emoji">
+                  {app?.icon ?? <AppGlyph />}
+                </span>
+              )}
+            </button>
+          )
+        })}
+        <NotificationBell onClick={onNotificationToggle} />
+      </div>
     </div>
   )
 }

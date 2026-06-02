@@ -354,6 +354,42 @@
     outline-offset: 2px;
   }
 
+  /* ---- notification panel: right-edge slide-out ---- */
+  .os-notif-panel {
+    @apply pointer-events-auto absolute bottom-0 right-0 flex flex-col overflow-hidden;
+    width: 320px;
+    background: transparent;
+  }
+  .os-notif-list {
+    @apply flex-1 space-y-3 overflow-y-auto p-4;
+  }
+  .os-notif-card {
+    @apply rounded-tile border border-line p-3;
+    background: rgb(var(--surface) / 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-window);
+    transition: background 0.2s ease;
+  }
+  .os-notif-card:hover {
+    background: rgb(var(--surface) / 0.92);
+  }
+  .os-notif-card-head {
+    @apply mb-1 flex items-baseline justify-between gap-2;
+  }
+  .os-notif-card-title {
+    @apply font-display text-[16px] font-semibold text-ink;
+  }
+  .os-notif-card-date {
+    @apply flex-none text-[11px] text-muted;
+  }
+  .os-notif-card-body {
+    @apply text-[14px] leading-relaxed text-ink/80;
+  }
+  .os-notif-card-body p {
+    @apply m-0 text-[14px];
+  }
+
   /* ---- wallpaper: warm-yellow radial ---- */
   .os-wallpaper {
     @apply absolute inset-0;
