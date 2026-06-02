@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Img } from '@/components/Img'
-import { apps, isAppId, launchableApps } from './apps'
+import { apps, isAppId } from './apps'
+import { useBookmarks } from './bookmarks'
 import { MENUBAR_HEIGHT, RESET_ICONS_EVENT } from './constants'
 import { useWindows } from './WindowManager'
 
-type MenuId = 'junos' | 'apps' | 'view'
+type MenuId = 'junos' | 'bookmarks' | 'view'
 
 /**
  * The top menu bar — a hand-rolled menu system (no Radix / headless deps).
@@ -24,6 +25,7 @@ type MenuId = 'junos' | 'apps' | 'view'
 export function MenuBar() {
   const { windows, openApp, minimizeAllWindows, restoreAllWindows, closeAllWindows, restoreWindow } =
     useWindows()
+  const { bookmarks, removeBookmark } = useBookmarks()
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null)
   const barRef = useRef<HTMLDivElement>(null)
 
@@ -83,28 +85,52 @@ export function MenuBar() {
         onClose={() => setOpenMenu(null)}
       >
         <MenuItem onSelect={() => run(() => openApp('about-junos'))}>About JunOS</MenuItem>
-        <MenuSeparator />
-        <MenuItem disabled={!hasWindows} onSelect={() => run(closeAllWindows)}>
-          Close all windows
-        </MenuItem>
       </MenuTrigger>
 
-      <MenuTrigger
-        label="Apps"
-        isOpen={openMenu === 'apps'}
-        onToggle={() => toggleMenu('apps')}
+<MenuTrigger
+        label="Bookmarks"
+        isOpen={openMenu === 'bookmarks'}
+        onToggle={() => toggleMenu('bookmarks')}
         onClose={() => setOpenMenu(null)}
       >
-        {launchableApps.map((app) => (
-          // `isAppId` narrows AppDefinition's loose `string` id to the strict
-          // `AppId` `openApp` expects (cast-free; always true for a registry app).
-          <MenuItem key={app.id} onSelect={() => run(() => isAppId(app.id) && openApp(app.id))}>
-            <span className="flex items-center gap-2">
-              <AppGlyph />
-              {app.title}
-            </span>
-          </MenuItem>
-        ))}
+        {bookmarks.length === 0 ? (
+          <MenuItem disabled>No bookmarks yet</MenuItem>
+        ) : (
+          bookmarks.map((bm) => (
+            <MenuItem
+              key={bm.id}
+              onSelect={() =>
+                run(() => {
+                  if (isAppId(bm.appId)) openApp(bm.appId, { params: bm.params, title: bm.title })
+                })
+              }
+            >
+              <span className="flex w-full items-center gap-2">
+                <AppGlyph />
+                <span className="min-w-0 flex-1 truncate">{bm.title}</span>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  className="os-bm-remove"
+                  aria-label={`Remove bookmark: ${bm.title}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeBookmark(bm.id)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      removeBookmark(bm.id)
+                    }
+                  }}
+                >
+                  &times;
+                </span>
+              </span>
+            </MenuItem>
+          ))
+        )}
       </MenuTrigger>
 
       <MenuTrigger
@@ -118,6 +144,9 @@ export function MenuBar() {
         </MenuItem>
         <MenuItem disabled={minimized.length === 0} onSelect={() => run(restoreAllWindows)}>
           Restore all
+        </MenuItem>
+        <MenuItem disabled={!hasWindows} onSelect={() => run(closeAllWindows)}>
+          Close all windows
         </MenuItem>
         <MenuSeparator />
         <MenuItem onSelect={() => run(resetIconPositions)}>Reset icon positions</MenuItem>

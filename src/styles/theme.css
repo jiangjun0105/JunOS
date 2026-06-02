@@ -15,9 +15,9 @@
   --surface-2: 240 233 207; /* app content panels/cards */
   --paper-hi: 247 240 216; /* lighter strips — the File/Edit toolbar #F7F0D8 */
   --paper-lo: 230 218 180; /* header tints + scrollbar track #E6DAB4 */
-  --desktop-bg: 242 220 121; /* wallpaper — warm yellow #F2DC79 */
-  --desktop-hi: 247 231 154; /* lighter top of the wallpaper gradient */
-  --desktop-lo: 236 205 95; /* deeper bottom */
+  --desktop-bg: 245 222 110; /* wallpaper — warm yellow, moderate saturation */
+  --desktop-hi: 248 232 145; /* lighter top */
+  --desktop-lo: 240 208 80; /* deeper bottom */
   --media-letterbox: 0 0 0; /* video letterbox fill behind <video> (.media-video) — pure black */
 
   /* ---- ink (outlines + text) ---- */

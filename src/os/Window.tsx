@@ -1,9 +1,10 @@
 'use client'
 
 import { motion, useDragControls, useMotionValue, type PanInfo } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { apps, isAppId } from './apps'
+import { useBookmarks } from './bookmarks'
 import { MENUBAR_HEIGHT, MIN_WINDOW_SIZE as MIN } from './constants'
 import { asElementRef } from './refs'
 import { useWindows } from './WindowManager'
@@ -64,13 +65,17 @@ function clampPosition(x: number, y: number): { x: number; y: number } {
 export function Window({ win }: { win: WindowInstance }) {
   const { focusedId, focusWindow, closeWindow, updateWindow, minimizeWindow, toggleMaximize, constraintsRef } =
     useWindows()
+  const { toggleBookmark, isBookmarked } = useBookmarks()
   const controls = useDragControls()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   // `win.appId` is typed `string` (kept loose to avoid a types<->apps cycle);
   // `isAppId` narrows it to the strict `AppId` so the lookup is cast-free. The
   // optional chain below already tolerates an unknown id.
   const def = isAppId(win.appId) ? apps[win.appId] : undefined
   const Body = def?.Component
   const focused = focusedId === win.id
+  const bookmarked = isBookmarked(win.appId, win.params)
 
   const width = useMotionValue(win.size.width)
   const height = useMotionValue(win.size.height)
@@ -90,6 +95,17 @@ export function Window({ win }: { win: WindowInstance }) {
   useEffect(() => {
     frameRef.current?.focus({ preventScroll: true })
   }, [])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function onPointerDown(e: PointerEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [menuOpen])
 
   // ACC-4 focus restoration (moving focus to the next window after a close /
   // minimize) is driven from OSRoot by window id — not from here — because the
@@ -219,13 +235,38 @@ export function Window({ win }: { win: WindowInstance }) {
           if (!win.maximized) controls.start(e)
         }}
       >
-        <span className="os-titlebar-icon" aria-hidden>
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-            <rect x="4" y="6.2" width="16" height="1.8" rx="0.9" />
-            <rect x="4" y="11.1" width="16" height="1.8" rx="0.9" />
-            <rect x="4" y="16" width="16" height="1.8" rx="0.9" />
-          </svg>
-        </span>
+        <div ref={menuRef} className="os-titlebar-icon-wrap">
+          <button
+            type="button"
+            className="os-titlebar-icon"
+            aria-label="Window menu"
+            aria-haspopup="true"
+            aria-expanded={menuOpen}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden>
+              <rect x="4" y="6.2" width="16" height="1.8" rx="0.9" />
+              <rect x="4" y="11.1" width="16" height="1.8" rx="0.9" />
+              <rect x="4" y="16" width="16" height="1.8" rx="0.9" />
+            </svg>
+          </button>
+          {menuOpen && (
+            <div className="os-win-menu-panel" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                className="os-menu-item"
+                onClick={() => {
+                  toggleBookmark(win.appId, win.title, win.params)
+                  setMenuOpen(false)
+                }}
+              >
+                {bookmarked ? 'Remove bookmark' : 'Bookmark'}
+              </button>
+            </div>
+          )}
+        </div>
         <span className="os-title">{win.title}</span>
         <div className="os-btns">
           <button
