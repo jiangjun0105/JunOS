@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { sectionsByKind, type ArticleKind } from '@/content/articles'
+import { notifications } from '@/content/notifications'
 import type { AppId } from '@/os/apps'
 import { useWindows } from '@/os/WindowManager'
 import { FileGlyph as PageGlyph } from './ui/FileGlyph'
@@ -55,6 +56,17 @@ const TREE: TreeNode[] = [
   },
   { kind: 'folder', name: 'Research', children: articleFolders('research') },
   { kind: 'folder', name: 'Personal', children: articleFolders('personal') },
+  {
+    kind: 'folder',
+    name: 'Notifications',
+    children: notifications.map((n) => ({
+      kind: 'file' as const,
+      name: n.title,
+      appId: 'notification' as AppId,
+      fileKind: 'doc' as const,
+      params: { slug: n.slug },
+    })),
+  },
 ]
 
 /** File Explorer — an expandable folder tree (like the Hand-drawn OS design). */

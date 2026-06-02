@@ -117,6 +117,19 @@ const registry = {
       () => import('@/components/windows/ArticleWindow').then((m) => m.ArticleWindow)
     ),
   },
+  // Opened from the Notification panel or File Explorer; the notification slug
+  // is passed through the window's params.
+  notification: {
+    title: 'Notification',
+    icon: '🔔',
+    toolbar: true,
+    launcher: false,
+    defaultSize: { width: 560, height: 480 },
+    Component: dynamic(
+      () =>
+        import('@/components/windows/NotificationWindow').then((m) => m.NotificationWindow)
+    ),
+  },
   // `satisfies` (not `: Record<string, AppDefinition>`) keeps the precise literal
   // key set so `AppId` below can be derived from it, while STILL type-checking
   // every entry against `AppDefinition`. (Each literal omits `id`; it's added

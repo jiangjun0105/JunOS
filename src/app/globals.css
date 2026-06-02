@@ -364,14 +364,17 @@
     @apply flex-1 space-y-3 overflow-y-auto p-4;
   }
   .os-notif-card {
-    @apply rounded-tile border border-line p-3;
+    @apply block w-full rounded-tile border border-line p-3 text-left;
     background: rgb(var(--surface) / 0.75);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: var(--shadow-window);
     transition: background 0.2s ease;
   }
-  .os-notif-card:hover {
+  .os-notif-card-clickable {
+    @apply cursor-pointer;
+  }
+  .os-notif-card-clickable:hover {
     background: rgb(var(--surface) / 0.92);
   }
   .os-notif-card-head {

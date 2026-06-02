@@ -1,26 +1,29 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import dynamic from 'next/dynamic'
 import { useEffect, useRef } from 'react'
 import { Img } from '@/components/Img'
 import { notifications, type NotificationMeta } from '@/content/notifications'
 import { MENUBAR_HEIGHT } from './constants'
+import { useWindows } from './WindowManager'
 
-const loaders = Object.fromEntries(notifications.map((n) => [n.slug, n.load]))
-
-function NotificationCard({ meta }: { meta: NotificationMeta }) {
-  const Body = dynamic(loaders[meta.slug], { loading: () => <p className="text-muted">...</p> })
+function NotificationCard({ meta, onClick }: { meta: NotificationMeta; onClick?: () => void }) {
+  const hasArticle = !!meta.load
+  const Tag = hasArticle ? 'button' : 'div'
   return (
-    <div className="os-notif-card">
+    <Tag
+      type={hasArticle ? 'button' : undefined}
+      className={`os-notif-card${hasArticle ? ' os-notif-card-clickable' : ''}`}
+      onClick={onClick}
+    >
       <div className="os-notif-card-head">
         <span className="os-notif-card-title">{meta.title}</span>
         <span className="os-notif-card-date">{meta.date}</span>
       </div>
       <div className="os-notif-card-body">
-        <Body />
+        <p>{meta.summary}</p>
       </div>
-    </div>
+    </Tag>
   )
 }
 
@@ -32,6 +35,7 @@ export function NotificationPanel({
   onClose: () => void
 }) {
   const panelRef = useRef<HTMLDivElement>(null)
+  const { openApp } = useWindows()
 
   useEffect(() => {
     if (!open) return
@@ -51,6 +55,11 @@ export function NotificationPanel({
     }
   }, [open, onClose])
 
+  function handleReadMore(meta: NotificationMeta) {
+    openApp('notification', { params: { slug: meta.slug }, title: meta.title })
+    onClose()
+  }
+
   return (
     <AnimatePresence>
       {open && (
@@ -65,7 +74,7 @@ export function NotificationPanel({
         >
           <div className="os-notif-list">
             {notifications.map((n) => (
-              <NotificationCard key={n.slug} meta={n} />
+              <NotificationCard key={n.slug} meta={n} onClick={n.load ? () => handleReadMore(n) : undefined} />
             ))}
           </div>
         </motion.div>
