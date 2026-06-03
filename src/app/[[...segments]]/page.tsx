@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Desktop } from '@/os/Desktop'
 import { appList } from '@/os/apps'
 import { articles, getArticle } from '@/content/articles'
+import { thoughts, getThought } from '@/content/thoughts'
 import { parseWindowPath } from '@/os/url'
 
 /**
@@ -48,8 +49,9 @@ export function generateStaticParams(): { segments: string[] }[] {
     .map((a) => ({ segments: [a.id] }))
 
   const articlePaths = articles.map((a) => ({ segments: ['article', a.slug] }))
+  const thoughtPaths = thoughts.map((t) => ({ segments: ['thoughts', t.slug] }))
 
-  return [...root, ...appPaths, ...articlePaths]
+  return [...root, ...appPaths, ...articlePaths, ...thoughtPaths]
 }
 
 /**
@@ -85,10 +87,25 @@ export async function generateMetadata({
           description: article.summary,
           type: 'article',
           url: canonical,
-          // Only attach an image when the article actually has a cover; an
-          // absolute URL is required for OG so relative `/public` paths are
-          // resolved against the canonical origin.
           ...(article.cover ? { images: [`${SITE_URL}${article.cover}`] } : {}),
+        },
+        alternates: { canonical },
+      }
+    }
+  }
+
+  if (intent?.appId === 'thoughts' && intent.slug) {
+    const thought = getThought(intent.slug)
+    if (thought) {
+      const canonical = `${SITE_URL}/thoughts/${encodeURIComponent(thought.slug)}`
+      return {
+        title: thought.title,
+        description: thought.summary,
+        openGraph: {
+          title: thought.title,
+          description: thought.summary,
+          type: 'article',
+          url: canonical,
         },
         alternates: { canonical },
       }

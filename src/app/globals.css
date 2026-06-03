@@ -471,6 +471,18 @@
   .os-pill {
     @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs;
   }
+  .os-nav-btn {
+    @apply flex h-7 w-7 items-center justify-center rounded-btn transition-colors;
+    color: rgb(var(--muted));
+  }
+  .os-nav-btn:hover {
+    color: rgb(var(--ink));
+    background: rgb(var(--surface-2) / 0.8);
+  }
+  .os-nav-btn:disabled {
+    @apply opacity-30;
+    pointer-events: none;
+  }
 
   /* ---- media blocks ---- */
   .media-figure {

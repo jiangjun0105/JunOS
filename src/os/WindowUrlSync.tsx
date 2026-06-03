@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { getArticle } from '@/content/articles'
+import { getThought } from '@/content/thoughts'
 import { isAppId, isLaunchable } from './apps'
 import { parseWindowPath, pathForWindow } from './url'
 import { useWindows } from './WindowManager'
@@ -37,6 +38,14 @@ export function WindowUrlSync() {
     if (parsed.appId === 'article') {
       if (!parsed.slug) return
       openApp('article', { params: { slug: parsed.slug }, title: getArticle(parsed.slug)?.title })
+      return
+    }
+    if (parsed.appId === 'thoughts') {
+      if (parsed.slug) {
+        openApp('thoughts', { params: { slug: parsed.slug }, title: getThought(parsed.slug)?.title ?? 'Thoughts' })
+      } else {
+        openApp('thoughts')
+      }
       return
     }
     // `parsed.appId` is an arbitrary `string` from the URL. `isAppId` guards

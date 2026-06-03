@@ -93,6 +93,19 @@ const registry = {
       () => import('@/components/windows/BooksWindow').then((m) => m.BooksWindow)
     ),
   },
+  thoughts: {
+    title: 'Thoughts',
+    icon: '💭',
+    image: '/icons/thoughts.png',
+    toolbar: true,
+    defaultSize: (area) => ({
+      width: Math.min(Math.round(area.width * 0.7), 1100),
+      height: Math.min(Math.round(area.height * 0.8), 800),
+    }),
+    Component: dynamic(
+      () => import('@/components/windows/ThoughtsWindow').then((m) => m.ThoughtsWindow)
+    ),
+  },
   // Not a desktop launcher — opened from the brand menu ("About JunOS", like
   // macOS's "About This Mac"). No image: it never shows a launcher icon.
   'about-junos': {

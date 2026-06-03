@@ -28,7 +28,9 @@ export interface AppDefinition {
   /** Show a desktop launcher icon + an Apps-menu entry. Default true; set false
    *  for windows that are opened indirectly (e.g. the article reader). */
   launcher?: boolean
-  defaultSize: { width: number; height: number }
+  defaultSize:
+    | { width: number; height: number }
+    | ((workArea: { width: number; height: number }) => { width: number; height: number })
   /** Padding for the scrollable window body, as Tailwind utilities. Defaults to
    *  `px-10 py-4` (see Window.tsx); override to tighten a specific app's margins
    *  — e.g. Email uses less side padding so the compose form has more room. */

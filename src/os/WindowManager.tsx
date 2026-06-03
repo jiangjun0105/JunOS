@@ -112,7 +112,8 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
       // defaultSize is clamped to the work area so a generous, readable default
       // still opens fully on-screen on short/narrow displays.
       const workArea = getWorkArea()
-      const size = fitSize(def.defaultSize, workArea)
+      const rawSize = typeof def.defaultSize === 'function' ? def.defaultSize(workArea) : def.defaultSize
+      const size = fitSize(rawSize, workArea)
       const visible = ws.filter((w) => !w.minimized)
       const anchor = visible.reduce<WindowInstance | undefined>(
         (top, w) => (w.zIndex > (top?.zIndex ?? -1) ? w : top),

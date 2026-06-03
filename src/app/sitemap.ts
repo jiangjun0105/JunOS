@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { appList } from '@/os/apps'
 import { articles } from '@/content/articles'
+import { thoughts } from '@/content/thoughts'
 
 /**
  * Canonical origin for absolute URLs. See the same constant in `page.tsx` —
@@ -45,5 +46,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  return [...home, ...apps, ...articlePages]
+  const thoughtPages: MetadataRoute.Sitemap = thoughts.map((t) => ({
+    url: `${SITE_URL}/thoughts/${encodeURIComponent(t.slug)}`,
+    lastModified: new Date(t.date),
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }))
+
+  return [...home, ...apps, ...articlePages, ...thoughtPages]
 }

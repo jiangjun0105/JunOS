@@ -15,9 +15,9 @@ import type { WindowInstance } from './types'
 
 /** The canonical path for a window (what the address bar shows when it's focused). */
 export function pathForWindow(win: Pick<WindowInstance, 'appId' | 'params'>): string {
-  if (win.appId === 'article') {
+  if (win.appId === 'article' || win.appId === 'thoughts') {
     const slug = win.params?.slug
-    if (typeof slug === 'string') return `/article/${encodeURIComponent(slug)}`
+    if (typeof slug === 'string') return `/${win.appId}/${encodeURIComponent(slug)}`
   }
   return `/${win.appId}`
 }
@@ -26,9 +26,8 @@ export function pathForWindow(win: Pick<WindowInstance, 'appId' | 'params'>): st
 export function parseWindowPath(pathname: string): { appId: string; slug?: string } | null {
   const parts = pathname.split('/').filter(Boolean)
   if (parts.length === 0) return null
-  if (parts[0] === 'article') {
-    // `/article` with no slug is meaningless — ignore it.
-    return parts[1] ? { appId: 'article', slug: decodeURIComponent(parts[1]) } : null
+  if (parts[0] === 'article' || parts[0] === 'thoughts') {
+    return parts[1] ? { appId: parts[0], slug: decodeURIComponent(parts[1]) } : { appId: parts[0] }
   }
   return { appId: parts[0] }
 }
