@@ -29,6 +29,13 @@ describe('pathForWindow', () => {
     expect(pathForWindow({ appId: 'article' })).toBe('/article')
     expect(pathForWindow({ appId: 'article', params: { slug: 123 } })).toBe('/article')
   })
+
+  it('maps a thought the same way, and the bare index to /thoughts', () => {
+    expect(pathForWindow({ appId: 'thoughts', params: { slug: 'on-simplicity' } })).toBe(
+      '/thoughts/on-simplicity',
+    )
+    expect(pathForWindow({ appId: 'thoughts' })).toBe('/thoughts')
+  })
 })
 
 describe('parseWindowPath', () => {
@@ -55,6 +62,21 @@ describe('parseWindowPath', () => {
     expect(parseWindowPath('/article')).toBeNull()
     expect(parseWindowPath('/article/')).toBeNull()
   })
+
+  it('parses a thought path into appId + decoded slug', () => {
+    expect(parseWindowPath('/thoughts/on-simplicity')).toEqual({
+      appId: 'thoughts',
+      slug: 'on-simplicity',
+    })
+    expect(parseWindowPath('/thoughts/a%20b')).toEqual({ appId: 'thoughts', slug: 'a b' })
+  })
+
+  it('OPENS bare /thoughts — unlike /article, it has a real index window', () => {
+    // The distinction the two slug apps turn on: `thoughts` is a desktop
+    // launcher, so its bare path is a destination; `article` is not.
+    expect(parseWindowPath('/thoughts')).toEqual({ appId: 'thoughts' })
+    expect(parseWindowPath('/thoughts/')).toEqual({ appId: 'thoughts' })
+  })
 })
 
 describe('pathForWindow <-> parseWindowPath round-trips', () => {
@@ -68,6 +90,12 @@ describe('pathForWindow <-> parseWindowPath round-trips', () => {
       const path = pathForWindow({ appId: 'article', params: { slug } })
       expect(parseWindowPath(path)).toEqual({ appId: 'article', slug })
     }
+  })
+
+  it('round-trips a thought slug, and the bare Thoughts index', () => {
+    const path = pathForWindow({ appId: 'thoughts', params: { slug: 'late-night-debugging' } })
+    expect(parseWindowPath(path)).toEqual({ appId: 'thoughts', slug: 'late-night-debugging' })
+    expect(parseWindowPath(pathForWindow({ appId: 'thoughts' }))).toEqual({ appId: 'thoughts' })
   })
 
   it('round-trips the bare desktop ("/" parses to null, which has no window path)', () => {
