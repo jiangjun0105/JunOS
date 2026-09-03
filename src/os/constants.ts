@@ -15,8 +15,20 @@ export const MENUBAR_HEIGHT = 40
  */
 export const MIN_WINDOW_SIZE = { width: 360, height: 280 }
 
-/** localStorage key for persisted desktop-icon positions (shared by Desktop + MenuBar). */
-export const ICON_POSITIONS_KEY = 'junos:icon-positions'
+/**
+ * localStorage key for persisted desktop-icon positions (shared by Desktop +
+ * MenuBar). Only HAND-PLACED icons are stored; everything else is auto-flowed
+ * to fit the current viewport.
+ *
+ * The `:v2` suffix retires the v1 blob, which saved every icon (not just the
+ * dragged one) at coordinates from a single tall column. Left in place, a
+ * returning visitor's stale v1 layout would pin all eight icons and defeat the
+ * reflow — so the old key is ignored (and cleared) instead.
+ */
+export const ICON_POSITIONS_KEY = 'junos:icon-positions:v2'
+
+/** The pre-reflow key, read only to delete it. */
+export const LEGACY_ICON_POSITIONS_KEY = 'junos:icon-positions'
 
 /** Custom DOM event that asks the desktop to reset its icon layout (no reload). */
 export const RESET_ICONS_EVENT = 'junos:reset-icons'
