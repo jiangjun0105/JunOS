@@ -1,18 +1,22 @@
 'use client'
 
 import { animate, motion, useDragControls, useMotionValue } from 'framer-motion'
-import { useEffect, useRef, type RefObject } from 'react'
+import { useEffect, useRef } from 'react'
 import { Img } from '@/components/Img'
-import { asElementRef } from './refs'
+import type { IconPoint } from './iconLayout'
 import type { AppDefinition } from './types'
 
 interface DesktopIconProps {
   app: AppDefinition
-  position: { x: number; y: number }
-  /** Shared desktop bounds so an icon can't be dragged off-screen. */
-  constraintsRef: RefObject<HTMLDivElement | null>
+  position: IconPoint
+  /**
+   * Work-area bounds so an icon can't be dragged off-screen — an OBJECT, not
+   * the shared constraints ref, so Framer doesn't rescale the icon's position
+   * when the viewport resizes (see `iconDragBounds`).
+   */
+  dragBounds: { left: number; top: number; right: number; bottom: number }
   onOpen: () => void
-  onMove: (position: { x: number; y: number }) => void
+  onMove: (position: IconPoint) => void
 }
 
 /**
@@ -32,16 +36,16 @@ interface DesktopIconProps {
  * If the app provides an `image` (e.g. a 3D render), it's shown bare with a soft
  * contact shadow; otherwise the emoji sits on a puffy clay tile.
  */
-export function DesktopIcon({ app, position, constraintsRef, onOpen, onMove }: DesktopIconProps) {
+export function DesktopIcon({ app, position, dragBounds, onOpen, onMove }: DesktopIconProps) {
   const controls = useDragControls()
   const draggedRef = useRef(false)
 
   const x = useMotionValue(position.x)
   const y = useMotionValue(position.y)
 
-  // Spring to a new position when the PARENT changes it (localStorage load,
-  // "Reset icon positions"). This never runs mid-drag — a move is only committed
-  // on drag-end — so it can't fight the drag gesture.
+  // Spring to a new position when the PARENT changes it (localStorage load, a
+  // viewport reflow, "Reset icon positions"). This never runs mid-drag — a move
+  // is only committed on drag-end — so it can't fight the drag gesture.
   useEffect(() => {
     const ax = animate(x, position.x, { type: 'spring', stiffness: 600, damping: 40 })
     const ay = animate(y, position.y, { type: 'spring', stiffness: 600, damping: 40 })
@@ -63,7 +67,7 @@ export function DesktopIcon({ app, position, constraintsRef, onOpen, onMove }: D
       dragListener={false}
       dragMomentum={false}
       dragElastic={0}
-      dragConstraints={asElementRef(constraintsRef)}
+      dragConstraints={dragBounds}
       whileHover={{ scale: 1.05 }}
       whileDrag={{ scale: 1.1, rotate: -3, zIndex: 20 }}
       onPointerDown={(e) => {

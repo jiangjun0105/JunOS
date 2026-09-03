@@ -11,6 +11,19 @@ export interface Rect {
 const GAP = 16
 
 /**
+ * The work area assumed before the real viewport is known — during SSR and on
+ * the hydration render. Anything that lays out from the work area must use
+ * THIS on the first render (and re-measure in an effect), so the server and
+ * client agree on the initial markup.
+ */
+export const DEFAULT_WORK_AREA: Rect = {
+  x: 0,
+  y: MENUBAR_HEIGHT,
+  width: 1024,
+  height: 768 - MENUBAR_HEIGHT,
+}
+
+/**
  * The desktop "work area" — the region below the menu bar, down to the bottom
  * of the viewport. This is the single source of truth for where windows live:
  * maximize, the drag clamp, and new-window placement all derive from it.
@@ -18,7 +31,7 @@ const GAP = 16
  */
 export function getWorkArea(): Rect {
   if (typeof window === 'undefined') {
-    return { x: 0, y: MENUBAR_HEIGHT, width: 1024, height: 768 - MENUBAR_HEIGHT }
+    return { ...DEFAULT_WORK_AREA }
   }
   return {
     x: 0,
