@@ -7,15 +7,34 @@ import type { WindowInstance } from './types'
  *
  *   about / projects / research / files   ->  /about, /projects, ...
  *   an article                            ->  /article/<slug>
+ *   a thought (or the Thoughts index)     ->  /thoughts/<slug>, /thoughts
  *   nothing focused (bare desktop)        ->  /
  *
  * Pure functions — no React, no router — so the sync logic (WindowUrlSync) and
  * any future tests can share them.
  */
 
+/**
+ * Apps that take a `/<id>/<slug>` sub-path. Shared by both directions so the
+ * writer and the parser can't drift apart.
+ */
+const SLUG_APPS: readonly string[] = ['article', 'thoughts']
+
+/**
+ * ...and, of those, the ones whose window is MEANINGLESS without a slug, so the
+ * bare path is ignored rather than opened.
+ *
+ * The two readers differ here, which is easy to miss: `thoughts` is a desktop
+ * launcher with its own index window, so `/thoughts` is a real destination —
+ * but `article` is opened indirectly (`launcher: false`) and its window renders
+ * one specific article, so a bare `/article` names nothing and is treated like
+ * an unknown path. Add a slug app to the list above AND decide its entry here.
+ */
+const SLUG_REQUIRED: readonly string[] = ['article']
+
 /** The canonical path for a window (what the address bar shows when it's focused). */
 export function pathForWindow(win: Pick<WindowInstance, 'appId' | 'params'>): string {
-  if (win.appId === 'article' || win.appId === 'thoughts') {
+  if (SLUG_APPS.includes(win.appId)) {
     const slug = win.params?.slug
     if (typeof slug === 'string') return `/${win.appId}/${encodeURIComponent(slug)}`
   }
@@ -24,12 +43,13 @@ export function pathForWindow(win: Pick<WindowInstance, 'appId' | 'params'>): st
 
 /** Parse a pathname into an open-intent, or null for the bare desktop ('/'). */
 export function parseWindowPath(pathname: string): { appId: string; slug?: string } | null {
-  const parts = pathname.split('/').filter(Boolean)
-  if (parts.length === 0) return null
-  if (parts[0] === 'article' || parts[0] === 'thoughts') {
-    return parts[1] ? { appId: parts[0], slug: decodeURIComponent(parts[1]) } : { appId: parts[0] }
+  const [appId, slug] = pathname.split('/').filter(Boolean)
+  if (!appId) return null
+  if (SLUG_APPS.includes(appId)) {
+    if (slug) return { appId, slug: decodeURIComponent(slug) }
+    return SLUG_REQUIRED.includes(appId) ? null : { appId }
   }
-  return { appId: parts[0] }
+  return { appId }
 }
 
 /**
