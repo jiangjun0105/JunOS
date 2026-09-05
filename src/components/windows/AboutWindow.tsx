@@ -29,16 +29,17 @@ export function AboutWindow() {
         <div className="space-y-1">
           <h1 className="font-body text-[22px] font-bold">Hi, I&apos;m Jun</h1>
           <p className="text-[18px] text-muted">
-            An AI engineer rebuilding the software development lifecycle around agents.
+            AI engineer at Woven by Toyota, rebuilding the software development lifecycle
+            around agents.
           </p>
         </div>
       </div>
 
       <p className="text-[18px]">
-        I&apos;ve shipped LLM-powered products end to end at Toyota and as CTO of a voice-AI
-        startup, and I design multi-agent harnesses that plan, implement, review, and test real
-        coding work with a human in the loop. In my free time I study spiking neural networks by
-        putting uploaded insect brains into digital bodies.
+        I&apos;ve shipped LLM-powered products end to end there and as CTO of a voice-AI startup
+        I co-founded, and I design multi-agent harnesses that plan, implement, review, and test
+        real coding work with a human in the loop. In my free time I study spiking neural networks by
+        putting uploaded biological brains into digital bodies.
       </p>
       <p className="text-[18px]">
         I&apos;m based in the San Francisco Bay Area, California, after about ten years in Japan; I

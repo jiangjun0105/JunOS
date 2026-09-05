@@ -472,6 +472,27 @@
     @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs;
   }
 
+  /* ---- book cover thumbnail (Books app) ----
+     A small paperback on the left of each card: fixed 64×96 so the text columns
+     line up, an ink outline and the cozy hard cast like every other framed image
+     here (see .media-img), and a little lift on hover since it's a link out to
+     Goodreads. */
+  .book-cover {
+    @apply block h-24 w-16 flex-none overflow-hidden rounded-[3px] border border-line bg-surface-2;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.12s ease;
+  }
+  .book-cover:hover {
+    transform: translateY(-2px);
+  }
+  .book-cover:focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+  }
+  .book-cover img {
+    @apply h-full w-full object-cover;
+  }
+
   /* ---- inline action button ("Read the full story →", "Read more →") ----
      A text action INSIDE a window body, as opposed to `.os-btn`, which is the
      22px window-control glyph in the title bar. Same rounded-btn + ink border
