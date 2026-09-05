@@ -177,10 +177,14 @@ const platform_settings = {
       },
     ],
   },
-  // The widget is embedded in a page the visitor already trusts, so no auth
-  // gate; the colors are the JunOS theme tokens (src/styles/theme.css) so the
-  // floating widget doesn't clash with the desktop behind it.
+  // The site calls this agent by its public id over the ElevenLabs WebSocket
+  // (see SupportWindow), so the agent has to accept unauthenticated sessions.
+  // Restrict it to your own origins with `allowlist` + `require_origin_header`
+  // if free-tier minutes need protecting.
   auth: { enable_auth: false },
+  // NOT used by the site — SupportWindow renders its own call UI. These style
+  // the shareable conversation page ElevenLabs hosts for this agent, so they're
+  // kept in the JunOS palette for anyone who opens that link.
   widget: {
     variant: 'full',
     placement: 'bottom-right',

@@ -166,11 +166,17 @@ A new `src/components/mdx/MdxLink.tsx` intercepts those two shapes and opens the
 instead of navigating, so following a link doesn't tear down the desktop; the href stays real for
 middle-click and crawlers. All 37 internal links were checked and resolve.
 
-**Call Me.** `SupportWindow` embeds the ElevenLabs `<elevenlabs-convai>` widget, reading
-`NEXT_PUBLIC_ELEVENLABS_AGENT_ID`. Without the var the window degrades to the photo + intro and
-says the agent isn't configured. See the new `.env.example`. Dashboard setup (built-in tools, the
-six data-collection fields, knowledge-base upload) is still Jun's to do, per the setup section
-above.
+**Call Me.** `SupportWindow` runs the call itself — a Call now / Mute / End call UI and a live
+transcript, all plain JunOS components — over the ElevenLabs Conversational AI WebSocket, using
+`@elevenlabs/react`'s headless client. Deliberately NOT their embeddable widget: that floats a
+fixed-position orb over the viewport with its own styling, which is wrong in a desktop made of
+windows. The agent id comes from `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`; without it the window
+degrades to the photo and says the agent isn't configured.
+
+The agent itself is provisioned from the KB rather than clicked together in the dashboard:
+`scripts/provision-agent.mjs` uploads the knowledge base, sets the system prompt, the built-in
+tools, the six data-collection fields and the two evaluation criteria. Re-run it after editing
+`kb/refined/`.
 
 **ElevenLabs bundle (§4).** `scripts/build-agent-bundle.mjs` generates it from `kb/` into
 `dist/agent-kb/` (gitignored): `system-prompt.md` with the setup checklist stripped,
