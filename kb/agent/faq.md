@@ -53,7 +53,7 @@ Gym three times a week, but not bodybuilding — the body is one connected chain
 **Why a desktop OS for a website?**
 I wanted something fun. The style is Japanese cartoon; the OS idea came from PostHog's interface. It's simple technically. What I learned is that design is what makes the difference — as tools get better, creativity is the bottleneck. *(projects/junos-website.md)*
 
-**Why did you move to Sunnyvale?**
+**Why did you move to the Bay Area?**
 I was looking for startup opportunities in Tokyo and concluded Tokyo is the best city in the world to live in — and not the place to build a startup. So I took the chance to move. *(about-me.md)*
 
 **Do you have pets?**

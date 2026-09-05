@@ -3,13 +3,13 @@ title: About me
 section: about
 tags: [bio, robotics, mechanical-engineering, university-of-tokyo, jsk, dji, image-signal-processing, woven-by-toyota, ai-agents]
 sources: [raw/2026-09-03-about-me.md, resume Aug 2026]
-updated: 2026-09-03
+updated: 2026-09-05
 status: draft
 ---
 
 # Short version
 
-I'm an AI engineer who rebuilds the software development lifecycle around agents. I've shipped LLM-powered products end to end at Toyota and as CTO of a voice-AI startup, and I design multi-agent harnesses that plan, implement, review, and test real coding work with a human in the loop. In my free time I study spiking neural networks by putting uploaded insect brains into digital bodies. I'm based in Sunnyvale, California, after seven years in Tokyo; I grew up in a small town in North China, and I speak Chinese, Japanese, and English.
+I'm an AI engineer who rebuilds the software development lifecycle around agents. I've shipped LLM-powered products end to end at Toyota and as CTO of a voice-AI startup, and I design multi-agent harnesses that plan, implement, review, and test real coding work with a human in the loop. In my free time I study spiking neural networks by putting uploaded insect brains into digital bodies. I'm based in the San Francisco Bay Area, California, after about ten years in Japan; I grew up in a small town in North China, and I speak Chinese, Japanese, and English.
 
 # How I got here
 
@@ -33,15 +33,15 @@ That understanding of the physical foundations of computation still shapes how I
 
 After two years I wanted to work closer to high-level intelligence; not everything should be turned into chip logic. I moved to Woven by Toyota (then Woven Planet) in Tokyo, on the computer vision team building automated high-definition maps from fleet data.
 
-Then ChatGPT arrived. I started a side project on understanding large code repositories, and with my former director — who shared the interest in LLMs — built the company's first internal chatbot. That effort led the company to create its Generative AI team, where I architected the agent framework behind Lexus's next-generation in-car assistant. Since 2024 I've been in Sunnyvale on the Arene advanced development team, where I built the AI pipeline that turns researcher prototypes into production vehicle code, cutting the handoff from about three months to about a week.
+Then ChatGPT arrived. I started a side project on understanding large code repositories, and with my former director — who shared the interest in LLMs — built the company's first internal chatbot. That effort led the company to create its Generative AI team, where I architected the agent framework behind Lexus's next-generation in-car assistant. Since 2024 I've been in the Bay Area on the Arene advanced development team, where I built the AI pipeline that turns researcher prototypes into production vehicle code, cutting the handoff from about three months to about a week.
 
 ## A voice startup
 
 In 2025 I co-founded a voice-AI startup as CTO — still in stealth, so no name here. I built its real-time conversational server solo and owned the full stack. The agent harness I use today came out of that work; a single engineer now runs the company's day-to-day development through it, and I'm moving to an advisory role.
 
-## Why Sunnyvale
+## Why the Bay Area
 
-I had been looking for startup opportunities in Tokyo, and my honest conclusion was that Tokyo is the best city in the world to live in and enjoy life — not the best place to build a startup. So when the chance to relocate to Sunnyvale came, I took it.
+I had been looking for startup opportunities in Tokyo, and my honest conclusion was that Tokyo is the best city in the world to live in and enjoy life — not the best place to build a startup. So when the chance to relocate to the Bay Area came, I took it.
 
 # Life now
 

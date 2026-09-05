@@ -15,8 +15,14 @@ export const MENUBAR_HEIGHT = 40
  */
 export const MIN_WINDOW_SIZE = { width: 360, height: 280 }
 
-/** localStorage key for persisted desktop-icon positions (shared by Desktop + MenuBar). */
-export const ICON_POSITIONS_KEY = 'junos:icon-positions'
+/**
+ * localStorage key for persisted desktop-icon positions (shared by Desktop + MenuBar).
+ * Versioned: bump the suffix whenever the DEFAULT layout changes (launcher order,
+ * column wrapping), otherwise returning visitors keep seeing their cached old
+ * layout — saved positions overlay the defaults. v2: launchers reordered
+ * (About → Call Me → Thoughts → …) and the column wraps on short viewports.
+ */
+export const ICON_POSITIONS_KEY = 'junos:icon-positions:v2'
 
 /** Custom DOM event that asks the desktop to reset its icon layout (no reload). */
 export const RESET_ICONS_EVENT = 'junos:reset-icons'

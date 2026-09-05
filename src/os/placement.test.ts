@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { MENUBAR_HEIGHT, MIN_WINDOW_SIZE } from './constants'
-import { fitSize, getWorkArea, placeWindow, type Rect } from './placement'
+import { CASCADE_STEP, defaultWindowSize, fitSize, getWorkArea, placeWindow, type Rect, WINDOW_SIZE } from './placement'
 
 /**
  * Tests for the placement helpers. `fitSize` and `placeWindow` (called with an
@@ -52,6 +52,42 @@ describe('fitSize', () => {
   })
 })
 
+describe('defaultWindowSize', () => {
+  it('fills the whole work area, edge to edge, on a compact screen', () => {
+    const area = { width: 800, height: 700 }
+    expect(defaultWindowSize(area)).toEqual({ width: 800, height: 700 })
+  })
+
+  it('takes 80% of the width (icons stay visible) and 85% of the height on a laptop', () => {
+    const area = { width: 1366, height: 728 }
+    expect(defaultWindowSize(area)).toEqual({
+      width: Math.round(1366 * WINDOW_SIZE.WIDTH_FRACTION),
+      height: Math.round(728 * WINDOW_SIZE.HEIGHT_FRACTION),
+    })
+  })
+
+  it('caps at MAX_WIDTH × MAX_HEIGHT on a wide screen', () => {
+    const area = { width: 2560, height: 1400 }
+    expect(defaultWindowSize(area)).toEqual({
+      width: WINDOW_SIZE.MAX_WIDTH,
+      height: WINDOW_SIZE.MAX_HEIGHT,
+    })
+  })
+
+  it('always fits the area it was given', () => {
+    for (const area of [
+      { width: 320, height: 500 },
+      { width: 900, height: 600 },
+      { width: 1440, height: 860 },
+      { width: 3440, height: 1400 },
+    ]) {
+      const size = defaultWindowSize(area)
+      expect(size.width).toBeLessThanOrEqual(area.width)
+      expect(size.height).toBeLessThanOrEqual(area.height)
+    }
+  })
+})
+
 describe('placeWindow', () => {
   const size = { width: 400, height: 300 }
 
@@ -98,13 +134,48 @@ describe('placeWindow', () => {
     expect(overlaps(placed, anchor)).toBe(false)
   })
 
-  it('falls back to CENTER (may overlap) when the area is crowded and no slot fits cleanly', () => {
+  it('CASCADES right + down off the anchor when the area is crowded and no slot fits cleanly', () => {
     // One giant window covering essentially the whole work area: right/below/left
-    // all either overflow or overlap, so placement gives up and centers.
+    // all either overflow or overlap, so placement steps off the anchor instead.
     const anchor: Rect = { x: 0, y: MENUBAR_HEIGHT, width: AREA.width, height: AREA.height }
     const pos = placeWindow({ size, anchor, others: [anchor], workArea: AREA })
-    expect(pos.x).toBe(Math.round(AREA.x + (AREA.width - size.width) / 2))
-    expect(pos.y).toBe(Math.round(AREA.y + (AREA.height - size.height) / 2))
+    expect(pos).toEqual({ x: anchor.x + CASCADE_STEP, y: anchor.y + CASCADE_STEP })
+    expect(fitsInside({ ...pos, ...size }, AREA)).toBe(true)
+  })
+
+  it('never lands exactly on the anchor: two same-size centered windows are offset', () => {
+    // The everyday case on a big screen: the first window is the responsive
+    // default, centered; the second is the same size, so no side slot fits.
+    const big = { width: 800, height: 600 }
+    const first = placeWindow({ size: big, others: [], workArea: AREA })
+    const anchor: Rect = { ...first, ...big }
+    const second = placeWindow({ size: big, anchor, others: [anchor], workArea: AREA })
+    expect(second).not.toEqual(first)
+    expect(second).toEqual({ x: first.x + CASCADE_STEP, y: first.y + CASCADE_STEP })
+    expect(fitsInside({ ...second, ...big }, AREA)).toBe(true)
+  })
+
+  it('clamps the cascade to the work area when the anchor is near the bottom-right', () => {
+    const anchor: Rect = { x: AREA.width - size.width - 10, y: MENUBAR_HEIGHT + AREA.height - size.height - 10, ...size }
+    // Fill the area so every side slot is blocked, forcing the cascade.
+    const blocker: Rect = { x: 0, y: MENUBAR_HEIGHT, width: AREA.width, height: AREA.height }
+    const pos = placeWindow({ size, anchor, others: [anchor, blocker], workArea: AREA })
+    expect(fitsInside({ ...pos, ...size }, AREA)).toBe(true)
+    expect(pos).toEqual({ x: AREA.width - size.width, y: MENUBAR_HEIGHT + AREA.height - size.height })
+  })
+
+  it('wraps the cascade to the top-left when the anchor already sits in the bottom-right corner', () => {
+    const anchor: Rect = { x: AREA.width - size.width, y: MENUBAR_HEIGHT + AREA.height - size.height, ...size }
+    const blocker: Rect = { x: 0, y: MENUBAR_HEIGHT, width: AREA.width, height: AREA.height }
+    const pos = placeWindow({ size, anchor, others: [anchor, blocker], workArea: AREA })
+    expect(pos).toEqual({ x: AREA.x + GAP, y: AREA.y + GAP })
+  })
+
+  it('keeps a full-bleed (compact) window inside the area even though it cannot cascade', () => {
+    const full = { width: AREA.width, height: AREA.height }
+    const anchor: Rect = { x: AREA.x, y: AREA.y, ...full }
+    const pos = placeWindow({ size: full, anchor, others: [anchor], workArea: AREA })
+    expect(fitsInside({ ...pos, ...full }, AREA)).toBe(true)
   })
 })
 

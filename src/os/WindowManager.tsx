@@ -12,7 +12,7 @@ import {
   type RefObject,
 } from 'react'
 import { apps, type AppId } from './apps'
-import { fitSize, getWorkArea, placeWindow, type Rect } from './placement'
+import { defaultWindowSize, fitSize, getWorkArea, placeWindow, type Rect } from './placement'
 import type { WindowInstance } from './types'
 import { windowKey } from './url'
 
@@ -108,12 +108,17 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
       }
 
       // Place the new window relative to the current (top-most visible) one,
-      // avoiding overlap where possible — see ./placement. The app's declared
-      // defaultSize is clamped to the work area so a generous, readable default
-      // still opens fully on-screen on short/narrow displays.
+      // avoiding overlap where possible — see ./placement. Most apps take the
+      // responsive default size (`defaultWindowSize`, already fitted to the work
+      // area); an app that declares its own `defaultSize` (a fixed-size dialog)
+      // gets it clamped to the work area so it still opens fully on-screen.
       const workArea = getWorkArea()
-      const rawSize = typeof def.defaultSize === 'function' ? def.defaultSize(workArea) : def.defaultSize
-      const size = fitSize(rawSize, workArea)
+      const size = def.defaultSize
+        ? fitSize(
+            typeof def.defaultSize === 'function' ? def.defaultSize(workArea) : def.defaultSize,
+            workArea
+          )
+        : defaultWindowSize(workArea)
       const visible = ws.filter((w) => !w.minimized)
       const anchor = visible.reduce<WindowInstance | undefined>(
         (top, w) => (w.zIndex > (top?.zIndex ?? -1) ? w : top),

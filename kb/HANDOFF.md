@@ -42,7 +42,7 @@ Status: all files are `draft` — meaning "content approved by Jun, not yet proo
 1. **Stealth startup.** Jun's startup is referred to only as "a voice-AI startup I co-founded." Never write its name, product, customers, partners, or metrics anywhere in `src/`. `kb/raw/` contains the name; do not copy from raw. Grep `src/` for the name before every commit.
 2. **Toyota** content stays exactly at the level of `about-me.md` and `publications.md`. Add nothing.
 3. **No invented facts.** If a component needs a value the KB doesn't have (a date, a number, an image caption), leave a clearly marked TODO rather than guessing.
-4. **Personal data**: only what's in `about-me.md` (Sunnyvale; two dogs Mochi and Peanuts; walks with family; gym). No addresses, family names, or schedule beyond the routine paragraph.
+4. **Personal data**: only what's in `about-me.md` (the San Francisco Bay Area — the city itself is deliberately not named; two dogs Mochi and Peanuts; walks with family; gym). No addresses, family names, or schedule beyond the routine paragraph.
 5. **Attribution in the KB** (`note:` fields saying "Extracted by Claude") is internal; strip it from anything rendered.
 6. `refined/thoughts/the-body-is-one-system.md` mentions a childhood car accident in one sentence. Keep it at one sentence; do not expand.
 7. **English only.** Jun's decision, 2026-09-05: no Chinese characters anywhere in `src/` or `kb/refined/`. His Chinese name (the DJI patents were filed under it) is referred to in words, not written out; Chinese phrases are romanized and glossed. `kb/raw/` is exempt — it is his verbatim, bilingual transcript and must stay as spoken.
@@ -57,7 +57,7 @@ Everything currently in `src/content/articles/`, `src/content/thoughts/`, and `s
 
 ### 3.2 About window (`AboutWindow.tsx`)
 
-Replace the placeholder with `refined/about-me.md`. Suggested layout: the "Short version" paragraph as the hero, `ChipRow` with a few identity chips (e.g. `🤖 robotics → AI`, `🪰 fly brain`, `🐶 Mochi & Peanuts`, `🗼 Tokyo → Sunnyvale`), then a "Read the full story" button that opens the article reader with slug `about-me`. Put the full story in `src/content/articles/about-me.mdx` (kind `personal`, section `Life`). Photo: `public/icons/jun_photo.webp` already exists.
+Replace the placeholder with `refined/about-me.md`. Suggested layout: the "Short version" paragraph as the hero, `ChipRow` with a few identity chips (e.g. `🤖 robotics → AI`, `🪰 fly brain`, `🐶 Mochi & Peanuts`, `🗼 Japan → Bay Area`), then a "Read the full story" button that opens the article reader with slug `about-me`. Put the full story in `src/content/articles/about-me.mdx` (kind `personal`, section `Life`). Photo: `public/icons/jun_photo.webp` already exists.
 
 ### 3.3 Now page
 

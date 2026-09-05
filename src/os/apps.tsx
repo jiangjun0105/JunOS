@@ -4,7 +4,9 @@ import type { AppDefinition } from './types'
 /**
  * The app registry. To add a new launchable window:
  *   1. create a component in src/components/windows/
- *   2. add an entry here with an icon + default size (and an optional `image`)
+ *   2. add an entry here with an icon (and an optional `image`). Windows open at
+ *      the responsive default size (see `defaultWindowSize` in ./placement);
+ *      set `defaultSize` only for a window that must stay small, like a dialog.
  * The desktop icon and the open/focus logic are handled for you. Set
  * `launcher: false` for a window opened indirectly (see `article`, which the
  * Research index / File Explorer open with an article slug in its params).
@@ -35,10 +37,6 @@ const registry = {
     icon: '🌳', // emoji fallback if the image is unavailable
     image: '/icons/about_me.png',
     toolbar: true,
-    // Roomier than the old placeholder needed: the About card now carries a
-    // photo, the short bio, the identity chips and two buttons into the
-    // personal articles.
-    defaultSize: { width: 560, height: 520 },
     Component: dynamic(
       () => import('@/components/windows/AboutWindow').then((m) => m.AboutWindow)
     ),
@@ -47,6 +45,8 @@ const registry = {
     title: 'Call Me',
     icon: '📞', // emoji fallback if the image is unavailable
     image: '/icons/phone-call.png',
+    // Fixed (not the responsive default): the call UI is a phone-shaped panel,
+    // sized by the "Call Me" work — leave it be.
     defaultSize: { width: 470, height: 600 },
     Component: dynamic(
       () => import('@/components/windows/SupportWindow').then((m) => m.SupportWindow)
@@ -57,10 +57,6 @@ const registry = {
     icon: '💭',
     image: '/icons/thoughts.png',
     toolbar: true,
-    defaultSize: (area) => ({
-      width: Math.min(Math.round(area.width * 0.7), 1100),
-      height: Math.min(Math.round(area.height * 0.8), 800),
-    }),
     Component: dynamic(
       () => import('@/components/windows/ThoughtsWindow').then((m) => m.ThoughtsWindow)
     ),
@@ -70,7 +66,6 @@ const registry = {
     icon: '🗂️',
     image: '/icons/development.png',
     toolbar: true,
-    defaultSize: { width: 500, height: 440 },
     Component: dynamic(
       () => import('@/components/windows/ProjectsWindow').then((m) => m.ProjectsWindow)
     ),
@@ -80,7 +75,6 @@ const registry = {
     icon: '📚', // emoji fallback if the image is unavailable
     image: '/icons/research.png',
     toolbar: true,
-    defaultSize: { width: 560, height: 580 },
     Component: dynamic(
       () => import('@/components/windows/ResearchWindow').then((m) => m.ResearchWindow)
     ),
@@ -89,7 +83,6 @@ const registry = {
     title: 'Email',
     icon: '✉️', // emoji fallback if the image is unavailable
     image: '/icons/email.png',
-    defaultSize: { width: 540, height: 600 },
     bodyPadding: 'px-5 py-2',
     Component: dynamic(
       () => import('@/components/windows/EmailWindow').then((m) => m.EmailWindow)
@@ -100,7 +93,6 @@ const registry = {
     icon: '📖', // emoji fallback if the image is unavailable
     image: '/icons/books.png',
     toolbar: true,
-    defaultSize: { width: 460, height: 560 },
     Component: dynamic(
       () => import('@/components/windows/BooksWindow').then((m) => m.BooksWindow)
     ),
@@ -109,7 +101,6 @@ const registry = {
     title: 'Files',
     icon: '📁', // emoji fallback
     image: '/icons/folder.png',
-    defaultSize: { width: 430, height: 560 },
     Component: dynamic(
       () => import('@/components/windows/FilesWindow').then((m) => m.FilesWindow)
     ),
@@ -121,6 +112,8 @@ const registry = {
     icon: 'ℹ️', // emoji fallback (only ever seen if this window is minimized)
     toolbar: true,
     launcher: false,
+    // A fixed dialog size (not the responsive default): it's a small "about box",
+    // and a full-screen about box would look broken.
     defaultSize: { width: 520, height: 420 },
     Component: dynamic(
       () => import('@/components/windows/AboutJunOSWindow').then((m) => m.AboutJunOSWindow)
@@ -133,7 +126,6 @@ const registry = {
     icon: '📄',
     toolbar: true,
     launcher: false,
-    defaultSize: { width: 680, height: 600 },
     Component: dynamic(
       () => import('@/components/windows/ArticleWindow').then((m) => m.ArticleWindow)
     ),
@@ -145,7 +137,6 @@ const registry = {
     icon: '🔔',
     toolbar: true,
     launcher: false,
-    defaultSize: { width: 560, height: 480 },
     Component: dynamic(
       () =>
         import('@/components/windows/NotificationWindow').then((m) => m.NotificationWindow)

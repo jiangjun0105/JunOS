@@ -3,6 +3,7 @@
 import { ConversationProvider, useConversation } from '@elevenlabs/react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Img } from '@/components/Img'
+import { haloLevel, haloScales, smoothHalo } from './callHalo'
 
 /**
  * "Call Me" app — talk to Jun's AI double, in this window.
@@ -68,7 +69,8 @@ function CallPanel({ agentId }: { agentId: string }) {
     onError: (message) => setError(message),
     onConnect: () => setError(null),
   })
-  const { status, isSpeaking, isMuted, setMuted, startSession, endSession } = conversation
+  const { status, isSpeaking, isMuted, setMuted, startSession, endSession, getOutputVolume } =
+    conversation
 
   // End the call if the window is closed mid-conversation — otherwise the
   // socket (and the microphone) would outlive the UI that owns them.
@@ -100,20 +102,76 @@ function CallPanel({ agentId }: { agentId: string }) {
   const connecting = status === 'connecting'
   const inCall = connected || connecting
 
+  // The breathing halo. Driven straight from the SDK's output volume on every
+  // animation frame — written to the DOM through refs, NOT React state, so the
+  // window doesn't re-render 60× a second. Only runs while Jun is talking; the
+  // moment he stops, the level eases to 0 and the loop ends. Under
+  // prefers-reduced-motion the halo stays a static ring instead (below).
+  const ringRef = useRef<HTMLSpanElement>(null)
+  const glowRef = useRef<HTMLSpanElement>(null)
+  const levelRef = useRef(0)
+  const volumeRef = useRef(getOutputVolume)
+  volumeRef.current = getOutputVolume
+  const breathing = connected && isSpeaking
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let frame = 0
+    const paint = (level: number) => {
+      const { ring, glow } = haloScales(level)
+      if (ringRef.current) {
+        ringRef.current.style.transform = `scale(${ring})`
+        ringRef.current.style.opacity = String(Math.min(1, 0.35 + level))
+      }
+      if (glowRef.current) {
+        glowRef.current.style.transform = `scale(${glow})`
+        glowRef.current.style.opacity = String(0.7 * level)
+      }
+    }
+    const tick = () => {
+      const target = breathing ? haloLevel(volumeRef.current()) : 0
+      levelRef.current = smoothHalo(levelRef.current, target)
+      paint(levelRef.current)
+      // Keep going while talking, or until a fading halo has settled.
+      if (breathing || levelRef.current > 0) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [breathing])
+
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 text-center">
-      {/* The photo carries the call state: a quiet outline at rest, an accent
-          ring while Jun is talking. Cheaper to read at a glance than text. */}
-      <Img
-        src="/icons/jun_photo.webp"
-        alt="Jun"
-        draggable={false}
-        className={`h-52 w-52 flex-none rounded-full object-cover shadow-soft ring-offset-2 ring-offset-surface transition-all ${
-          connected && isSpeaking ? 'ring-4 ring-accent' : 'ring-1 ring-line'
-        }`}
-      />
+      {/* The photo carries the call state: a quiet outline at rest, and while
+          Jun is talking a halo that breathes with his voice — a crisp accent
+          ring that swells a little and a soft wash behind it that swells a lot.
+          Cheaper to read at a glance than text. The two layers sit a few px
+          outside the photo and are scaled from their centre by the frame loop
+          above; `motion-reduce:` gives reduced-motion users a plain ring. The
+          vertical margin is the room the glow needs at full swell, so it never
+          washes over the heading below. */}
+      <div className="relative my-4 flex-none">
+        <span
+          ref={glowRef}
+          aria-hidden
+          className="pointer-events-none absolute -inset-2 rounded-full bg-accent/30 opacity-0 will-change-transform"
+        />
+        <span
+          ref={ringRef}
+          aria-hidden
+          className={`pointer-events-none absolute -inset-2 rounded-full border-[3px] border-accent opacity-0 will-change-transform ${
+            breathing ? 'motion-reduce:opacity-100' : ''
+          }`}
+        />
+        <Img
+          src="/icons/jun_photo.webp"
+          alt="Jun"
+          draggable={false}
+          className="relative h-52 w-52 rounded-full object-cover shadow-soft ring-1 ring-line ring-offset-2 ring-offset-surface"
+        />
+      </div>
 
-      <div className="space-y-1">
+      {/* `relative` so the text stacks above the (absolutely positioned) halo. */}
+      <div className="relative space-y-1">
         <h1 className="font-body text-[22px] font-bold">Talk to AI Jun</h1>
         {/* In a call the pitch is over — the status takes its place, so the
             controls sit right under the photo instead of below a paragraph

@@ -11,6 +11,13 @@ export interface Rect {
 const GAP = 16
 
 /**
+ * How far a window is nudged right + down from the one under it when nothing
+ * else fits (the "cascade"). A title bar is ~29px, so 32 leaves the lower
+ * window's title fully readable above the new one.
+ */
+export const CASCADE_STEP = 32
+
+/**
  * The desktop "work area" — the region below the menu bar, down to the bottom
  * of the viewport. This is the single source of truth for where windows live:
  * maximize, the drag clamp, and new-window placement all derive from it.
@@ -61,6 +68,78 @@ export function fitSize(
   }
 }
 
+/**
+ * The responsive default size for a freshly opened window — used for every app
+ * that doesn't declare its own `defaultSize`. Three tiers, keyed off the WORK
+ * AREA (not the raw viewport):
+ *
+ *  - compact (narrower than COMPACT_MAX_WIDTH — a phone, a split screen): the
+ *    window fills the whole work area, edge to edge, from just under the menu
+ *    bar to the bottom. No margins: on a small screen the chrome is the content.
+ *  - normal (a laptop / desktop): WIDTH_FRACTION of the work-area width, centered,
+ *    so the desktop icons stay visible in the strip on the left (and a matching
+ *    strip on the right); HEIGHT_FRACTION of the work-area height.
+ *  - wide (a big monitor / ultrawide): the fractions would produce an absurdly
+ *    wide reading column, so the size is capped at MAX_WIDTH × MAX_HEIGHT and the
+ *    window just sits centered in the extra room.
+ *
+ * Pure and viewport-agnostic (pass the area in), like the rest of this module.
+ * The result always fits the area it was given, so it needs no `fitSize` pass.
+ */
+export const WINDOW_SIZE = {
+  /** Work areas narrower than this get the full-bleed "compact" treatment. */
+  COMPACT_MAX_WIDTH: 900,
+  /** Normal screens: share of the work-area width / height a new window takes. */
+  WIDTH_FRACTION: 0.8,
+  HEIGHT_FRACTION: 0.85,
+  /** Wide screens: a new window never opens bigger than this. */
+  MAX_WIDTH: 1200,
+  MAX_HEIGHT: 820,
+} as const
+
+export function defaultWindowSize(area: { width: number; height: number }): {
+  width: number
+  height: number
+} {
+  if (area.width < WINDOW_SIZE.COMPACT_MAX_WIDTH) {
+    return { width: area.width, height: area.height }
+  }
+  return {
+    width: Math.round(Math.min(area.width * WINDOW_SIZE.WIDTH_FRACTION, WINDOW_SIZE.MAX_WIDTH)),
+    height: Math.round(Math.min(area.height * WINDOW_SIZE.HEIGHT_FRACTION, WINDOW_SIZE.MAX_HEIGHT)),
+  }
+}
+
+/**
+ * The last-resort slot when no clean side slot exists: step the new window
+ * right + down from the anchor by CASCADE_STEP so the two never sit exactly on
+ * top of each other (the anchor's title bar and left edge stay visible, the way
+ * classic desktops stack documents). Kept inside the work area: if the step
+ * would push the window past the right/bottom edge it's clamped back, and if
+ * that clamp leaves it sitting exactly on the anchor (the anchor is already in
+ * the bottom-right corner, or the window is as big as the area), the cascade
+ * wraps round to the area's top-left, one GAP in.
+ */
+function cascadeFrom(
+  anchor: Rect,
+  size: { width: number; height: number },
+  area: Rect,
+  gap: number
+): { x: number; y: number } {
+  const maxX = area.x + area.width - size.width
+  const maxY = area.y + area.height - size.height
+  const stepped = {
+    x: Math.min(anchor.x + CASCADE_STEP, maxX),
+    y: Math.min(anchor.y + CASCADE_STEP, maxY),
+  }
+  const moved = stepped.x !== anchor.x || stepped.y !== anchor.y
+  if (moved) return { x: Math.max(area.x, stepped.x), y: Math.max(area.y, stepped.y) }
+  return {
+    x: Math.max(area.x, Math.min(area.x + gap, maxX)),
+    y: Math.max(area.y, Math.min(area.y + gap, maxY)),
+  }
+}
+
 /** Center a size within the work area. */
 function centeredIn(size: { width: number; height: number }, area: Rect): { x: number; y: number } {
   return {
@@ -89,7 +168,8 @@ export interface PlacementInput {
  *  - Otherwise try, in order, the slot to the RIGHT of the anchor, then BELOW,
  *    then LEFT. Use the first that fully fits the work area AND overlaps no other
  *    visible window.
- *  - If none qualify → centered (the final fallback; may overlap).
+ *  - If none qualify → CASCADE: right + down from the anchor by CASCADE_STEP
+ *    (may overlap, but never sits exactly on top of the anchor — see cascadeFrom).
  *
  * Pure and viewport-agnostic: pass the work area in, get a position out — so it's
  * trivial to unit-test and to swap for a different strategy later.
@@ -116,6 +196,6 @@ export function placeWindow({
     }
   }
 
-  // Nothing clean fits — center it (may overlap), as agreed.
-  return centeredIn(size, workArea)
+  // Nothing clean fits — cascade off the anchor (may overlap, never coincides).
+  return cascadeFrom(anchor, size, workArea, gap)
 }

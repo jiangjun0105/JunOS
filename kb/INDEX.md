@@ -7,7 +7,7 @@ One paragraph per file. This is the map for the site build and for the Call Me a
 
 # About
 
-- **refined/about-me.md** — Short bio plus the story: small town in North China; Detective Conan's skateboard → robotics; mechanical engineering → UTokyo JSK lab (glass detection for laser rangefinders; lesson: the bottleneck is the mind, not the machine); DJI image-signal-processing and chip logic; Woven by Toyota (HD maps → first internal chatbot → GenAI team → Lexus assistant → Arene pipeline in Sunnyvale); co-founder/CTO of a voice-AI startup (stealth — unnamed); why Sunnyvale; daily routine, gym, dogs Mochi and Peanuts.
+- **refined/about-me.md** — Short bio plus the story: small town in North China; Detective Conan's skateboard → robotics; mechanical engineering → UTokyo JSK lab (glass detection for laser rangefinders; lesson: the bottleneck is the mind, not the machine); DJI image-signal-processing and chip logic; Woven by Toyota (HD maps → first internal chatbot → GenAI team → Lexus assistant → Arene pipeline in the Bay Area); co-founder/CTO of a voice-AI startup (stealth — unnamed); why the Bay Area; daily routine, gym, dogs Mochi and Peanuts.
 
 - **refined/now.md** — "What I'm doing now": this month's harness target (near-zero-intervention SQLite vs. Cursor's project), the fly (one leg + brain loop; other five legs next), next book. Refresh monthly.
 

@@ -41,8 +41,8 @@ export function AboutWindow() {
         putting uploaded insect brains into digital bodies.
       </p>
       <p className="text-[18px]">
-        I&apos;m based in Sunnyvale, California, after seven years in Tokyo; I grew up in a small
-        town in North China, and I speak Chinese, Japanese, and English.
+        I&apos;m based in the San Francisco Bay Area, California, after about ten years in Japan; I
+        grew up in a small town in North China, and I speak Chinese, Japanese, and English.
       </p>
 
       <ChipRow
@@ -51,7 +51,7 @@ export function AboutWindow() {
           '🪰 fly brain',
           '🧰 agent harness',
           '🐶 Mochi & Peanuts',
-          '🗼 Tokyo → Sunnyvale',
+          '🗼 Japan → Bay Area',
         ]}
       />
 

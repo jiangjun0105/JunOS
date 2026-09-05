@@ -16,12 +16,27 @@ type IconPositions = Record<string, { x: number; y: number }>
 const ICON_COL_X = 24
 const ICON_TOP = MENUBAR_HEIGHT + 16 // first icon sits clear below the menu bar
 const ICON_ROW_PITCH = 100
+const ICON_COL_PITCH = 104 // next column when one runs out of vertical room
+const ICON_HEIGHT = 80 // ~48px image + gap + one-line caption + padding
 
-/** A tidy starting column down the left edge (clear of the top menu bar). */
-function defaultPositions(): IconPositions {
+/**
+ * A tidy starting column down the left edge (clear of the top menu bar), in
+ * registry order. Given the viewport height, the column wraps: once the next
+ * icon would be pushed below the fold it starts a new column to the right, so
+ * every launcher is reachable on a short laptop screen. Without a height (the
+ * SSR/first-render pass, where `window` is unknown) it's a single column; the
+ * mount effect re-lays it out with the real height.
+ */
+function defaultPositions(viewportHeight?: number): IconPositions {
+  const perColumn =
+    viewportHeight === undefined
+      ? Infinity
+      : Math.max(1, Math.floor((viewportHeight - ICON_TOP - ICON_HEIGHT) / ICON_ROW_PITCH) + 1)
   const positions: IconPositions = {}
   launchers.forEach((app, i) => {
-    positions[app.id] = { x: ICON_COL_X, y: ICON_TOP + i * ICON_ROW_PITCH }
+    const col = Math.floor(i / perColumn)
+    const row = i % perColumn
+    positions[app.id] = { x: ICON_COL_X + col * ICON_COL_PITCH, y: ICON_TOP + row * ICON_ROW_PITCH }
   })
   return positions
 }
@@ -44,23 +59,25 @@ function clampIcon(pos: { x: number; y: number }): { x: number; y: number } {
  */
 export function Desktop() {
   const { openApp, constraintsRef } = useWindows()
-  const [positions, setPositions] = useState<IconPositions>(defaultPositions)
+  const [positions, setPositions] = useState<IconPositions>(() => defaultPositions())
 
-  // Load saved positions after hydration, CLAMPED — so a stale layout that was
-  // saved under the menu bar (from before the clamp existed) self-heals.
+  // After hydration: re-lay the defaults out against the REAL viewport height
+  // (so the column wraps on a short screen), then overlay any saved positions,
+  // CLAMPED — so a stale layout that was saved under the menu bar (from before
+  // the clamp existed) self-heals.
   useEffect(() => {
+    let saved: IconPositions = {}
     try {
-      const saved = localStorage.getItem(ICON_POSITIONS_KEY)
-      if (!saved) return
-      const parsed = JSON.parse(saved) as IconPositions
-      setPositions((prev) => {
-        const merged: IconPositions = { ...prev, ...parsed }
-        for (const id of Object.keys(merged)) merged[id] = clampIcon(merged[id])
-        return merged
-      })
+      const raw = localStorage.getItem(ICON_POSITIONS_KEY)
+      if (raw) saved = JSON.parse(raw) as IconPositions
     } catch {
       /* ignore malformed storage */
     }
+    setPositions(() => {
+      const merged: IconPositions = { ...defaultPositions(window.innerHeight), ...saved }
+      for (const id of Object.keys(merged)) merged[id] = clampIcon(merged[id])
+      return merged
+    })
   }, [])
 
   // Menu → "Reset icon positions": clear storage and restore defaults IN PLACE
@@ -72,7 +89,7 @@ export function Desktop() {
       } catch {
         /* ignore */
       }
-      setPositions(defaultPositions())
+      setPositions(defaultPositions(window.innerHeight))
     }
     window.addEventListener(RESET_ICONS_EVENT, onReset)
     return () => window.removeEventListener(RESET_ICONS_EVENT, onReset)

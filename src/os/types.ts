@@ -28,7 +28,12 @@ export interface AppDefinition {
   /** Show a desktop launcher icon + an Apps-menu entry. Default true; set false
    *  for windows that are opened indirectly (e.g. the article reader). */
   launcher?: boolean
-  defaultSize:
+  /** Size a fresh window opens at. OMIT IT (the norm) to get the responsive
+   *  default — full-bleed on a compact screen, 80% of the work area on a laptop,
+   *  capped on a wide monitor (see `defaultWindowSize` in ./placement). Set it
+   *  only for a window that must NOT scale with the screen, e.g. a small dialog.
+   *  A declared size is still clamped to fit the work area. */
+  defaultSize?:
     | { width: number; height: number }
     | ((workArea: { width: number; height: number }) => { width: number; height: number })
   /** Padding for the scrollable window body, as Tailwind utilities. Defaults to
