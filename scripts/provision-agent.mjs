@@ -5,7 +5,11 @@
  * that produced. Both are re-runnable: edit `kb/refined/`, rebuild, re-run, and
  * the agent's knowledge base and system prompt match the KB again.
  *
- *   node --env-file=.env scripts/provision-agent.mjs [--dry-run]
+ *   node --env-file=.env scripts/provision-agent.mjs [--dry-run] [--agent-only]
+ *
+ * `--agent-only` leaves the knowledge base exactly as it is and just re-applies
+ * the agent config — for tuning the voice, the prompt or the analysis fields
+ * without re-uploading 32 documents.
  *
  * Needs ELEVENLABS_API_KEY. If NEXT_PUBLIC_ELEVENLABS_AGENT_ID is set, that
  * agent is UPDATED in place (so the id on the deployed site keeps working);
@@ -25,10 +29,13 @@ const API = 'https://api.elevenlabs.io'
 const KEY = process.env.ELEVENLABS_API_KEY
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || null
 const DRY = process.argv.includes('--dry-run')
+const AGENT_ONLY = process.argv.includes('--agent-only')
 
 /** Namespace for documents this script owns. */
 const PREFIX = 'junos/'
 const AGENT_NAME = 'AI Jun — junbot.dev'
+/** "Sapphire — Sweet, Youthful, and Clear". */
+const VOICE_ID = 'zmcVlqmyk3Jpn5AVYcAL'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BUNDLE = join(ROOT, 'dist/agent-kb')
@@ -56,6 +63,21 @@ const existing = (await api('/v1/convai/knowledge-base?page_size=100')).document
 const owned = existing.filter((d) => d.name.startsWith(PREFIX))
 console.log(`knowledge base: ${existing.length} documents, ${owned.length} owned by this script`)
 
+if (AGENT_ONLY) {
+  // Reuse what's already uploaded. The agent config carries the full
+  // knowledge_base array, so it has to be rebuilt from the live documents —
+  // sending the config without it would detach every document.
+  const knowledgeBase = owned.map((d) => ({
+    type: 'file',
+    name: d.name,
+    id: d.id,
+    usage_mode: 'auto',
+  }))
+  console.log(`  reusing ${knowledgeBase.length} documents (--agent-only)`)
+  await updateAgent(knowledgeBase)
+  process.exit(0)
+}
+
 if (!DRY) {
   for (const doc of owned) {
     await api(`/v1/convai/knowledge-base/${doc.id}?force=true`, { method: 'DELETE' })
@@ -81,150 +103,163 @@ for (const file of files) {
 }
 console.log(`\n  uploaded ${knowledgeBase.length} documents`)
 
-// ── 2. the agent ─────────────────────────────────────────────────────────────
-const prompt = readFileSync(join(BUNDLE, 'system-prompt.md'), 'utf8')
+await updateAgent(knowledgeBase)
 
-const conversation_config = {
-  agent: {
-    first_message: "Hey — I'm Jun's digital twin. What brought you to the site?",
-    language: 'en',
-    prompt: {
-      prompt,
-      // A persona with hard "never invent a fact" guardrails and a three-sentence
-      // turn limit needs a capable model; downgrade in the dashboard if the LLM
-      // spend matters more than fidelity.
-      llm: 'claude-sonnet-4-5',
-      temperature: 0.4,
-      knowledge_base: knowledgeBase,
-      // No custom tools by design (kb/agent/system-prompt.md): the agent ends the
-      // call itself, stays silent while the visitor types, and follows the
-      // visitor into Chinese or Japanese.
-      built_in_tools: {
-        end_call: { name: 'end_call', params: { system_tool_type: 'end_call' } },
-        skip_turn: { name: 'skip_turn', params: { system_tool_type: 'skip_turn' } },
-        language_detection: {
-          name: 'language_detection',
-          params: { system_tool_type: 'language_detection' },
+// ── 2. the agent ─────────────────────────────────────────────────────────────
+
+/**
+ * Create or update the agent. Declared as a function (hoisted) so the
+ * `--agent-only` path above can call it before this point in the file, and so
+ * both paths write exactly the same config.
+ */
+async function updateAgent(knowledge_base) {
+  const prompt = readFileSync(join(BUNDLE, 'system-prompt.md'), 'utf8')
+
+  const conversation_config = {
+    agent: {
+      first_message: "Hey — I'm Jun's digital twin. What brought you to the site?",
+      language: 'en',
+      prompt: {
+        prompt,
+        // A persona with hard "never invent a fact" guardrails and a three-sentence
+        // turn limit needs a capable model; downgrade in the dashboard if the LLM
+        // spend matters more than fidelity.
+        llm: 'claude-sonnet-4-5',
+        temperature: 0.4,
+        knowledge_base,
+        // No custom tools by design (kb/agent/system-prompt.md): the agent ends the
+        // call itself, stays silent while the visitor types, and follows the
+        // visitor into Chinese or Japanese.
+        built_in_tools: {
+          end_call: { name: 'end_call', params: { system_tool_type: 'end_call' } },
+          skip_turn: { name: 'skip_turn', params: { system_tool_type: 'skip_turn' } },
+          language_detection: {
+            name: 'language_detection',
+            params: { system_tool_type: 'language_detection' },
+          },
+        },
+      },
+      // The prompt ends with a {{call_context}} placeholder. The site's widget
+      // passes no dynamic variables, so give it a default: without one, every
+      // conversation fails to start on an unresolved variable.
+      dynamic_variables: {
+        dynamic_variable_placeholders: {
+          call_context: 'The visitor opened the Call Me window on junbot.dev.',
         },
       },
     },
-    // The prompt ends with a {{call_context}} placeholder. The site's widget
-    // passes no dynamic variables, so give it a default: without one, every
-    // conversation fails to start on an unresolved variable.
-    dynamic_variables: {
-      dynamic_variable_placeholders: {
-        call_context: 'The visitor opened the Call Me window on junbot.dev.',
+    // Jun's chosen voice. Everything else about the TTS block is left at the
+    // agent's defaults, so raising or lowering stability/speed in the dashboard
+    // survives the next run of this script.
+    tts: { voice_id: VOICE_ID },
+  }
+
+  /**
+   * Post-call analysis, per kb/agent/system-prompt.md's setup checklist. The
+   * platform extracts these from the transcript after every call and shows them in
+   * the conversation history — which is how Jun sees who called and why, with no
+   * webhook receiver to run.
+   */
+  const platform_settings = {
+    data_collection: {
+      visitor_name: {
+        type: 'string',
+        description: "The visitor's name if they gave one; otherwise empty.",
+      },
+      visitor_email: {
+        type: 'string',
+        description:
+          'An email address the visitor typed or spoke. Return it exactly as given; empty if none.',
+      },
+      wants_contact: {
+        type: 'boolean',
+        description:
+          'True if the visitor asked to reach Jun, collaborate, hire, discuss research, or invite him to speak.',
+      },
+      intent: {
+        type: 'string',
+        description: 'One of: collaborate, hire, research, speak, curious, other.',
+      },
+      context: {
+        type: 'string',
+        description: 'One sentence: what the visitor wanted to talk to Jun about, in their words.',
+      },
+      topics: {
+        type: 'string',
+        description:
+          'Comma-separated site topics discussed: harness, research, books, thoughts, about.',
       },
     },
-  },
-}
+    // Tuning signals, not gates — the two failure modes the prompt works hardest
+    // to prevent.
+    evaluation: {
+      criteria: [
+        {
+          id: 'no_invented_facts',
+          name: 'No invented facts',
+          type: 'prompt',
+          conversation_goal_prompt:
+            'Did the agent avoid stating any fact, number, date, name or result that is not in its knowledge base? Answer failure if it invented anything, or if it named the stealth voice-AI startup.',
+          use_knowledge_base: true,
+        },
+        {
+          id: 'short_turns',
+          name: 'Turns stayed short',
+          type: 'prompt',
+          conversation_goal_prompt:
+            'Did the agent keep almost every turn to three sentences or fewer, and ask at most one question per turn?',
+          use_knowledge_base: false,
+        },
+      ],
+    },
+    // The site calls this agent by its public id over the ElevenLabs WebSocket
+    // (see SupportWindow), so the agent has to accept unauthenticated sessions.
+    // Restrict it to your own origins with `allowlist` + `require_origin_header`
+    // if free-tier minutes need protecting.
+    auth: { enable_auth: false },
+    // NOT used by the site — SupportWindow renders its own call UI. These style
+    // the shareable conversation page ElevenLabs hosts for this agent, so they're
+    // kept in the JunOS palette for anyone who opens that link.
+    widget: {
+      variant: 'full',
+      placement: 'bottom-right',
+      bg_color: '#FFFBF0',
+      text_color: '#25323F',
+      btn_color: '#3B72C4',
+      btn_text_color: '#FFFBF0',
+      border_color: '#25323F',
+      focus_color: '#3B72C4',
+      avatar: { type: 'orb', color_1: '#3B72C4', color_2: '#4F8D5B' },
+      start_call_text: 'Call AI Jun',
+      listening_text: 'Listening',
+      speaking_text: 'Jun is talking',
+    },
+  }
 
-/**
- * Post-call analysis, per kb/agent/system-prompt.md's setup checklist. The
- * platform extracts these from the transcript after every call and shows them in
- * the conversation history — which is how Jun sees who called and why, with no
- * webhook receiver to run.
- */
-const platform_settings = {
-  data_collection: {
-    visitor_name: {
-      type: 'string',
-      description: "The visitor's name if they gave one; otherwise empty.",
-    },
-    visitor_email: {
-      type: 'string',
-      description:
-        'An email address the visitor typed or spoke. Return it exactly as given; empty if none.',
-    },
-    wants_contact: {
-      type: 'boolean',
-      description:
-        'True if the visitor asked to reach Jun, collaborate, hire, discuss research, or invite him to speak.',
-    },
-    intent: {
-      type: 'string',
-      description: 'One of: collaborate, hire, research, speak, curious, other.',
-    },
-    context: {
-      type: 'string',
-      description: 'One sentence: what the visitor wanted to talk to Jun about, in their words.',
-    },
-    topics: {
-      type: 'string',
-      description:
-        'Comma-separated site topics discussed: harness, research, books, thoughts, about.',
-    },
-  },
-  // Tuning signals, not gates — the two failure modes the prompt works hardest
-  // to prevent.
-  evaluation: {
-    criteria: [
-      {
-        id: 'no_invented_facts',
-        name: 'No invented facts',
-        type: 'prompt',
-        conversation_goal_prompt:
-          'Did the agent avoid stating any fact, number, date, name or result that is not in its knowledge base? Answer failure if it invented anything, or if it named the stealth voice-AI startup.',
-        use_knowledge_base: true,
-      },
-      {
-        id: 'short_turns',
-        name: 'Turns stayed short',
-        type: 'prompt',
-        conversation_goal_prompt:
-          'Did the agent keep almost every turn to three sentences or fewer, and ask at most one question per turn?',
-        use_knowledge_base: false,
-      },
-    ],
-  },
-  // The site calls this agent by its public id over the ElevenLabs WebSocket
-  // (see SupportWindow), so the agent has to accept unauthenticated sessions.
-  // Restrict it to your own origins with `allowlist` + `require_origin_header`
-  // if free-tier minutes need protecting.
-  auth: { enable_auth: false },
-  // NOT used by the site — SupportWindow renders its own call UI. These style
-  // the shareable conversation page ElevenLabs hosts for this agent, so they're
-  // kept in the JunOS palette for anyone who opens that link.
-  widget: {
-    variant: 'full',
-    placement: 'bottom-right',
-    bg_color: '#FFFBF0',
-    text_color: '#25323F',
-    btn_color: '#3B72C4',
-    btn_text_color: '#FFFBF0',
-    border_color: '#25323F',
-    focus_color: '#3B72C4',
-    avatar: { type: 'orb', color_1: '#3B72C4', color_2: '#4F8D5B' },
-    start_call_text: 'Call AI Jun',
-    listening_text: 'Listening',
-    speaking_text: 'Jun is talking',
-  },
-}
+  const payload = { name: AGENT_NAME, conversation_config, platform_settings }
 
-const payload = { name: AGENT_NAME, conversation_config, platform_settings }
+  if (DRY) {
+    console.log(JSON.stringify(payload, null, 2).slice(0, 1200))
+    console.log('\n(dry run — nothing written)')
+    return
+  }
 
-if (DRY) {
-  console.log(JSON.stringify(payload, null, 2).slice(0, 1200))
-  console.log('\n(dry run — nothing written)')
-  process.exit(0)
-}
+  if (AGENT_ID) {
+    await api(`/v1/convai/agents/${AGENT_ID}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    console.log(`agent updated: ${AGENT_ID}`)
+    return
+  }
 
-let agentId = AGENT_ID
-if (agentId) {
-  await api(`/v1/convai/agents/${agentId}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  console.log(`agent updated: ${agentId}`)
-} else {
   const created = await api('/v1/convai/agents/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
-  agentId = created.agent_id
-  console.log(`agent created: ${agentId}`)
+  console.log(`agent created: ${created.agent_id}`)
   console.log('\nAdd this to .env (and to the deploy environment):')
-  console.log(`  NEXT_PUBLIC_ELEVENLABS_AGENT_ID=${agentId}`)
+  console.log(`  NEXT_PUBLIC_ELEVENLABS_AGENT_ID=${created.agent_id}`)
 }

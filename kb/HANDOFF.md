@@ -174,9 +174,10 @@ windows. The agent id comes from `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`; without it t
 degrades to the photo and says the agent isn't configured.
 
 The agent itself is provisioned from the KB rather than clicked together in the dashboard:
-`scripts/provision-agent.mjs` uploads the knowledge base, sets the system prompt, the built-in
-tools, the six data-collection fields and the two evaluation criteria. Re-run it after editing
-`kb/refined/`.
+`scripts/provision-agent.mjs` uploads the knowledge base, sets the system prompt, the voice, the
+built-in tools, the six data-collection fields and the two evaluation criteria. Re-run it after
+editing `kb/refined/`; `--agent-only` re-applies just the agent config, leaving the uploaded
+documents alone.
 
 **ElevenLabs bundle (§4).** `scripts/build-agent-bundle.mjs` generates it from `kb/` into
 `dist/agent-kb/` (gitignored): `system-prompt.md` with the setup checklist stripped,
