@@ -51,14 +51,17 @@ const sources = [
 rmSync(OUT, { recursive: true, force: true })
 mkdirSync(join(OUT, 'files'), { recursive: true })
 
-// The system prompt, minus Jun's own setup checklist at the bottom.
-const prompt = readFileSync(join(ROOT, 'kb/agent/system-prompt.md'), 'utf8')
+// The system prompt: frontmatter (internal metadata, not instructions) and
+// Jun's own setup checklist at the bottom both stripped, so what's left is
+// exactly what the agent should be given.
+const prompt = stripFrontmatter(readFileSync(join(ROOT, 'kb/agent/system-prompt.md'), 'utf8'))
 const setupHeading = prompt.indexOf('\n# ElevenLabs setup')
 writeFileSync(
   join(OUT, 'system-prompt.md'),
   (setupHeading === -1 ? prompt : prompt.slice(0, setupHeading))
     // the checklist is preceded by a `---` rule; drop that too
-    .replace(/\n+---\s*$/, '\n'),
+    .replace(/\n+---\s*$/, '\n')
+    .trim() + '\n',
 )
 
 const chunks = []

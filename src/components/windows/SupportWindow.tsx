@@ -24,6 +24,13 @@ import { WindowHeader } from './ui/WindowHeader'
  * `createElement` rather than JSX for the custom element: <elevenlabs-convai> is
  * not in React's intrinsic-element table, and this avoids a global JSX
  * declaration-merge just to name one third-party tag.
+ *
+ * The widget fixed-positions itself to the viewport (bottom-right, per the
+ * agent's dashboard `widget.placement`) — there is no inline embed mode — so it
+ * floats over the desktop rather than filling this window. Mounting it HERE
+ * rather than at the desktop root is deliberate: the orb then appears when the
+ * visitor opens Call Me and disappears when they close it, instead of hovering
+ * over every other app.
  */
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID
 
@@ -52,8 +59,13 @@ export function SupportWindow() {
           />
           {createElement('elevenlabs-convai', { 'agent-id': AGENT_ID })}
           <p className="text-sm text-muted">
-            The call is answered by an AI trained on what&apos;s written here — it won&apos;t
-            invent anything. Jun sees a summary afterwards.
+            The call control is the orb in the bottom-right corner of the screen — the widget
+            floats above the desktop rather than sitting in this window. Close this window to
+            dismiss it.
+          </p>
+          <p className="text-sm text-muted">
+            You&apos;re talking to an AI built from what&apos;s written on this site; it
+            won&apos;t invent anything, and Jun sees a summary afterwards.
           </p>
         </>
       ) : (
