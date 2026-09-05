@@ -34,8 +34,8 @@ const AGENT_ONLY = process.argv.includes('--agent-only')
 /** Namespace for documents this script owns. */
 const PREFIX = 'junos/'
 const AGENT_NAME = 'AI Jun — junbot.dev'
-/** "Sapphire — Sweet, Youthful, and Clear". */
-const VOICE_ID = 'zmcVlqmyk3Jpn5AVYcAL'
+/** "Ann" — professional, conversational. */
+const VOICE_ID = 'FUu5jJAN31dt6KeE1fk2'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BUNDLE = join(ROOT, 'dist/agent-kb')
