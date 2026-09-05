@@ -188,8 +188,9 @@ uploaded alongside so the agent can go deeper when a researcher pushes. They res
 questions: the connectome is **male-cns v0.9** (166,691 neurons, via neuPrint) — *not* the BANC,
 which the earlier KB guessed — the stack is Brian2 + GeNN on GPU with NeuroMechFly in MuJoCo, and
 the leg situation is that all six legs exist but only one has the accurate many-jointed model.
-Those two refined files are the only ones NOT rendered on the site; adding them as articles is an
-open offer, not an oversight.
+Both are now Research articles too (`/article/how-im-building-it`, `/article/learning-mechanisms`),
+so every refined file is rendered somewhere again — the six individual `books/*.md` files aside,
+whose text is the same as the `books/INDEX.md` blurbs that the Books window renders.
 
 **ElevenLabs bundle (§4).** `scripts/build-agent-bundle.mjs` generates it from `kb/` into
 `dist/agent-kb/` (gitignored): `system-prompt.md` with the setup checklist stripped,

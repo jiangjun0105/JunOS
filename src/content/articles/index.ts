@@ -105,6 +105,30 @@ export const articles: ArticleMeta[] = [
     load: () => import('./structure-over-weights.mdx'),
   },
   {
+    slug: 'how-im-building-it',
+    title: "How I'm Building the Digital Fly",
+    date: '2026-09-05',
+    summary:
+      'The stack: the male-cns v0.9 connectome through neuPrint, Brian2 with GeNN on the GPU, and NeuroMechFly in MuJoCo for the body.',
+    tags: ['snn', 'connectome', 'stack'],
+    kind: 'research',
+    section: 'Post-transformer models',
+    cover: '/icons/development.png',
+    load: () => import('./how-im-building-it.mdx'),
+  },
+  {
+    slug: 'learning-mechanisms',
+    title: 'How the Digital Fly Learns',
+    date: '2026-09-05',
+    summary:
+      'Four timescales nested inside each other, from millisecond spike timing to evolution — and why one global loss cannot stand in for all of them.',
+    tags: ['snn', 'stdp', 'learning'],
+    kind: 'research',
+    section: 'Post-transformer models',
+    cover: '/icons/research.png',
+    load: () => import('./learning-mechanisms.mdx'),
+  },
+  {
     slug: 'stage-1-current-work',
     title: 'Stage 1 — Moving a Digital Fly',
     date: '2026-09-05',
