@@ -3,7 +3,6 @@
 import { ConversationProvider, useConversation } from '@elevenlabs/react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Img } from '@/components/Img'
-import { WindowHeader } from './ui/WindowHeader'
 
 /**
  * "Call Me" app — talk to Jun's AI double, in this window.
@@ -33,38 +32,32 @@ import { WindowHeader } from './ui/WindowHeader'
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID
 
 export function SupportWindow() {
+  if (!AGENT_ID) {
+    return (
+      <div className="flex min-h-full flex-col items-center justify-center gap-3 text-center">
+        <Img
+          src="/icons/jun_photo.webp"
+          alt="Jun"
+          draggable={false}
+          className="h-48 w-48 rounded-full object-cover shadow-soft"
+        />
+        <p className="text-sm text-muted">
+          The voice agent isn&apos;t configured on this deployment yet.
+        </p>
+        <p className="text-xs text-muted">
+          Set <code className="font-mono">NEXT_PUBLIC_ELEVENLABS_AGENT_ID</code> to the ElevenLabs
+          agent id to enable it.
+        </p>
+      </div>
+    )
+  }
+  // The provider owns the connection; CallPanel is a child so its hooks are
+  // never called conditionally. The photo and heading live inside it too —
+  // they change with the call state, so they can't sit outside the provider.
   return (
-    <div className="flex min-h-full flex-col items-center gap-4 py-1 text-center">
-      <Img
-        src="/icons/jun_photo.webp"
-        alt="Jun"
-        draggable={false}
-        className="h-44 w-44 flex-none rounded-full object-cover shadow-soft"
-      />
-
-      <WindowHeader
-        title="Talk to AI Jun"
-        subtitle="You can talk to my AI digital double to learn more about Jun's experience, development projects, or research interests, and also anything else you'd like to let Jun know."
-      />
-
-      {AGENT_ID ? (
-        // The provider owns the connection; CallPanel is a child so its hooks
-        // are never called conditionally.
-        <ConversationProvider>
-          <CallPanel agentId={AGENT_ID} />
-        </ConversationProvider>
-      ) : (
-        <div className="space-y-2">
-          <p className="text-sm text-muted">
-            The voice agent isn&apos;t configured on this deployment yet.
-          </p>
-          <p className="text-xs text-muted">
-            Set <code className="font-mono">NEXT_PUBLIC_ELEVENLABS_AGENT_ID</code> to the
-            ElevenLabs agent id to enable it.
-          </p>
-        </div>
-      )}
-    </div>
+    <ConversationProvider>
+      <CallPanel agentId={AGENT_ID} />
+    </ConversationProvider>
   )
 }
 
@@ -105,28 +98,49 @@ function CallPanel({ agentId }: { agentId: string }) {
 
   const connected = status === 'connected'
   const connecting = status === 'connecting'
+  const inCall = connected || connecting
 
   return (
-    <div className="flex w-full flex-col items-center gap-3">
-      {/* One fixed-height status line above the keys, so the controls sit in the
-          same place whether or not there's anything to say. */}
-      <p className="flex h-5 items-center gap-2 text-sm font-bold text-ink">
-        {connected && (
-          <>
-            <span
-              className={`inline-block h-2 w-2 rounded-full ${isSpeaking ? 'bg-accent' : 'bg-accent-2'}`}
-              aria-hidden
-            />
-            {isSpeaking ? 'Jun is talking' : 'Listening'}
-          </>
-        )}
-        {connecting && <span className="text-muted">Connecting…</span>}
-      </p>
+    <div className="flex min-h-full flex-col items-center justify-center gap-4 text-center">
+      {/* The photo carries the call state: a quiet outline at rest, an accent
+          ring while Jun is talking. Cheaper to read at a glance than text. */}
+      <Img
+        src="/icons/jun_photo.webp"
+        alt="Jun"
+        draggable={false}
+        className={`h-52 w-52 flex-none rounded-full object-cover shadow-soft ring-offset-2 ring-offset-surface transition-all ${
+          connected && isSpeaking ? 'ring-4 ring-accent' : 'ring-1 ring-line'
+        }`}
+      />
 
-      {/* The dialer. Idle is one key; in a call it becomes the same key row with
-          mute beside it — every key the same size, so nothing jumps when the
-          call connects. */}
-      <div className="flex items-start justify-center gap-6">
+      <div className="space-y-1">
+        <h1 className="font-body text-[22px] font-bold">Talk to AI Jun</h1>
+        {/* In a call the pitch is over — the status takes its place, so the
+            controls sit right under the photo instead of below a paragraph
+            nobody is reading mid-conversation. */}
+        {inCall ? (
+          <p className="flex h-6 items-center justify-center gap-2 text-[15px] font-bold text-ink">
+            {connecting ? (
+              <span className="text-muted">Connecting…</span>
+            ) : (
+              <>
+                <span
+                  className={`inline-block h-2 w-2 rounded-full ${isSpeaking ? 'bg-accent' : 'bg-accent-2'}`}
+                  aria-hidden
+                />
+                {isSpeaking ? 'Jun is talking' : 'Listening'}
+              </>
+            )}
+          </p>
+        ) : (
+          <p className="text-[15px] leading-snug text-muted">
+            Ask my AI double about my experience, the projects I&apos;m building, or the research
+            — or leave a message for me.
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-start justify-center gap-4">
         {connected ? (
           <>
             <CallKey
@@ -153,12 +167,12 @@ function CallPanel({ agentId }: { agentId: string }) {
         )}
       </div>
 
-      {error && <p className="text-sm text-accent-3">{error}</p>}
+      {error && <p className="max-w-xs text-sm text-accent-3">{error}</p>}
 
-      {!connected && !connecting && (
-        <p className="text-xs text-muted">
+      {!inCall && (
+        <p className="max-w-xs text-xs leading-snug text-muted">
           You&apos;re talking to an AI built from what&apos;s written on this site; it won&apos;t
-          invent anything, and Jun sees a summary afterwards.
+          invent anything, and I see a summary afterwards.
         </p>
       )}
     </div>
@@ -167,7 +181,7 @@ function CallPanel({ agentId }: { agentId: string }) {
 
 /**
  * One key on the dialer: a round icon button with its label underneath. Every
- * key is the same 64px circle whatever it does — only the fill changes — so the
+ * key is the same 52px circle whatever it does — only the fill changes — so the
  * row reads as a set of controls rather than a hierarchy.
  */
 function CallKey({
@@ -193,14 +207,14 @@ function CallKey({
   }[variant]
 
   return (
-    <div className="flex w-20 flex-col items-center gap-1.5">
+    <div className="flex w-[72px] flex-col items-center gap-1.5">
       <button
         type="button"
         onClick={onClick}
         disabled={disabled}
         aria-label={label}
         aria-pressed={pressed}
-        className={`grid h-16 w-16 place-items-center rounded-full border border-ink shadow-soft transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:translate-y-0 disabled:opacity-60 ${fill}`}
+        className={`grid h-[52px] w-[52px] place-items-center rounded-full border border-ink shadow-soft transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:translate-y-0 disabled:opacity-60 ${fill}`}
       >
         {children}
       </button>
@@ -212,7 +226,7 @@ function CallKey({
 /** Phone receiver, off the hook — start the call. */
 function PhoneIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden fill="currentColor">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden fill="currentColor">
       <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
     </svg>
   )
@@ -221,7 +235,7 @@ function PhoneIcon() {
 /** The same receiver rotated 135° — the universal "hang up". */
 function PhoneDownIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden fill="currentColor">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden fill="currentColor">
       <g transform="rotate(135 12 12)">
         <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
       </g>
@@ -231,7 +245,7 @@ function PhoneDownIcon() {
 
 function MicIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden fill="currentColor">
+    <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden fill="currentColor">
       <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z" />
       <path d="M18 11a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.92V19H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A6 6 0 0 0 18 11z" />
     </svg>
@@ -241,7 +255,7 @@ function MicIcon() {
 /** Mic with a slash — muted. */
 function MicOffIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden fill="currentColor">
+    <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden fill="currentColor">
       <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z" />
       <path d="M18 11a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.92V19H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A6 6 0 0 0 18 11z" />
       <path

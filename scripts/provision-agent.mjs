@@ -34,8 +34,19 @@ const AGENT_ONLY = process.argv.includes('--agent-only')
 /** Namespace for documents this script owns. */
 const PREFIX = 'junos/'
 const AGENT_NAME = 'AI Jun — junbot.dev'
-/** "Ann" — professional, conversational. */
-const VOICE_ID = 'FUu5jJAN31dt6KeE1fk2'
+/** "Sapphire — Sweet, Youthful, and Clear". */
+const VOICE_ID = 'zmcVlqmyk3Jpn5AVYcAL'
+/**
+ * Eleven v3 rather than the flash models: it's the only family here that reads
+ * emotional intent, which is what makes the greeting cheerful instead of merely
+ * unstable. It costs latency — acceptable, since the round trip to ElevenLabs
+ * from Asia dominates anyway. Note `eleven_flash_v2_5` is NOT an option: the
+ * API rejects it while the agent's language is `en` ("English Agents must use
+ * turbo or flash v2").
+ */
+const TTS_MODEL = 'eleven_v3_conversational'
+/** ~12% faster than default; Sapphire reads a touch slow at 1.0. */
+const TTS_SPEED = 1.12
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BUNDLE = join(ROOT, 'dist/agent-kb')
@@ -117,7 +128,10 @@ async function updateAgent(knowledge_base) {
 
   const conversation_config = {
     agent: {
-      first_message: "Hey — I'm Jun's digital twin. What brought you to the site?",
+      // v3 reads inline audio tags, so the greeting's warmth is written rather
+      // than left to chance. Tags shape delivery; they are never spoken.
+      first_message:
+        "[cheerfully] Hey — I'm Jun's digital twin! [warmly] What brought you to the site?",
       language: 'en',
       prompt: {
         prompt,
@@ -148,10 +162,26 @@ async function updateAgent(knowledge_base) {
         },
       },
     },
-    // Jun's chosen voice. Everything else about the TTS block is left at the
-    // agent's defaults, so raising or lowering stability/speed in the dashboard
-    // survives the next run of this script.
-    tts: { voice_id: VOICE_ID },
+    // Pinned in full. An earlier version sent only `voice_id` so dashboard
+    // tuning would survive — but that also left the model and speed as whatever
+    // was last poked in, and the live agent quietly drifted from this file.
+    // The config lives here; change it here.
+    tts: {
+      voice_id: VOICE_ID,
+      model_id: TTS_MODEL,
+      speed: TTS_SPEED,
+      stability: 0.5,
+      similarity_boost: 0.8,
+      expressive_mode: true,
+      // Offered to the agent so it can colour its own turns, not just the
+      // greeting. Kept short: every extra tag is another thing to misfire.
+      suggested_audio_tags: [
+        { tag: 'cheerfully', description: 'Say it with a smile — the default colour of a greeting.' },
+        { tag: 'warmly', description: 'For thanks, encouragement, or agreeing with the visitor.' },
+        { tag: 'curious', description: 'When picking up a thread the visitor raised.' },
+        { tag: 'laughs', description: 'Sparingly, when something is genuinely funny.' },
+      ],
+    },
   }
 
   /**

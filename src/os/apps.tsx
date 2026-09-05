@@ -22,6 +22,11 @@ import type { AppDefinition } from './types'
  * would let the two drift. It's synthesized once below (`appList` / `apps`) from
  * `Object.entries`, so an entry's `id` is guaranteed to equal its key.
  *
+ * ENTRY ORDER MATTERS: the desktop lays launchers out top-to-bottom in registry
+ * order (`Object.entries` preserves insertion order), so reorder the entries here
+ * to reorder the icons. Launchers first, in display order; non-launcher windows
+ * (`launcher: false`) last.
+ *
  * Icons live in /public/icons. Spares ready for future apps: finance.png, earnings.png.
  */
 const registry = {
@@ -36,6 +41,28 @@ const registry = {
     defaultSize: { width: 560, height: 520 },
     Component: dynamic(
       () => import('@/components/windows/AboutWindow').then((m) => m.AboutWindow)
+    ),
+  },
+  support: {
+    title: 'Call Me',
+    icon: '📞', // emoji fallback if the image is unavailable
+    image: '/icons/phone-call.png',
+    defaultSize: { width: 470, height: 600 },
+    Component: dynamic(
+      () => import('@/components/windows/SupportWindow').then((m) => m.SupportWindow)
+    ),
+  },
+  thoughts: {
+    title: 'Thoughts',
+    icon: '💭',
+    image: '/icons/thoughts.png',
+    toolbar: true,
+    defaultSize: (area) => ({
+      width: Math.min(Math.round(area.width * 0.7), 1100),
+      height: Math.min(Math.round(area.height * 0.8), 800),
+    }),
+    Component: dynamic(
+      () => import('@/components/windows/ThoughtsWindow').then((m) => m.ThoughtsWindow)
     ),
   },
   projects: {
@@ -58,15 +85,6 @@ const registry = {
       () => import('@/components/windows/ResearchWindow').then((m) => m.ResearchWindow)
     ),
   },
-  support: {
-    title: 'Call Me',
-    icon: '📞', // emoji fallback if the image is unavailable
-    image: '/icons/phone-call.png',
-    defaultSize: { width: 470, height: 600 },
-    Component: dynamic(
-      () => import('@/components/windows/SupportWindow').then((m) => m.SupportWindow)
-    ),
-  },
   email: {
     title: 'Email',
     icon: '✉️', // emoji fallback if the image is unavailable
@@ -75,15 +93,6 @@ const registry = {
     bodyPadding: 'px-5 py-2',
     Component: dynamic(
       () => import('@/components/windows/EmailWindow').then((m) => m.EmailWindow)
-    ),
-  },
-  files: {
-    title: 'Files',
-    icon: '📁', // emoji fallback
-    image: '/icons/folder.png',
-    defaultSize: { width: 430, height: 560 },
-    Component: dynamic(
-      () => import('@/components/windows/FilesWindow').then((m) => m.FilesWindow)
     ),
   },
   books: {
@@ -96,17 +105,13 @@ const registry = {
       () => import('@/components/windows/BooksWindow').then((m) => m.BooksWindow)
     ),
   },
-  thoughts: {
-    title: 'Thoughts',
-    icon: '💭',
-    image: '/icons/thoughts.png',
-    toolbar: true,
-    defaultSize: (area) => ({
-      width: Math.min(Math.round(area.width * 0.7), 1100),
-      height: Math.min(Math.round(area.height * 0.8), 800),
-    }),
+  files: {
+    title: 'Files',
+    icon: '📁', // emoji fallback
+    image: '/icons/folder.png',
+    defaultSize: { width: 430, height: 560 },
     Component: dynamic(
-      () => import('@/components/windows/ThoughtsWindow').then((m) => m.ThoughtsWindow)
+      () => import('@/components/windows/FilesWindow').then((m) => m.FilesWindow)
     ),
   },
   // Not a desktop launcher — opened from the brand menu ("About JunOS", like
