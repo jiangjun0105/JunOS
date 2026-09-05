@@ -1,0 +1,81 @@
+---
+title: 20 Watts of Carbon vs. Megawatts of Silicon
+section: thoughts
+tags: [snn, backpropagation, stdp, local-learning, structural-plasticity, neuromorphic, compute-in-memory, catastrophic-forgetting, next-generation-models]
+sources: [src/content/thoughts/20-watts-vs-megawatts.mdx (Jun's original draft), raw/2026-09-05-harness-day-and-agent-proxy.md]
+related: [research/why-biology.md, research/structure-over-weights.md, research/snn-overview.md, thoughts/chemistry-is-the-optimizer.md]
+updated: 2026-09-05
+status: draft
+note: Polished from Jun's existing site draft. Argument unchanged; claims tightened (STDP timescale, "forward pass is backward pass", state of evidence), and explicitly tied to the three-stage research plan.
+---
+
+Look around the Bay Area and the story is scaling laws: more compute, bigger clusters, larger datasets. We're celebrating the engineering triumph of packing hundred-billion-parameter transformers into data centers the size of towns.
+
+We're also sprinting toward a physics wall.
+
+```
+[Silicon AI]    Megawatt data center ──> discrete token grids ──> global backprop
+[Carbon brain]  20-watt skull         ──> continuous dynamics  ──> local plasticity
+```
+
+The brute-force approach trades megawatts and enormous memory bandwidth for statistical approximation. We have optimized the transformer-on-GPU stack to an extraordinary degree, and I think that is exactly the problem: we've found a very deep local minimum of a compute paradigm. Getting to human-level intelligence isn't a matter of a bigger cluster. It's a matter of moving from discrete, global-loss optimization — backpropagation — to continuous, local, biologically grounded learning, which is what spiking neural networks are.
+
+# Backpropagation is a biological myth
+
+Every state-of-the-art model learns by backpropagation. It's a mathematical masterpiece and a physical absurdity, because a brain can't do it. Two reasons.
+
+The weight-transport problem. To push an error backward through a deep network, backprop needs the exact transpose of the forward weights — a mirror-image copy of every connection. Neurons have no such reverse pathway that tracks forward synaptic strength.
+
+The global clock. Backprop separates a forward pass from a backward pass; while the error propagates, the network's state has to hold still. A brain runs in continuous time. There is no pause button while a global loss is computed.
+
+```
+Spike-timing-dependent plasticity (STDP):
+   pre fires just BEFORE post ──> strengthen the synapse
+   pre fires just AFTER  post ──> weaken it
+```
+
+What the brain has instead is purely local rules. The best-known is STDP: a synapse changes based on the millisecond-scale timing between its own input and its neuron's output. A neuron doesn't know what a loss function is. It only sees its neighbors, and it strengthens the connections that predicted its own firing. Local, no overhead, and it discovers causal structure as a side effect.
+
+# Grow as you learn
+
+Deep learning also locks a network into a static matrix. You allocate dense tensors in VRAM up front, and that topology is a cage for the model's whole life. This rigidity is one reason for catastrophic forgetting: teach a trained model something new and the global weight update overwrites what it knew, unless you replay the old data at scale.
+
+Biology's alternative is structural plasticity. Networks grow.
+
+```
+[Static tensors]  fixed VRAM allocation ──> global weight overwrite ──> catastrophic forgetting
+[Growing SNN]     sparse seed network   ──> local synaptic sprouting ──> non-destructive growth
+```
+
+Instead of shipping a multi-billion-parameter monolith on day one, start with a small, sparse seed network trained on simple tasks, and as task complexity rises let it sprout new neurons and synapses — neurogenesis and synaptogenesis — in unallocated zones. New skills land in new pathways rather than being written over old ones, and forgetting is handled by the architecture instead of by data replay.
+
+This is not a hypothetical for me. It's Stage 3 of my own research plan: over-grow, then prune to the body, the way newborns do. And the fly-brain work already hints that the structure carries most of the function — a whole-fly-brain model moves a body with weights read straight off synapse counts and nothing trained.
+
+# Merge inference and training
+
+The industry keeps a wall between training and inference. A model is trained at astronomical cost in a central data center, its weights are frozen, and it ships to the edge as a static artifact. If it meets an unusual environment, it can't really learn from the encounter; it has to be sent back to the cloud for fine-tuning.
+
+Local learning rules dissolve that wall. When adaptation is driven by STDP-style rules with local eligibility traces, learning can happen during inference, on the device, at a tiny fraction of the energy — especially on compute-in-memory hardware where the synapse and the memory are the same physical element.
+
+```
+   ┌────────────────────────────────────────┐
+   │        Neuromorphic CIM node           │
+   │   input ──> [ forward inference ]      │
+   │                    │ (local rules)     │
+   │                    ▼                   │
+   │            [ synaptic update ]         │
+   │                    │                   │
+   │                    ▼                   │
+   │        physical state changes now      │
+   └────────────────────────────────────────┘
+```
+
+There is no training mode. There is only running, and adapting while you run. A robot's brain adapts to its user, its climate, its own body, on the edge — which is the whole reason I care about this: a brain that has to live inside a body can't phone home to learn.
+
+# Waiting for the neuromorphic CUDA moment
+
+If the mathematics of local, growing, continuous-time networks is this attractive, why hasn't it won?
+
+The bottleneck isn't the idea. It's infrastructure. Bio-inspired mechanisms have been shown to work in small, specialized models; nobody has yet made them win at scale, and I think the reason is that we're trying to run a fluid, self-growing network on rigid von Neumann silicon. GPUs are built for large, uniform matrix multiplications. They punish exactly what SNNs need: asynchronous, sparse, dynamic memory layouts.
+
+Deep learning took off when CUDA made GPUs programmable and the tooling caught up with the math. Neuromorphic computing is waiting for that moment. The next platform won't come from another row of accelerators or a slightly better attention mechanism. It will come from the people who bridge the hardware-software divide — compilers, routing, developer tools for neuromorphic silicon. That ecosystem is unwritten. It's a blue ocean, and it's the one I'm learning to sail in, one fly leg at a time.

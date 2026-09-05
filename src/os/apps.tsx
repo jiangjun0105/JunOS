@@ -30,7 +30,10 @@ const registry = {
     icon: '🌳', // emoji fallback if the image is unavailable
     image: '/icons/about_me.png',
     toolbar: true,
-    defaultSize: { width: 520, height: 400 },
+    // Roomier than the old placeholder needed: the About card now carries a
+    // photo, the short bio, the identity chips and two buttons into the
+    // personal articles.
+    defaultSize: { width: 560, height: 520 },
     Component: dynamic(
       () => import('@/components/windows/AboutWindow').then((m) => m.AboutWindow)
     ),

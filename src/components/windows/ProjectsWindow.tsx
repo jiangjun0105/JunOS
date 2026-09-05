@@ -1,23 +1,51 @@
-/** A little "Projects" app — a few sample cards. Make it yours! */
-const projects = [
-  { name: 'JunOS', blurb: 'This very site — a desktop OS in the browser.', tag: '🪟 web' },
-  { name: 'Acorn Notes', blurb: 'A tiny notes app I am tinkering with.', tag: '📒 app' },
-  { name: 'Forest Walks', blurb: 'Photos from hikes near the camphor trees.', tag: '🌲 photo' },
-]
+'use client'
+
+import { articlesByKind } from '@/content/articles'
+import { useWindows } from '@/os/WindowManager'
+import { WindowHeader } from './ui/WindowHeader'
+
+/**
+ * The "Development" app — one card per project, opening its write-up in the
+ * article reader. Data-driven from the `project` articles in
+ * src/content/articles (generated from kb/refined/projects/), so a new project
+ * appears here, in the Files tree and in the sitemap from a single entry.
+ *
+ * The little pills are per-project, so they live here rather than in the
+ * content index — they're presentation for this window, not article metadata.
+ */
+const TAGS: Record<string, string> = {
+  'agent-harness': '🧰 agents',
+  'junos-website': '🪟 web',
+  'repo-understanding-tool': '🌳 archived',
+}
 
 export function ProjectsWindow() {
+  const { openApp } = useWindows()
+  const projects = articlesByKind('project')
+
   return (
-    <div className="space-y-3">
-      <h1 className="font-body text-[22px] font-bold">Development</h1>
-      <p className="text-[18px] text-muted">A few things I have been making.</p>
+    <div className="space-y-4">
+      <WindowHeader
+        title="Development"
+        subtitle="What I have been building. Click one to read the write-up."
+      />
+
       <ul className="space-y-2">
         {projects.map((project) => (
-          <li key={project.name} className="os-card">
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-body font-bold">{project.name}</span>
-              <span className="os-pill">{project.tag}</span>
-            </div>
-            <p className="mt-1 text-sm text-muted">{project.blurb}</p>
+          <li key={project.slug}>
+            <button
+              type="button"
+              className="os-card os-card-button"
+              onClick={() =>
+                openApp('article', { params: { slug: project.slug }, title: project.title })
+              }
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-body font-bold">{project.title}</span>
+                {TAGS[project.slug] && <span className="os-pill flex-none">{TAGS[project.slug]}</span>}
+              </div>
+              <p className="mt-1 text-sm text-muted">{project.summary}</p>
+            </button>
           </li>
         ))}
       </ul>

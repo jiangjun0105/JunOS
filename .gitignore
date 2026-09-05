@@ -8,6 +8,9 @@
 # production
 /build
 
+# generated ElevenLabs upload bundle (scripts/build-agent-bundle.mjs) — regenerate, don't commit
+/dist
+
 # vercel
 .vercel
 
@@ -28,3 +31,8 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+
+# knowledge base: verbatim interview transcripts. Local only — they are Jun's
+# unedited words and name the stealth startup, and this repo is public. The
+# refined/ and agent/ derivatives ARE tracked; see kb/README.md.
+/kb/raw/

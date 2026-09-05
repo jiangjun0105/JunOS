@@ -1,3 +1,8 @@
+'use client'
+
+import { getArticle } from '@/content/articles'
+import { getThought } from '@/content/thoughts'
+import { useWindows } from '@/os/WindowManager'
 import { FileGlyph as PageGlyph } from './ui/FileGlyph'
 import { WindowHeader } from './ui/WindowHeader'
 
@@ -6,69 +11,95 @@ type FileKind = 'note' | 'quote' | 'pdf'
 
 type BookFile = { name: string; kind: FileKind }
 
+/** The essay a book fed — an article or a thought, opened in its reader window. */
+type Essay = { app: 'article' | 'thoughts'; slug: string }
+
 type Book = {
   title: string
   author: string
   blurb: string
   /** A little genre/mood pill, shown top-right of the card. */
   tag: string
-  /** The notes & files I keep on this book — placeholders for now. */
-  files: BookFile[]
+  /** The piece of writing this book led to; rendered as a "Read more →" chip. */
+  essay: Essay
+  /**
+   * Notes & files kept on this book. Empty for now — Jun may add favourite
+   * quotes per book later, so the shape (and its glyphs) stay in place.
+   */
+  files?: BookFile[]
 }
 
 /**
- * A little "Books" app — a shelf of favorites, each with the notes & files I keep
- * on it. Placeholder content for now: swap in your own titles, and later wire the
- * file chips up to real documents. (Card style matches the Development app; the
- * file glyphs echo the File Explorer's pages.)
+ * The "Books" app — six recommendations, in the order of
+ * kb/refined/books/INDEX.md. Each blurb ends where the long version begins, so
+ * every card links to the essay the book fed rather than repeating it here.
  */
 const books: Book[] = [
   {
-    title: 'The Little Prince',
-    author: 'Antoine de Saint-Exupéry',
-    blurb: 'Re-read every few years; it lands differently each time.',
-    tag: '🌹 fable',
-    files: [
-      { name: 'Reading notes.md', kind: 'note' },
-      { name: 'Favorite quotes.txt', kind: 'quote' },
-    ],
+    title: 'The Tell-Tale Brain',
+    author: 'V.S. Ramachandran',
+    blurb:
+      'A UC San Diego neuroscientist studies the brain with cheap, ingenious experiments — relieving phantom-limb pain with a mirror box — instead of heavy imaging. He works the way physicists always have: hypothesis first, then an experiment that reveals the mechanism indirectly. It changed how I read AI papers.',
+    tag: '🧠 neuroscience',
+    essay: { app: 'article', slug: 'why-biology' },
   },
   {
-    title: 'Norwegian Wood',
-    author: 'Haruki Murakami',
-    blurb: 'Quiet and melancholic — full of rainy-afternoon mood.',
-    tag: '🍃 novel',
-    files: [
-      { name: 'Highlights.txt', kind: 'quote' },
-      { name: 'Review.pdf', kind: 'pdf' },
-    ],
+    title: 'Einstein: His Life and Universe',
+    author: 'Walter Isaacson',
+    blurb:
+      'What stayed with me is Einstein outgrowing Ernst Mach’s strict positivism: what cannot be observed directly or indirectly doesn’t exist. That "indirectly" is where real science lives, and it pairs with The Tell-Tale Brain.',
+    tag: '🔭 biography',
+    essay: { app: 'article', slug: 'why-biology' },
   },
   {
-    title: 'Gödel, Escher, Bach',
-    author: 'Douglas Hofstadter',
-    blurb: 'Strange loops, music, and minds — a forever-bookmark book.',
-    tag: '🧠 ideas',
-    files: [
-      { name: 'Chapter notes.md', kind: 'note' },
-      { name: 'Diagrams.pdf', kind: 'pdf' },
-      { name: 'Quotes.txt', kind: 'quote' },
-    ],
-  },
-  {
-    title: 'Sapiens',
-    author: 'Yuval Noah Harari',
-    blurb: 'A whirlwind tour of how we got from there to here.',
+    title: 'Guns, Germs, and Steel',
+    author: 'Jared Diamond',
+    blurb:
+      'Environment, not people, explains why civilizations diverged; food-production efficiency decided everything. My takeaway: each technological revolution frees humanity from survival for creative work, and AI is the next one.',
     tag: '📜 history',
-    files: [{ name: 'Reading notes.md', kind: 'note' }],
+    essay: { app: 'thoughts', slug: 'why-im-optimistic-about-ai' },
+  },
+  {
+    title: 'The Robot and Foundation novels',
+    author: 'Isaac Asimov',
+    blurb:
+      'R. Daneel Olivaw, from The Caves of Steel to Foundation and Earth, doesn’t serve humans; he serves a law he derived himself and steers human choices for twenty thousand years to reach it. A smart enough robot will optimize toward its own objective whatever laws we give it.',
+    tag: '🚀 science fiction',
+    essay: { app: 'thoughts', slug: 'chemistry-is-the-optimizer' },
+  },
+  {
+    title: "Descartes' Error",
+    author: 'Antonio Damasio',
+    blurb:
+      'Patients who lost emotional perception understood the right choice and still couldn’t act on it. Reason is a tool; the chemistry we call emotion is what moves us. Read early, and it planted the view of the brain I still hold.',
+    tag: '💓 emotion',
+    essay: { app: 'thoughts', slug: 'chemistry-is-the-optimizer' },
+  },
+  {
+    title: 'Principles',
+    author: 'Ray Dalio',
+    blurb:
+      'A financier’s rules for doing anything. The first and deepest is face reality — seek truth from facts — which I read on three levels and which gave me my post-mortem habit.',
+    tag: '⚖️ decisions',
+    essay: { app: 'thoughts', slug: 'face-reality' },
   },
 ]
 
+/** The reader-window title for an essay link (falls back to the app's own name). */
+function essayTitle(essay: Essay): string | undefined {
+  return essay.app === 'article'
+    ? getArticle(essay.slug)?.title
+    : (getThought(essay.slug)?.title ?? 'Thoughts')
+}
+
 export function BooksWindow() {
+  const { openApp } = useWindows()
+
   return (
     <div className="space-y-4">
       <WindowHeader
         title="Books"
-        subtitle="A shelf of favorites — and the notes & files I keep on each."
+        subtitle="Six books, one paragraph each — and the essay each one fed."
       />
 
       <ul className="space-y-3">
@@ -84,12 +115,24 @@ export function BooksWindow() {
 
             <p className="mt-1.5 text-sm text-muted">{book.blurb}</p>
 
-            {/* The book's files — static placeholders (nothing to open yet). */}
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {book.files.map((file) => (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                className="os-action-btn"
+                onClick={() =>
+                  openApp(book.essay.app, {
+                    params: { slug: book.essay.slug },
+                    title: essayTitle(book.essay),
+                  })
+                }
+              >
+                Read more →
+              </button>
+
+              {/* Favourite quotes / notes per book — none attached yet. */}
+              {book.files?.map((file) => (
                 <span
                   key={file.name}
-                  title="Placeholder — no file attached yet"
                   className="inline-flex items-center gap-1 rounded-full border border-line bg-surface px-2 py-0.5 text-xs text-muted"
                 >
                   <FileGlyph kind={file.kind} />

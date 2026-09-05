@@ -1,0 +1,43 @@
+---
+title: Will AI replace programmers? Ask what happened to the computers
+section: thoughts
+tags: [coding-with-ai, programmers, compilers, history, ai-coding-operator, roles, all-ai-company, online-learning, stateless-models, descartes-error]
+sources: [raw/2026-09-03-thoughts-will-ai-replace-programmers.md]
+related: [projects/agent-harness.md, books/descartes-error.md, thoughts/chemistry-is-the-optimizer.md, thoughts/why-im-optimistic-about-ai.md]
+updated: 2026-09-04
+status: draft
+---
+
+# Two camps, both wrong
+
+The first question everyone asked about AI was: when does it replace programmers? Two camps formed. Non-programmers think it's imminent — you'll just talk to the AI and software appears, no profession required. Working programmers think the AI always has some problem or other and is nowhere near a real engineer.
+
+What actually helped me was looking at what happened last time.
+
+# What happened to the computers, and then to the coders
+
+Before there were electronic computers, "computer" was a job title. During the Second World War the U.S. Army employed around a hundred "human computers" — mostly women with mathematics degrees — grinding out artillery firing tables on desk calculators. The machine took the name, and then it took the job.
+
+Six of those women were picked to program the first machine. When ENIAC was finished at the University of Pennsylvania in 1945, Jean Bartik, Kathleen Antonelli, Marlyn Meltzer, Betty Holberton, Frances Spence, and Ruth Teitelbaum worked out how to make it compute a trajectory, setting the program physically with cables and switches, and demonstrated it in February 1946. Programming was considered clerical work, a step below the mathematicians who designed the calculation, and their contribution went unrecognized for decades.
+
+Then came the second job that vanished. Through the early 1950s every program was hand-translated into machine instructions, and the people who did it were good. John Backus later described them as a "priesthood" guarding skills too mysterious for ordinary people, who greeted the idea of automatic programming with "hostility and derision" — could a mechanical process really do the inventive things they did to make a program efficient? When FORTRAN shipped in 1957, its team had spent years on exactly that question. The compiler didn't have to beat the best human. It had to be good enough. Once it was, hand translation ended, and the job of turning a plan into machine code by hand disappeared with it.
+
+Notice the pattern. A large part of what a programmer did then was mechanical translation. When compilers matured, "programmer" didn't disappear; its content changed completely, and within a generation the people doing it were different people with different skills.
+
+Every simplification of language and syntax since then has let more people become programmers and created more demand than it removed. Software went from top-level government projects, to ordinary companies, to individuals. Yet building software is still expensive: many people writing, testing, shipping, and a huge user base to amortize the cost. So the cost and the barrier have to keep falling, and each time they do, the market gets bigger. The word "programmer" hasn't changed. What it means has changed over and over.
+
+# The new programmer
+
+AI will do the same thing. The programmer who purely types code by hand will disappear — in many companies it's already happening. But the role doesn't vanish; a new kind of programmer appears with entirely different work.
+
+However far AI evolves, it remains a tool for achieving human purposes, and a tool needs an operator. I expect a role like "AI coding operator": one person who replaces what used to be a whole development team and is responsible for getting the software built. That isn't automatically the product manager's job — a PM's core work is designing the product, not producing the implementation, and driving these tools is its own skill. (This is the role I already play with my [agent harness](../projects/agent-harness.md).)
+
+Whether it becomes a profession of its own or folds into existing roles — PM, UI/UX — depends entirely on how easy the tools get. Nobody hires an "Excel operator" or a "PowerPoint operator"; those tools are easy enough that the people who already have the job just use them. If AI coding tools reach that point, the design tools probably will too, and the real question stops being whether programmers disappear and becomes how roles in a software company get redistributed: maybe one person designs and generates the product; maybe a few roles still divide the work. If there are fewer programmers, project management and similar roles change beyond recognition as well. (Whether any programmer-like role survives once the tools are that easy is its own question — I think one does: [the agent's proxy](agile-survives-the-agents.md).)
+
+# Will there be an all-AI company?
+
+Not with today's architecture.
+
+Descartes' Error describes patients with prefrontal damage who can no longer perceive others' emotions. They know what a good husband or father should do and cannot be one; they can't carry social responsibility or behave the way society expects. Responsibility, it turns out, runs on the same chemistry that drives everything else in us (see [Chemistry is the optimizer](chemistry-is-the-optimizer.md)), and today's AI is built on nothing like it. It is one giant model shared by everyone in the cloud. It cannot store any single person's needs in its weights, so it must be stateless. A stateless, shared model never faces the situation "I must answer to this person, or I face consequences." Not because the technology can't get there, but because it serves too many people at once. No agent can satisfy everyone and make every company profitable, and under that constraint no amount of intelligence produces a strong sense of "I am responsible for this company, this product."
+
+If future AI exists as an individual — serving one company, one owner — then a pure AI employee becomes possible. But that is a different architecture: online learning, updating its own weights as it works; continuously gathering every piece of context a human colleague would have; joining the work and the life as a distinct individual. Only when that arrives could a team be made entirely of AI.

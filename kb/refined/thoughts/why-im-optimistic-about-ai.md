@@ -1,0 +1,31 @@
+---
+title: Why I'm optimistic about the AI revolution
+section: thoughts
+tags: [ai-revolution, productivity, history, civilization, work, competition, cross-generational-accumulation, agi]
+sources: [raw/2026-09-03-books-guns-germs-steel.md]
+related: [books/guns-germs-and-steel.md, research/snn-overview.md]
+updated: 2026-09-03
+status: draft
+---
+
+# The pattern in history
+
+For most of history, nearly everyone was a farmer. Farmers eventually defeated, and in places wiped out, nomadic peoples, because nomadic food production was less efficient. Then the countries that industrialized first plundered the agricultural ones. Guns, Germs, and Steel makes the case that environment — whether a continent even had animals worth domesticating — set these trajectories thousands of years in advance.
+
+The lesson I draw is about what productivity buys. We live in a civilized society today because food is no longer scarce. Because not everyone has to worry about the next meal, humans can do richer things: create art, do science, explore space. For most of history that was impossible.
+
+Every technological leap raises productivity and shrinks the share of human time spent on basic survival, pushing effort toward higher, more creative work. After the industrial revolution and the information revolution, the AI revolution is the obvious next step. Judged by the historical pattern rather than by the anxiety of the moment, I'm positive about what AI will do for human society.
+
+# Work may become optional; competition won't
+
+It's entirely possible that in the future people simply won't need to work. Modern people have long forgotten how hard a prehistoric hunter or a historical farmer struggled just to survive. Today almost nobody worries about starving; we worry about how big a house we live in and what quality of life we have. But competition and difference between people will not disappear — they will just move to a new layer, the way they moved from food to money and status.
+
+# Why AI will move faster than we did
+
+In the beginning we were not so different from other animals, competing for food and resources like everything else. The gap widened not because ancient brains were dumber than ours, but because humans accumulate civilization and knowledge across generations. Every generation stands on the shoulders of the last.
+
+By the same logic AI will advance faster than humans did, because it can draw on what previous generations of people — and previous generations of AI — accumulated, far more efficiently than we can.
+
+# A thought that loops back to my research
+
+If cross-generational accumulation is what made humans intelligent, then to build something as smart as a human we might not need to start with a human-sized brain at all. Start from a much simpler biological brain and let it iterate, each generation building on the last. You would end up with a simplified human brain — but one that keeps the ability to evolve and create more advanced technology within its given brain capacity. That is the intuition behind Stage 3 of my SNN research.

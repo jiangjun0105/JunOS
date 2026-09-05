@@ -1,14 +1,32 @@
+'use client'
+
+import Script from 'next/script'
+import { createElement } from 'react'
 import { Img } from '@/components/Img'
 import { WindowHeader } from './ui/WindowHeader'
 
 /**
- * "Call Me" app — a contact card for talking to AI Jun: a round photo above a
- * short intro and a call button.
+ * "Call Me" app — talk to Jun's AI double.
  *
- * The call itself isn't wired up yet — the button is a placeholder. To make it
- * real, drop a handler on it (e.g. a `tel:` link, a dialer, or a callback form).
- * The photo is /icons/jun_photo.webp.
+ * The conversation itself is an ElevenLabs Conversational AI agent, embedded
+ * with their web component: a script that defines <elevenlabs-convai>, plus the
+ * element carrying the agent id. The agent's prompt, knowledge base and
+ * data-collection fields are configured in the ElevenLabs dashboard — see
+ * kb/agent/system-prompt.md (the "ElevenLabs setup" section) for exactly what to
+ * switch on and which kb/ files to upload.
+ *
+ * The agent id is public by design (it only identifies which agent to call, and
+ * the agent must be set to public in the dashboard), so it ships as a
+ * NEXT_PUBLIC_ env var rather than going through a server route. When it isn't
+ * set — a fresh clone, a preview deploy without the var — the window degrades to
+ * the photo + intro and says so, instead of rendering a dead widget.
+ *
+ * `createElement` rather than JSX for the custom element: <elevenlabs-convai> is
+ * not in React's intrinsic-element table, and this avoids a global JSX
+ * declaration-merge just to name one third-party tag.
  */
+const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID
+
 export function SupportWindow() {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 py-1 text-center">
@@ -16,7 +34,7 @@ export function SupportWindow() {
         src="/icons/jun_photo.webp"
         alt="Jun"
         draggable={false}
-        className="h-64 w-64 rounded-full object-cover shadow-soft"
+        className="h-56 w-56 rounded-full object-cover shadow-soft"
       />
 
       <WindowHeader
@@ -24,23 +42,31 @@ export function SupportWindow() {
         subtitle="You can talk to my AI digital double to learn more about Jun's experience, development projects, or research interests, and also anything else you'd like to let Jun know."
       />
 
-      {/* Placeholder — wire up the phone-call feature here. */}
-      <button
-        type="button"
-        className="inline-flex items-center gap-2 rounded-tile border border-ink bg-accent-2 px-5 py-2.5 font-display text-lg font-bold uppercase tracking-wide text-surface shadow-soft transition-transform hover:-translate-y-0.5 active:translate-y-0"
-      >
-        <PhoneIcon />
-        Call now
-      </button>
+      {AGENT_ID ? (
+        <>
+          <Script
+            src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+            strategy="lazyOnload"
+            async
+            type="text/javascript"
+          />
+          {createElement('elevenlabs-convai', { 'agent-id': AGENT_ID })}
+          <p className="text-sm text-muted">
+            The call is answered by an AI trained on what&apos;s written here — it won&apos;t
+            invent anything. Jun sees a summary afterwards.
+          </p>
+        </>
+      ) : (
+        <div className="space-y-2">
+          <p className="text-sm text-muted">
+            The voice agent isn&apos;t configured on this deployment yet.
+          </p>
+          <p className="text-xs text-muted">
+            Set <code className="font-mono">NEXT_PUBLIC_ELEVENLABS_AGENT_ID</code> to the
+            ElevenLabs agent id to enable it.
+          </p>
+        </div>
+      )}
     </div>
-  )
-}
-
-/** Phone-receiver glyph; inherits the button's text color via currentColor. */
-function PhoneIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden fill="currentColor">
-      <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-    </svg>
   )
 }

@@ -471,6 +471,18 @@
   .os-pill {
     @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs;
   }
+
+  /* ---- inline action button ("Read the full story →", "Read more →") ----
+     A text action INSIDE a window body, as opposed to `.os-btn`, which is the
+     22px window-control glyph in the title bar. Same rounded-btn + ink border
+     language as the chips, tinted with the primary accent so it reads as the
+     call to action on a card. */
+  .os-action-btn {
+    @apply rounded-btn border border-line bg-accent/10 px-3 py-1 text-sm font-bold text-ink transition-colors;
+  }
+  .os-action-btn:hover {
+    @apply bg-accent/20;
+  }
   .os-nav-btn {
     @apply flex h-7 w-7 items-center justify-center rounded-btn transition-colors;
     color: rgb(var(--muted));

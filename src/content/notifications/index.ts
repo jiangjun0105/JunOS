@@ -1,5 +1,10 @@
 import type { ComponentType } from 'react'
 
+/**
+ * The notification feed — Jun's changelog for this site. Newest first; the bell
+ * in the menu bar renders these in order, and a card is clickable when it has a
+ * `load` body.
+ */
 export type NotificationLoader = () => Promise<{ default: ComponentType }>
 
 export interface NotificationMeta {
@@ -15,25 +20,12 @@ export interface NotificationMeta {
 
 export const notifications: NotificationMeta[] = [
   {
-    slug: 'notification-center-live',
-    title: 'Notification Center is live',
-    date: '2026-06-02',
-    summary: 'Click the bell icon any time to see what\'s new on this site.',
-    load: () => import('./notification-center-live.mdx'),
-  },
-  {
-    slug: 'new-articles-may',
-    title: 'New articles in May',
-    date: '2026-05-20',
-    summary: 'Three new research notes landed — attention, positional encodings, and KV caches.',
-    load: () => import('./new-articles-may.mdx'),
-  },
-  {
-    slug: 'site-launched',
-    title: 'JunOS launched',
-    date: '2026-05-01',
-    summary: 'Welcome to JunOS — a tiny desktop OS in your browser.',
-    load: () => import('./site-launched.mdx'),
+    slug: 'site-relaunched',
+    title: 'Site relaunched with real content',
+    date: '2026-09-05',
+    summary:
+      'Every placeholder is gone: About, Research, Development, Thoughts and Books are now written from my own notes — and you can call my AI double.',
+    load: () => import('./site-relaunched.mdx'),
   },
 ]
 

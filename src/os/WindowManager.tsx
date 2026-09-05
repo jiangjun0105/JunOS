@@ -285,3 +285,14 @@ export function useWindows(): WindowManagerValue {
   if (!ctx) throw new Error('useWindows must be used inside <WindowManagerProvider>')
   return ctx
 }
+
+/**
+ * Like {@link useWindows}, but returns `null` outside a provider instead of
+ * throwing. For components that USUALLY render inside a window but must not
+ * explode if they don't — currently the MDX link (article bodies are rendered in
+ * reader windows, but an .mdx module is a plain React tree that could in
+ * principle be mounted anywhere).
+ */
+export function useWindowsOptional(): WindowManagerValue | null {
+  return useContext(WindowManagerContext)
+}

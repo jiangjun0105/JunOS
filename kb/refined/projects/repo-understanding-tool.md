@@ -1,0 +1,49 @@
+---
+title: Large-repo understanding tool — and why I stopped before the Bitter Lesson hit
+section: projects
+tags: [codebase-understanding, ast, context-engineering, bitter-lesson, end-to-end, gpt-3.5, gpt-4, multi-agent]
+sources: [raw/2026-09-03-projects-repo-understanding.md, resume Aug 2026]
+updated: 2026-09-03
+status: draft
+---
+
+# The idea
+
+When ChatGPT first appeared — before there was an API — I was sure it was going to be revolutionary, and as a developer the first thing I wanted was to code with it. The demos then (and many now) showed small projects built from scratch. Real codebases are massive; sometimes even cloning them is slow. Before you ask an AI to write code, context is the critical piece. "Context engineering" wasn't a term yet; everyone was still saying prompt engineering.
+
+So I focused on understanding large repositories. Drop an agent into a huge codebase and it first has to answer: what is this repository about, where are things, how does the part I need to touch relate to what exists, and what should be reused, built, or extended?
+
+Models are trained on human language, so they handle concepts roughly the way we do. I thought the right representation of code was therefore a hierarchical diagram of the main architecture and execution flow — the thing a senior engineer draws on a whiteboard.
+
+# What I built
+
+A bottom-up pipeline, so it could handle repositories of any size:
+
+1. Parse each file or module correctly with an AST, tracing execution, logic flow, and branches.
+2. Send code at a given level to the model to produce semantic summaries of those modules.
+3. Recombine the summaries along the AST tree so relationships between components are preserved.
+
+The structure that came out of this was a hierarchical graph of agents shaped like the AST itself: every node in the tree — package, module, class, function — had its own agent responsible for that piece, and questions flowed through the levels. As a CLI it answered questions over large Python codebases better than GitHub Copilot Chat at the time, and I worked with researchers at the University of Tokyo and Peking University on how those agents communicate, which noticeably improved answer quality.
+
+The intended end product was an interactive hierarchical diagram: start at the top (say, a checkout service), zoom into a module's logic, keep zooming down to the lowest-level API calls.
+
+It never got finished. AST generation existed for Python only, and tree generation and diagram generation stayed separate manual steps.
+
+# Why I stopped
+
+I started on GPT-3.5. Then GPT-4 and GPT-4o arrived, context windows kept growing, and I saw that I was walking straight into the Bitter Lesson: spending effort on hand-crafted rules and heuristics that a bigger model would soon do end to end. If a future model can take an entire repository into context and produce whatever diagram or understanding you need in one shot, my tool is obsolete.
+
+Self-driving is the same story: a modular stack versus an end-to-end network. End-to-end avoids compounding local errors and ends up more accurate than hard-coded stages.
+
+There was a second pull. Even if general models never got there, the better bet looked like training a small specialized model rather than engineering a pipeline: you would not put the code in its context at all — you'd just ask it about a piece of logic and it would draw the diagram. A small model keeps a cost advantage even after big closed models become capable, and it spends compute on learning the representation instead of my time designing it.
+
+So I stopped, deliberately, to avoid living the Bitter Lesson myself.
+
+# The lesson I keep
+
+Before building a tool around a model's current weakness, ask whether the next model makes the tool unnecessary. Tools that survive are the ones that give the model something it can't get on its own — a body, tooling, verification, a foundation — not the ones that compensate for scale.
+
+# To verify
+
+- Repo name and whether it's public; approximate dates.
+- Whether the small-specialized-model idea was tried.

@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Embed } from '@/components/mdx/Embed'
 import { Figure } from '@/components/mdx/Figure'
 import { Gallery } from '@/components/mdx/Gallery'
+import { MdxLink } from '@/components/mdx/MdxLink'
 import { Video } from '@/components/mdx/Video'
 
 /**
@@ -23,12 +24,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     h2: (props) => <h2 className="mb-2 mt-5 font-body text-xl font-bold text-ink" {...props} />,
     h3: (props) => <h3 className="mb-1.5 mt-4 font-body text-lg font-bold text-ink" {...props} />,
     p: (props) => <p className="my-2.5 text-[18px] leading-relaxed text-ink" {...props} />,
-    a: (props) => (
-      <a
-        className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
-        {...props}
-      />
-    ),
+    // Internal cross-references (`/article/<slug>`, `/thoughts/<slug>`) open the
+    // matching window instead of navigating away; see MdxLink.
+    a: MdxLink,
     ul: (props) => (
       <ul className="my-2.5 ml-5 list-disc space-y-1 text-[18px] text-ink marker:text-accent" {...props} />
     ),

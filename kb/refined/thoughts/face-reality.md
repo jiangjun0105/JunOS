@@ -1,0 +1,31 @@
+---
+title: Face reality — the one principle that prevents most mistakes
+section: thoughts
+tags: [principles, decision-making, reflection, post-mortem, efficiency, dalio, seek-truth-from-facts]
+sources: [raw/2026-09-03-books-principles.md]
+related: [books/principles.md]
+updated: 2026-09-03
+status: draft
+---
+
+Of everything in Ray Dalio's Principles, the one that changed me most is the first: face reality. There's a Chinese phrase for it — shi shi qiu shi, seek truth from facts. It sounds obvious. It has layers.
+
+# Layer one: judge from facts
+
+Don't pronounce on things you don't understand. Whether a stock will rise, whether a company is well run — most opinions on these are hearsay. Facing reality means going to the objective facts first and only then reasoning from them. Intuition is allowed, even encouraged, but it has to stand on facts, not float on feeling.
+
+# Layer two: when it hurts, don't lie to yourself
+
+Pain makes people reach for comforting explanations that happen to be wrong. The honest move is the opposite: use the frustration of failure as fuel, dig for the real cause — not enough effort, bad timing, no real edge in some dimension — and look straight at your own mistake. Don't invent a story to soothe yourself or the people around you.
+
+# Layer three: check whether your facts are facts
+
+Even when you believe you're standing on facts, ask: is this actually true? Was I misled? Is the information incomplete? That question should push you to collect more, until the ground you're standing on is trustworthy.
+
+# The habit it gave me
+
+Doing just this one thing prevents a huge fraction of mistakes. It also gave me a habit that people sometimes find odd: when something goes wrong, what settles me isn't going for a walk or taking my mind off it. It's a post-mortem — reflecting until every problem I find has a countermeasure. Only then does my mind actually quiet down, and only then am I sure that each hole I've stepped in makes the next attempt better.
+
+# To verify
+
+- Add a concrete example of a post-mortem that changed a decision.

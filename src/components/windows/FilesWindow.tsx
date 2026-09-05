@@ -23,7 +23,8 @@ type TreeNode =
 
 /**
  * A kind's articles become a two-layer tree: one sub-folder per section, each
- * holding the article "files" that open the reader with their slug.
+ * holding the article "files" that open the reader with their slug. `project`
+ * has a single section, so its folder is one level deep in practice.
  */
 function articleFolders(kind: ArticleKind): TreeNode[] {
   return sectionsByKind(kind).map((section) => ({
@@ -41,20 +42,26 @@ function articleFolders(kind: ArticleKind): TreeNode[] {
 
 /**
  * The tree shown in the File Explorer. Files open their app's window on click; the
- * Research / Personal folders are generated from src/content/articles, so new
+ * Research / Projects / Personal folders are generated from src/content/articles,
+ * so new
  * articles appear here automatically. Extend or nest more folders to grow it.
  */
 const TREE: TreeNode[] = [
   {
     kind: 'folder',
     name: 'JunOS',
+    // App shortcuts. Names must match the app titles in src/os/apps.tsx, since
+    // that title is what the opened window shows.
     children: [
       { kind: 'file', name: 'About me', appId: 'about', fileKind: 'doc' },
       { kind: 'file', name: 'Development', appId: 'projects', fileKind: 'csv' },
-      { kind: 'file', name: 'Support', appId: 'support', fileKind: 'exe' },
+      { kind: 'file', name: 'Thoughts', appId: 'thoughts', fileKind: 'doc' },
+      { kind: 'file', name: 'Books', appId: 'books', fileKind: 'txt' },
+      { kind: 'file', name: 'Call Me', appId: 'support', fileKind: 'exe' },
     ],
   },
   { kind: 'folder', name: 'Research', children: articleFolders('research') },
+  { kind: 'folder', name: 'Projects', children: articleFolders('project') },
   { kind: 'folder', name: 'Personal', children: articleFolders('personal') },
   {
     kind: 'folder',
