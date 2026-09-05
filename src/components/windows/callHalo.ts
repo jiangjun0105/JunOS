@@ -32,10 +32,12 @@ export function smoothHalo(current: number, target: number): number {
 }
 
 /**
- * The two halo layers' transforms for a given level: a crisp ring that grows a
- * little, and a soft wash behind it that grows a lot. Both are `scale()`s of a
- * ring already a few px outside the photo, so at level 0 they hug the photo.
+ * The two halo layers' transforms for a given level: an inner wash that grows
+ * a little and a fainter outer wash that grows more, so the swell has depth.
+ * Both are soft fills — no hard outline, which read as a dark circle drawn
+ * round the photo. Each is a `scale()` of a disc already a few px outside the
+ * photo, so at level 0 they hug it (and are invisible).
  */
-export function haloScales(level: number): { ring: number; glow: number } {
-  return { ring: 1 + level * 0.14, glow: 1 + level * 0.32 }
+export function haloScales(level: number): { inner: number; outer: number } {
+  return { inner: 1 + level * 0.16, outer: 1 + level * 0.32 }
 }

@@ -9,6 +9,8 @@ status: draft
 
 Transformers are too big and too hungry to live inside a robot, and they can't absorb experience into themselves. Biological brains do both, and a biological brain is structurally a spiking neural network. My research is a free-time, small-GPU project that starts from an uploaded fruit-fly connectome, puts it in a digital body, and tries to make it learn — in three stages. → [Full overview](snn-overview.md)
 
+**How it's actually built.** male-cns v0.9 (166,691 neurons) through neuPrint, Brian2 with GeNN on the GPU, NeuroMechFly in MuJoCo for the body, and learning by three-factor STDP plus structural plasticity and sleep. → [The stack and the phase plan](how-im-building-it.md) · [How the fly learns](learning-mechanisms.md)
+
 **Stage 1 — Individual development and task learning.** Convert the connectome to a LIF network, plug it into a digital fly, and get it to control its own body, then learn a custom task. In progress: I can detect the sensorimotor loop and generate motion in one leg. → [Current work](stage-1-current-work.md)
 
 **Stage 2 — Morphological change.** Change the body (injury, environment, wheels instead of legs), keep the neuron count fixed, and see whether the same learning lets the brain adapt — ending with a fly brain driving a physical robot.

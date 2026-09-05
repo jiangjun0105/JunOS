@@ -69,5 +69,4 @@ I think that is realistic for two reasons. First, the work does not need a large
 
 # To verify
 
-- Name of the open-source connectome project used (full fly, brain + VNC).
 - Related work to position against (e.g. connectome-to-body efforts, SpikeGPT and other SNN language models, RWKV/Mamba-style architectures, neuromorphic hardware).

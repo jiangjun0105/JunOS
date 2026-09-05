@@ -31,10 +31,10 @@ describe('smoothHalo', () => {
 })
 
 describe('haloScales', () => {
-  it('hugs the photo at rest and grows the glow more than the ring', () => {
-    expect(haloScales(0)).toEqual({ ring: 1, glow: 1 })
+  it('hugs the photo at rest and grows the outer wash more than the inner', () => {
+    expect(haloScales(0)).toEqual({ inner: 1, outer: 1 })
     const loud = haloScales(1)
-    expect(loud.glow).toBeGreaterThan(loud.ring)
-    expect(loud.ring).toBeGreaterThan(1)
+    expect(loud.outer).toBeGreaterThan(loud.inner)
+    expect(loud.inner).toBeGreaterThan(1)
   })
 })

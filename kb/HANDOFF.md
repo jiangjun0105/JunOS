@@ -179,11 +179,24 @@ built-in tools, the six data-collection fields and the two evaluation criteria. 
 editing `kb/refined/`; `--agent-only` re-applies just the agent config, leaving the uploaded
 documents alone.
 
+**Research reference tier (added 2026-09-05).** `kb/reference/fly-project/` is a snapshot of 11
+design docs from the working research repo (`~/Projects/fly-dog-and-human/docs`) — the two plan
+documents and the nine neuroscience docs. The 26 issue/task tickets and the environment setup were
+deliberately left out. Two new refined files distil them into Jun's voice
+(`research/how-im-building-it.md`, `research/learning-mechanisms.md`); the reference docs are
+uploaded alongside so the agent can go deeper when a researcher pushes. They resolved several open
+questions: the connectome is **male-cns v0.9** (166,691 neurons, via neuPrint) — *not* the BANC,
+which the earlier KB guessed — the stack is Brian2 + GeNN on GPU with NeuroMechFly in MuJoCo, and
+the leg situation is that all six legs exist but only one has the accurate many-jointed model.
+Those two refined files are the only ones NOT rendered on the site; adding them as articles is an
+open offer, not an oversight.
+
 **ElevenLabs bundle (§4).** `scripts/build-agent-bundle.mjs` generates it from `kb/` into
 `dist/agent-kb/` (gitignored): `system-prompt.md` with the setup checklist stripped,
 `knowledge-base.md` as a single concatenated file with `# <path>` headers and frontmatter
-removed, and `files/` with one document per source. 32 sources — all of `kb/refined/` plus
-`agent/persona.md` and `agent/faq.md`. `kb/raw/`, `HANDOFF.md` and `README.md` are excluded by
+removed, and `files/` with one document per source. 46 sources — all of `kb/refined/` and `kb/reference/`,
+plus `agent/persona.md` and `agent/faq.md`. Reference docs get a `speakable()` pass (inline LaTeX
+and URLs stripped) because they were written for a screen, not to be read aloud. `kb/raw/`, `HANDOFF.md` and `README.md` are excluded by
 construction.
 
 ## Checks

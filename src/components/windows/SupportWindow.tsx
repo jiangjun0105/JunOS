@@ -106,9 +106,9 @@ function CallPanel({ agentId }: { agentId: string }) {
   // animation frame — written to the DOM through refs, NOT React state, so the
   // window doesn't re-render 60× a second. Only runs while Jun is talking; the
   // moment he stops, the level eases to 0 and the loop ends. Under
-  // prefers-reduced-motion the halo stays a static ring instead (below).
-  const ringRef = useRef<HTMLSpanElement>(null)
-  const glowRef = useRef<HTMLSpanElement>(null)
+  // prefers-reduced-motion the halo is a static wash instead (below).
+  const innerRef = useRef<HTMLSpanElement>(null)
+  const outerRef = useRef<HTMLSpanElement>(null)
   const levelRef = useRef(0)
   const volumeRef = useRef(getOutputVolume)
   volumeRef.current = getOutputVolume
@@ -118,14 +118,14 @@ function CallPanel({ agentId }: { agentId: string }) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     let frame = 0
     const paint = (level: number) => {
-      const { ring, glow } = haloScales(level)
-      if (ringRef.current) {
-        ringRef.current.style.transform = `scale(${ring})`
-        ringRef.current.style.opacity = String(Math.min(1, 0.35 + level))
+      const { inner, outer } = haloScales(level)
+      if (innerRef.current) {
+        innerRef.current.style.transform = `scale(${inner})`
+        innerRef.current.style.opacity = String(Math.min(1, 0.25 + level))
       }
-      if (glowRef.current) {
-        glowRef.current.style.transform = `scale(${glow})`
-        glowRef.current.style.opacity = String(0.7 * level)
+      if (outerRef.current) {
+        outerRef.current.style.transform = `scale(${outer})`
+        outerRef.current.style.opacity = String(0.8 * level)
       }
     }
     const tick = () => {
@@ -142,23 +142,23 @@ function CallPanel({ agentId }: { agentId: string }) {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 text-center">
       {/* The photo carries the call state: a quiet outline at rest, and while
-          Jun is talking a halo that breathes with his voice — a crisp accent
-          ring that swells a little and a soft wash behind it that swells a lot.
-          Cheaper to read at a glance than text. The two layers sit a few px
-          outside the photo and are scaled from their centre by the frame loop
-          above; `motion-reduce:` gives reduced-motion users a plain ring. The
-          vertical margin is the room the glow needs at full swell, so it never
-          washes over the heading below. */}
+          Jun is talking a halo that breathes with his voice — two soft accent
+          washes (no hard outline), the inner swelling a little and the outer a
+          lot. Cheaper to read at a glance than text. Both sit a few px outside
+          the photo and are scaled from their centre by the frame loop above;
+          `motion-reduce:` gives reduced-motion users a static wash. The vertical
+          margin is the room the outer wash needs at full swell, so it never
+          spills over the heading below. */}
       <div className="relative my-4 flex-none">
         <span
-          ref={glowRef}
+          ref={outerRef}
           aria-hidden
-          className="pointer-events-none absolute -inset-2 rounded-full bg-accent/30 opacity-0 will-change-transform"
+          className="pointer-events-none absolute -inset-2 rounded-full bg-accent/15 opacity-0 will-change-transform"
         />
         <span
-          ref={ringRef}
+          ref={innerRef}
           aria-hidden
-          className={`pointer-events-none absolute -inset-2 rounded-full border-[3px] border-accent opacity-0 will-change-transform ${
+          className={`pointer-events-none absolute -inset-2 rounded-full bg-accent/30 opacity-0 will-change-transform ${
             breathing ? 'motion-reduce:opacity-100' : ''
           }`}
         />
@@ -170,32 +170,39 @@ function CallPanel({ agentId }: { agentId: string }) {
         />
       </div>
 
-      {/* `relative` so the text stacks above the (absolutely positioned) halo. */}
+      {/* `relative` so the text stacks above the (absolutely positioned) halo.
+          LAYOUT IS FIXED ACROSS CALL STATES: the panel is vertically centred, so
+          anything that changes height between "idle" and "in a call" would shift
+          the photo the moment the call starts. Every slot below therefore keeps
+          its size — the pitch/status slot is a fixed-height box, and the
+          footnote is hidden with `invisible` (which keeps its space) rather than
+          removed. */}
       <div className="relative space-y-1">
         <h1 className="font-body text-[22px] font-bold">Talk to AI Jun</h1>
-        {/* In a call the pitch is over — the status takes its place, so the
-            controls sit right under the photo instead of below a paragraph
-            nobody is reading mid-conversation. */}
-        {inCall ? (
-          <p className="flex h-6 items-center justify-center gap-2 text-[15px] font-bold text-ink">
-            {connecting ? (
-              <span className="text-muted">Connecting…</span>
-            ) : (
-              <>
-                <span
-                  className={`inline-block h-2 w-2 rounded-full ${isSpeaking ? 'bg-accent' : 'bg-accent-2'}`}
-                  aria-hidden
-                />
-                {isSpeaking ? 'Jun is talking' : 'Listening'}
-              </>
-            )}
-          </p>
-        ) : (
-          <p className="text-[15px] leading-snug text-muted">
-            Ask my AI double about my experience, the projects I&apos;m building, or the research
-            — or leave a message for me.
-          </p>
-        )}
+        {/* In a call the pitch is over — the status takes its place in the same
+            two-line slot, so the controls stay exactly where they were. */}
+        <div className="flex h-11 items-center justify-center">
+          {inCall ? (
+            <p className="flex items-center justify-center gap-2 text-[15px] font-bold text-ink">
+              {connecting ? (
+                <span className="text-muted">Connecting…</span>
+              ) : (
+                <>
+                  <span
+                    className={`inline-block h-2 w-2 rounded-full ${isSpeaking ? 'bg-accent' : 'bg-accent-2'}`}
+                    aria-hidden
+                  />
+                  {isSpeaking ? 'Jun is talking' : 'Listening'}
+                </>
+              )}
+            </p>
+          ) : (
+            <p className="text-[15px] leading-snug text-muted">
+              Ask my AI double about my experience, the projects I&apos;m building, or the
+              research — or leave a message for me.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex items-start justify-center gap-4">
@@ -225,14 +232,19 @@ function CallPanel({ agentId }: { agentId: string }) {
         )}
       </div>
 
-      {error && <p className="max-w-xs text-sm text-accent-3">{error}</p>}
+      {/* Always rendered so its height is part of the fixed layout; empty until
+          there's something to say. */}
+      <p className="min-h-5 max-w-xs text-sm text-accent-3" role="alert">
+        {error}
+      </p>
 
-      {!inCall && (
-        <p className="max-w-xs text-xs leading-snug text-muted">
-          You&apos;re talking to an AI built from what&apos;s written on this site; it won&apos;t
-          invent anything, and I see a summary afterwards.
-        </p>
-      )}
+      <p
+        className={`max-w-xs text-xs leading-snug text-muted ${inCall ? 'invisible' : ''}`}
+        aria-hidden={inCall}
+      >
+        You&apos;re talking to an AI built from what&apos;s written on this site; it won&apos;t
+        invent anything, and I see a summary afterwards.
+      </p>
     </div>
   )
 }

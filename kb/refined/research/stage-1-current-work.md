@@ -5,11 +5,12 @@ tags: [snn, lif, fruit-fly, connectome, vnc, motor-control, sensorimotor-loop, s
 sources: [raw/2026-09-03-research-snn.md]
 updated: 2026-09-05
 status: draft
+related: [research/how-im-building-it.md, research/learning-mechanisms.md]
 ---
 
 # Setup
 
-I downloaded a fruit-fly connectome from an open-source project — one of the newer releases that includes every neuron, both the central brain and the ventral nerve cord (VNC). (Almost certainly the BANC — the Brain-and-Nerve-Cord connectome released by FlyWire and Harvard collaborators in November 2025, the first synapse-level map of a fly's entire central nervous system.) I designed a Leaky Integrate-and-Fire (LIF) neuron function and converted the connectome into a runnable spiking neural network.
+I'm working from male-cns v0.9: the first complete connectome of an entire adult male fruit-fly central nervous system — central brain, optic lobes and ventral nerve cord in one specimen, 166,691 neurons. I query it through neuPrint. I designed a Leaky Integrate-and-Fire (LIF) neuron function and converted the connectome into a runnable spiking neural network, in Brian2, with GeNN compiling it to the GPU.
 
 Then I plugged that network into a digital fly body.
 
@@ -35,8 +36,8 @@ I am looking for this loop inside the fly's nervous system and trying to reprodu
 # Where it stands
 
 - Early stage, but with promising results: I can detect the loop and am generating motion in one leg.
-- To match real neurons well I had to use a high-accuracy leg model rather than a simplified one; it is much closer to a real fly leg.
-- Only one leg is modeled so far — the public simulator data only includes a motor model for the left front leg. The plan is to build multi-joint motor models for the remaining five.
+- To match real neurons well I had to use the high-accuracy leg model rather than the simplified one; it is much closer to a real fly leg.
+- The body model covers all six legs, but not evenly: the accurate, many-jointed leg model exists for one leg only, and the other five are a simplified version with far fewer joints. The plan is to build accurate multi-joint motor models for the remaining five.
 - Once loop detection is reliable, the next experiments are about using the loop to improve leg control — and, if the loop holds under proactive stimulation, checking whether the network's weights change measurably and whether those changes help.
 
 # Working method
@@ -45,7 +46,4 @@ The experiments are written, generated, and managed with my own agent harness, w
 
 # To verify
 
-- Confirm the connectome is the BANC (FlyWire, Nov 2025) and note the version.
-- Physics/body simulator and the source of the high-accuracy leg model (NeuroMechFly v2 in MuJoCo is the standard choice; confirm).
-- Software stack (framework, language, GPU).
-- Any numbers worth stating publicly (e.g. neuron count, simulation step, loop-detection criteria).
+- Simulation step and the loop-detection criteria — worth stating publicly once settled.
