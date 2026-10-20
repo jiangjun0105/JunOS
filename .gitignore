@@ -36,3 +36,4 @@ pnpm-debug.log*
 # unedited words and name the stealth startup, and this repo is public. The
 # refined/ and agent/ derivatives ARE tracked; see kb/README.md.
 /kb/raw/
+.superpowers/

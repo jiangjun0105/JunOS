@@ -9,29 +9,21 @@ import { parseWindowPath, pathForWindow } from './url'
 import { useWindows } from './WindowManager'
 
 /**
- * Two-way sync between the open windows and the browser URL, so every window is
+ * Two-way sync between the open window and the browser URL, so every window is
  * deep-linkable and shareable. Renders nothing.
  *
- *  - URL -> windows: on load (and on any navigation) the path opens/focuses its
- *    window. `openApp` is idempotent, so re-running this is a no-op once the right
- *    window is focused.
- *  - windows -> URL: the focused (top-most) window's path is written to the
- *    address bar with the History API. That's purely cosmetic — it never triggers
- *    a Next navigation, re-render, or data fetch, and adds no history entries — so
- *    window STATE stays the source of truth for what's open and where. The URL
- *    just names the focused window.
- *
- * The two directions share one fixed point (pathname === focused window's path),
- * and both updates are idempotent there, so they converge without looping.
+ *  - URL -> window: on load (and on any navigation) the path opens its window.
+ *    `openApp` is a no-op when that window is already open, so re-running is safe.
+ *  - window -> URL: the open window's path is written with the History API
+ *    (no navigation, no history entries); closing it returns to '/'.
  */
 export function WindowUrlSync() {
-  const { windows, focusedId, openApp } = useWindows()
+  const { win, openApp } = useWindows()
   const pathname = usePathname()
-  // Has a window ever been focused? Lets us reset to '/' when the LAST window
-  // closes, without clobbering a fresh deep link before its window has opened.
-  const hadFocus = useRef(false)
-
-  // URL -> windows
+  // Has a window been open? Lets us reset to '/' when it closes, without
+  // clobbering a fresh deep link before its window has opened.
+  const hadWin = useRef(false)
+  // URL -> window
   useEffect(() => {
     const parsed = parseWindowPath(pathname)
     if (!parsed) return
@@ -57,25 +49,17 @@ export function WindowUrlSync() {
     }
   }, [pathname, openApp])
 
-  // windows -> URL
+  // window -> URL
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const focused = windows.find((w) => w.id === focusedId)
-    if (focused) {
-      hadFocus.current = true
-      const desired = pathForWindow(focused)
-      if (window.location.pathname !== desired) {
-        window.history.replaceState(window.history.state, '', desired)
-      }
-    } else if (hadFocus.current) {
-      // The last window just closed — return the address bar to the bare desktop.
-      hadFocus.current = false
-      if (window.location.pathname !== '/') {
-        window.history.replaceState(window.history.state, '', '/')
-      }
+    if (win) {
+      hadWin.current = true
+      const desired = pathForWindow(win)
+      if (window.location.pathname !== desired) window.history.replaceState(window.history.state, '', desired)
+    } else if (hadWin.current) {
+      hadWin.current = false
+      if (window.location.pathname !== '/') window.history.replaceState(window.history.state, '', '/')
     }
-    // else: initial empty desktop — leave any deep-link path for the effect above.
-  }, [windows, focusedId])
+  }, [win])
 
   return null
 }

@@ -1,20 +1,18 @@
-import type { WindowInstance } from './types'
-
 /**
- * URL <-> window mapping. Each window has one canonical path, so the focused
+ * URL <-> window mapping. Each window has one canonical path, so the open
  * window can be mirrored into the address bar (shareable) and pasting that link
  * back re-opens it (deep-linkable):
  *
  *   about / projects / research / files   ->  /about, /projects, ...
  *   an article                            ->  /article/<slug>
- *   nothing focused (bare desktop)        ->  /
+ *   no window (the bare city)             ->  /
  *
  * Pure functions — no React, no router — so the sync logic (WindowUrlSync) and
  * any future tests can share them.
  */
 
-/** The canonical path for a window (what the address bar shows when it's focused). */
-export function pathForWindow(win: Pick<WindowInstance, 'appId' | 'params'>): string {
+/** The canonical path for a window (what the address bar shows while it's open). */
+export function pathForWindow(win: { appId: string; params?: Record<string, unknown> }): string {
   if (win.appId === 'article' || win.appId === 'thoughts') {
     const slug = win.params?.slug
     if (typeof slug === 'string') return `/${win.appId}/${encodeURIComponent(slug)}`
@@ -34,9 +32,9 @@ export function parseWindowPath(pathname: string): { appId: string; slug?: strin
 
 /**
  * A window's identity key: its app id PLUS its params. Two different articles
- * (`{ slug: 'a' }` vs `{ slug: 'b' }`) get different keys and so open as two
- * windows, while re-opening the same one yields the same key — that's how the
- * WindowManager dedupes/focuses instead of spawning a duplicate.
+ * (`{ slug: 'a' }` vs `{ slug: 'b' }`) get different keys, while re-opening the
+ * same one yields the same key — that's how the WindowManager knows a re-open is
+ * a no-op.
  *
  * We sort the param keys before stringifying so identity is key-ORDER-agnostic:
  * `{ a, b }` and `{ b, a }` describe the same window and must produce the same

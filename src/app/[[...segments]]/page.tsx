@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Desktop } from '@/os/Desktop'
+import { CityDesktop } from '@/os/CityDesktop'
 import { appList } from '@/os/apps'
 import { articles, getArticle } from '@/content/articles'
 import { thoughts, getThought } from '@/content/thoughts'
@@ -13,6 +13,7 @@ import { parseWindowPath } from '@/os/url'
  * the WP touches only the app/ files, and a shared util would mean a new module.
  */
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://junbot.dev'
+const DESCRIPTION = 'Jun Jiang, AI engineer: agent harnesses and a digital fly brain, on a 3D map of San Francisco.'
 
 /**
  * The home route IS the desktop — and so is every other path. This optional
@@ -22,7 +23,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://junbot.dev'
  * navigation and the page body never needs the segments itself.
  */
 export default function Home() {
-  return <Desktop />
+  return <CityDesktop />
 }
 
 /**
@@ -38,7 +39,7 @@ export default function Home() {
  *   - an article `/article/<slug>`    -> `{ segments: ['article', slug] }`
  *
  * Launchable ids come from `appList` minus non-launcher windows (`article`,
- * `about-junos`) so we don't prerender paths that have no desktop entry point;
+ * `notification`) so we don't prerender paths that have no desktop entry point;
  * `article` is covered explicitly by the per-slug routes below.
  */
 export function generateStaticParams(): { segments: string[] }[] {
@@ -115,7 +116,7 @@ export async function generateMetadata({
   // Site default — mirrors the root layout's title/description so the desktop
   // and app launchers present a consistent identity to crawlers and link unfurls.
   const title = 'JunOS'
-  const description = 'A desktop OS in the browser.'
+  const description = DESCRIPTION
   return {
     title,
     description,

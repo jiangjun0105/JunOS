@@ -19,52 +19,9 @@ export interface AppDefinition {
   // strict, closed-set typing lives at the call boundaries (e.g. `openApp`).
   id: string
   title: string
-  /** Emoji fallback, shown on a clay tile when no `image` is provided. */
-  icon: string
-  /** Optional path/URL to a real (e.g. 3D-rendered) icon image — shown bare with a soft shadow. */
-  image?: string
-  /** Show the decorative File / Edit / View / Help toolbar below the title bar. */
-  toolbar?: boolean
-  /** Show a desktop launcher icon + an Apps-menu entry. Default true; set false
+  /** Deep-linkable by its bare id and listed in the sitemap. Default true; false
    *  for windows that are opened indirectly (e.g. the article reader). */
   launcher?: boolean
-  /** Size a fresh window opens at. OMIT IT (the norm) to get the responsive
-   *  default — full-bleed on a compact screen, 80% of the work area on a laptop,
-   *  capped on a wide monitor (see `defaultWindowSize` in ./placement). Set it
-   *  only for a window that must NOT scale with the screen, e.g. a small dialog.
-   *  A declared size is still clamped to fit the work area. */
-  defaultSize?:
-    | { width: number; height: number }
-    | ((workArea: { width: number; height: number }) => { width: number; height: number })
-  /** Padding for the scrollable window body, as Tailwind utilities. Defaults to
-   *  `px-10 py-4` (see Window.tsx); override to tighten a specific app's margins
-   *  — e.g. Email uses less side padding so the compose form has more room. */
-  bodyPadding?: string
   /** The React component rendered inside the window body. */
   Component: ComponentType<WindowComponentProps>
-}
-
-/** A live, open window on the desktop. The desktop is just an array of these. */
-export interface WindowInstance {
-  id: string
-  // `string` (not `AppId`) for the same circular-dependency reason as
-  // `AppDefinition.id` above; live windows are always created via `openApp`,
-  // which already enforces the closed `AppId` set at the call site.
-  appId: string
-  title: string
-  /** Per-window data passed to the app component (e.g. an article `{ slug }`). */
-  params?: Record<string, unknown>
-  /** Stacking order. Highest zIndex == the focused window (focus is derived from this). */
-  zIndex: number
-  position: { x: number; y: number }
-  size: { width: number; height: number }
-  /** Hidden from the desktop (still open, parked in the taskbar). */
-  minimized: boolean
-  /** Filling the desktop work area (between the menu bar and taskbar). */
-  maximized: boolean
-  /** Position + size to restore to when un-maximizing. */
-  prevRect?: {
-    position: { x: number; y: number }
-    size: { width: number; height: number }
-  }
 }

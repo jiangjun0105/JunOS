@@ -1,11 +1,8 @@
-# JunOS 🌸
+# JunOS
 
-A tiny, anime-style **desktop OS in the browser** — pages and apps open as
-draggable, resizable windows on a soft pastel sky. Built with **Next.js (App
-Router)**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**.
-
-This is a learning scaffold: small enough to read in one sitting, structured so
-you can grow it into a real personal site.
+Jun Jiang's personal site: a 3D wireframe of **San Francisco** (real AWS terrain + an
+OpenStreetMap snapshot) with each app floating as a HUD reticle over a landmark.
+Built with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS** and **three.js**.
 
 ## Getting started
 
@@ -14,42 +11,32 @@ pnpm install
 pnpm dev          # http://localhost:3000
 ```
 
-Click the **About me** icon to open a window. Drag it by the title bar, resize
-it from the bottom-right handle, and close it with the ✕ button.
+Hover an icon for a preview, click it to fly there and open its window; Esc or ✕
+closes it and flies back. Pushing to `main` deploys to junbot.dev (Vercel).
 
-## How it works (the 60-second tour)
-
-The desktop is **one array of window objects** in React state. "Navigating" or
-clicking an icon just adds/focuses an entry in that array.
+## How it works
 
 | Piece | File | Job |
 |------|------|-----|
-| Window manager | `src/os/WindowManager.tsx` | Holds `windows[]`; open/close/focus/move/resize. Focus = highest `zIndex` (derived). |
-| Persistent shell | `src/os/OSRoot.tsx` | Lives in the layout; renders the window layer above the page. |
-| Window frame | `src/os/Window.tsx` | One draggable/resizable window (Framer Motion). |
-| Desktop | `src/os/Desktop.tsx` | Wallpaper + launcher icons. |
-| App registry | `src/os/apps.tsx` | Maps an app id → `{ title, icon, size, Component }`. |
+| 3D city | `src/city/` | Framework-free three.js engine (see `src/city/README.md`); loaded client-only. |
+| Landmarks | `src/city/landmarks.js` | Which app sits over which place. |
+| Desktop shell | `src/os/CityDesktop.tsx` | Mounts the city, the HUD and the one window (hidden → peek → open). |
+| Window manager | `src/os/WindowManager.tsx` | The open window; `openApp(id, { params })` swaps it, `close()` clears it. |
+| App registry | `src/os/apps.tsx` | Maps an app id → `{ title, Component }`. |
 | Articles | `src/content/articles/` | MDX articles + a typed metadata index; shown by the **Article** reader, listed in **Research** + **Files**. |
-| Layout / page | `src/app/layout.tsx`, `src/app/page.tsx` | Mount the provider + shell; the home route is the desktop. |
 
 ## Changing the look
 
-Everything visual is token-driven:
-
-- **Palette / shape / shadows / sky** → `src/styles/theme.css` (edit these values to reskin the whole app).
-- **Window & icon "skin" structure** → the `@layer components` block in `src/app/globals.css`.
+- **Palette / shape / glow** → `src/styles/theme.css` (the 3D scene reads `--bg`, `--accent`, `--cyan` too).
+- **City HUD and window** → the plain-CSS city section in `src/app/globals.css`.
+- **Camera motion** → `MOTION` in `src/city/config.js`; check it with `node scripts/city/trace.mjs`.
 - **Fonts** → `src/app/layout.tsx`.
 
-Because colors are CSS variables, you can add a whole alternate theme by copying
-the `:root` block in `theme.css` under e.g. `[data-theme='night'] { … }` and
-toggling that attribute on `<html>`.
-
-## Adding a new app/window
+## Adding a new app
 
 1. Create a component in `src/components/windows/`.
-2. Add an entry to `apps` in `src/os/apps.tsx` (icon, default size, component).
-
-That's it — the desktop icon and the open/focus logic come for free.
+2. Add an entry to `apps` in `src/os/apps.tsx`.
+3. Add a landmark for it in `src/city/landmarks.js`.
 
 ## Writing articles
 
@@ -85,7 +72,7 @@ Markdown elements (`#`, lists, quotes, code) are skinned lives in
 
 ## URLs & deep-linking
 
-Every window is shareable. The focused (top-most) window is mirrored into the
+Every window is shareable. The open window is mirrored into the
 address bar, and pasting that link back re-opens it:
 
 | Window | URL |
@@ -94,18 +81,9 @@ address bar, and pasting that link back re-opens it:
 | An article | `/article/<slug>` |
 
 - The path ⟷ window mapping is `src/os/url.ts`.
-- The two-way sync (focused window ⟷ URL) lives in `src/os/WindowUrlSync.tsx`.
+- The two-way sync (open window ⟷ URL) lives in `src/os/WindowUrlSync.tsx`.
 - `src/app/[[...segments]]/page.tsx` is an optional catch-all so any path renders
-  the desktop (windows live in the layout, so they persist across navigation).
+  the desktop.
 
 URL updates use the History API, so they're cosmetic — they never reload the page
-or reset your open windows, and add no Back/Forward entries. Natural extensions:
-`pushState` so Back/Forward step through windows, or encoding *all* open windows
-for full-session links.
-
-## Ideas for next steps
-
-- Draggable desktop icons (reuse the Framer drag pattern from `Window.tsx`).
-- Minimize / maximize / snap-to-side.
-- A taskbar showing open windows.
-- Persist open windows (and their positions) to `localStorage` or the URL.
+or reset the city, and add no Back/Forward entries.

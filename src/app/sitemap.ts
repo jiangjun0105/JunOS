@@ -28,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: SITE_URL, lastModified: now, changeFrequency: 'weekly', priority: 1 },
   ]
 
-  // Launcher windows only — `article`/`about-junos` (launcher: false) have no
+  // Launcher windows only — `article`/`notification` (launcher: false) have no
   // standalone landing intent of their own (articles are listed individually).
   const apps: MetadataRoute.Sitemap = appList
     .filter((a) => a.launcher !== false)

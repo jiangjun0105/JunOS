@@ -1,36 +1,18 @@
 import type { Metadata } from 'next'
-import { Dosis, Hanken_Grotesk } from 'next/font/google'
-import { OSRoot } from '@/os/OSRoot'
+import { Exo_2, IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google'
 import { WindowManagerProvider } from '@/os/WindowManager'
 import './globals.css'
 
-// Fonts (Dosis for chrome, Hanken Grotesk for body) are self-hosted by
-// next/font/google instead of a render-blocking Google Fonts @import. next/font
-// downloads the files at build time, preloads them, and emits a `size-adjust`
-// fallback to avoid layout shift — so there's no extra DNS/connect to
-// fonts.googleapis.com / fonts.gstatic.com on the critical path.
-//
-// Each call exposes its family as a CSS variable (--font-chrome / --font-body),
-// which we attach to <html> below. tailwind.config.ts maps the `font-display`
-// (chrome) / `font-body` utilities to those same vars, so next/font is now
-// the single source of truth for the families (theme.css no longer hardcodes them).
-// The weights mirror the old @import: Dosis 400–800, Hanken Grotesk 400–700.
-const dosis = Dosis({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-chrome',
-  display: 'swap',
-})
-const hanken = Hanken_Grotesk({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-body',
-  display: 'swap',
-})
+// Self-hosted by next/font (preloaded, size-adjusted fallbacks, no render-blocking
+// @import). Each family is exposed as a CSS variable on <html>; tailwind.config.ts
+// maps font-display / font-body / font-mono to them.
+const exo = Exo_2({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-chrome', display: 'swap' })
+const plexSans = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400', '600', '700'], variable: '--font-body', display: 'swap' })
+const plexMono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-mono', display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'JunOS',
-  description: 'A desktop OS in the browser.',
+  description: 'Jun Jiang, AI engineer: agent harnesses and a digital fly brain, on a 3D map of San Francisco.',
   icons: {
     icon: '/icons/gear.png',
     apple: '/icons/gear.png',
@@ -42,17 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // suppressHydrationWarning: browser extensions (and any future theme script)
     // can add attributes to <html> before React hydrates; this ignores attribute
     // mismatches on THIS element only (one level deep), not the rest of the tree.
-    // The two font className hooks define --font-chrome / --font-body on <html>.
-    <html lang="en" className={`${dosis.variable} ${hanken.variable}`} suppressHydrationWarning>
+    // The font classNames define --font-chrome / --font-body / --font-mono on <html>.
+    <html lang="en" className={`${exo.variable} ${plexSans.variable} ${plexMono.variable}`} suppressHydrationWarning>
       <body>
-        {/*
-          The provider + OSRoot live in the LAYOUT so the desktop and all open
-          windows persist across navigations. `children` (the page) renders as
-          the desktop; windows float in a layer on top of it.
-        */}
-        <WindowManagerProvider>
-          <OSRoot>{children}</OSRoot>
-        </WindowManagerProvider>
+        {/* The provider lives in the LAYOUT so the open window persists across navigations. */}
+        <WindowManagerProvider>{children}</WindowManagerProvider>
       </body>
     </html>
   )
