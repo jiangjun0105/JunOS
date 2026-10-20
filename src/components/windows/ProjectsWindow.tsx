@@ -2,16 +2,12 @@
 
 import { articlesByKind } from '@/content/articles'
 import { useWindows } from '@/os/WindowManager'
+import { ArticleCard } from './ui/ArticleCard'
 import { WindowHeader } from './ui/WindowHeader'
 
 /**
- * The "Development" app — one card per project, opening its write-up in the
- * article reader. Data-driven from the `project` articles in
- * src/content/articles (generated from kb/refined/projects/), so a new project
- * appears here, in the Files tree and in the sitemap from a single entry.
- *
- * The little pills are per-project, so they live here rather than in the
- * content index — they're presentation for this window, not article metadata.
+ * One card per `project` article. The pills are presentation for this window,
+ * not article metadata, so they live here.
  */
 const TAGS: Record<string, string> = {
   'agent-harness': '🧰 agents',
@@ -33,19 +29,16 @@ export function ProjectsWindow() {
       <ul className="space-y-2">
         {projects.map((project) => (
           <li key={project.slug}>
-            <button
-              type="button"
-              className="os-card os-card-button"
-              onClick={() =>
-                openApp('article', { params: { slug: project.slug }, title: project.title })
+            <ArticleCard
+              title={project.title}
+              summary={project.summary}
+              onClick={() => openApp('article', { params: { slug: project.slug } })}
+              aside={
+                TAGS[project.slug] && (
+                  <span className="os-pill flex-none">{TAGS[project.slug]}</span>
+                )
               }
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-body font-bold">{project.title}</span>
-                {TAGS[project.slug] && <span className="os-pill flex-none">{TAGS[project.slug]}</span>}
-              </div>
-              <p className="mt-1 text-sm text-muted">{project.summary}</p>
-            </button>
+            />
           </li>
         ))}
       </ul>

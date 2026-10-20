@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { MdxLoader } from '../articles'
 
 /**
  * Essays shown by the Thoughts window. Same shape as the article layer, minus
@@ -9,15 +9,13 @@ import type { ComponentType } from 'react'
  * The order below mirrors `kb/refined/thoughts/INDEX.md` (bottom-up first, then
  * outward), NOT the dates — it reads as a sequence, so keep it deliberate.
  */
-export type ThoughtLoader = () => Promise<{ default: ComponentType }>
-
 export interface ThoughtMeta {
   slug: string
   title: string
   /** ISO date (YYYY-MM-DD) — the `updated:` date of the source file in kb/refined/. */
   date: string
   summary: string
-  load: ThoughtLoader
+  load: MdxLoader
 }
 
 export const thoughts: ThoughtMeta[] = [
@@ -102,10 +100,6 @@ export const thoughts: ThoughtMeta[] = [
     load: () => import('./the-body-is-one-system.mdx'),
   },
 ]
-
-export const thoughtLoaders: Record<string, ThoughtLoader> = Object.fromEntries(
-  thoughts.map((t) => [t.slug, t.load]),
-)
 
 export function getThought(slug: string): ThoughtMeta | undefined {
   return thoughts.find((t) => t.slug === slug)

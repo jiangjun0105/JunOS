@@ -16,14 +16,14 @@ closes it and flies back. Pushing to `main` deploys to junbot.dev (Vercel).
 
 ## How it works
 
-| Piece | File | Job |
-|------|------|-----|
-| 3D city | `src/city/` | Framework-free three.js engine (see `src/city/README.md`); loaded client-only. |
-| Landmarks | `src/city/landmarks.js` | Which app sits over which place. |
-| Desktop shell | `src/os/CityDesktop.tsx` | Mounts the city, the HUD and the one window (hidden → peek → open). |
-| Window manager | `src/os/WindowManager.tsx` | The open window; `openApp(id, { params })` swaps it, `close()` clears it. |
-| App registry | `src/os/apps.tsx` | Maps an app id → `{ title, Component }`. |
-| Articles | `src/content/articles/` | MDX articles + a typed metadata index; shown by the **Article** reader, listed in **Research** + **Files**. |
+| Piece          | File                       | Job                                                                                                         |
+| -------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 3D city        | `src/city/`                | Framework-free three.js engine (see `src/city/README.md`); loaded client-only.                              |
+| Landmarks      | `src/city/landmarks.js`    | Which app sits over which place.                                                                            |
+| Desktop shell  | `src/os/CityDesktop.tsx`   | Mounts the city, the HUD and the one window (hidden → peek → open).                                         |
+| Window manager | `src/os/WindowManager.tsx` | The open window; `openApp(id, { params })` swaps it, `close()` clears it.                                   |
+| App registry   | `src/os/apps.tsx`          | Maps an app id → `{ title, Component }`.                                                                    |
+| Articles       | `src/content/articles/`    | MDX articles + a typed metadata index; shown by the **Article** reader, listed in **Research** + **Files**. |
 
 ## Changing the look
 
@@ -56,17 +56,13 @@ To add one:
 
    <Figure src="/media/my-slug/diagram.png" alt="…" caption="…" />
    <Gallery columns={3} items={[{ src: '/media/my-slug/a.jpg', caption: 'A' }]} />
-   <Video  src="/media/my-slug/clip.mp4" caption="short, self-hosted" />
-   <Embed  src="https://youtu.be/aqz-KE-bpKQ" title="long-form, streamed" />
    ```
 
 2. Add its metadata + a loader to `src/content/articles/index.ts` (slug, title,
    date, summary, tags, `kind: 'research' | 'personal'`).
 3. Put images / short clips under `public/media/my-slug/`.
 
-**Media, by type:** text + images live in the repo; short clips go under
-`public/media/…` via `<Video>`; long-form video is **embedded** from YouTube/Vimeo
-via `<Embed>` (nothing to host). See `public/media/README.md`. How the plain
+**Media:** images live under `public/media/` (see `public/media/README.md`). How the plain
 Markdown elements (`#`, lists, quotes, code) are skinned lives in
 `src/mdx-components.tsx`.
 
@@ -75,10 +71,10 @@ Markdown elements (`#`, lists, quotes, code) are skinned lives in
 Every window is shareable. The open window is mirrored into the
 address bar, and pasting that link back re-opens it:
 
-| Window | URL |
-|--------|-----|
+| Window                              | URL                                          |
+| ----------------------------------- | -------------------------------------------- |
 | About / Projects / Research / Files | `/about`, `/projects`, `/research`, `/files` |
-| An article | `/article/<slug>` |
+| An article                          | `/article/<slug>`                            |
 
 - The path ⟷ window mapping is `src/os/url.ts`.
 - The two-way sync (open window ⟷ URL) lives in `src/os/WindowUrlSync.tsx`.

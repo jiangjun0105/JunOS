@@ -1,36 +1,12 @@
 # /public/media
 
-Article media lives here, one folder per article slug:
-
-```
-public/media/
-  field-notes-on-attention/
-    diagram.png
-    demo.mp4
-  building-junos/
-    ...
-```
-
-Anything under `/public` is served from the site root, so a file at
-`public/media/my-slug/diagram.png` is referenced in an article as:
+Article media lives here, one folder per article slug. Anything under `/public` is
+served from the site root, so `public/media/my-slug/diagram.png` is referenced as:
 
 ```mdx
-<Figure src="/media/my-slug/diagram.png" alt="…" caption="…" />
-<Video  src="/media/my-slug/demo.mp4" caption="…" />
+![A diagram](/media/my-slug/diagram.png)
+<Gallery columns={3} items={[{ src: '/media/my-slug/a.jpg', caption: '…' }]} />
 ```
 
-## Images
-
-Drop them in and reference them with `<Figure>` (captioned) or `<Gallery>` (grid).
-Plain Markdown `![alt](/media/...)` works too. Keep them reasonably sized — they're
-committed to the repo and served statically.
-
-## Video
-
-- **Short clips you own** → put the file here and use `<Video src="/media/.../clip.mp4" />`.
-  Good for a few small files; large videos bloat the repo, so keep these short.
-- **Long-form video** → don't host it here. Use `<Embed src="https://youtu.be/…" />`
-  to stream it from YouTube/Vimeo (free CDN, nothing committed to the repo).
-
-If you outgrow `/public` (many or large files), move media to Vercel Blob and point
-the same `src` props at the Blob URLs — no other code changes needed.
+Keep files reasonably sized; they're committed to the repo and served statically.
+For long-form video, link to YouTube/Vimeo rather than committing the file.

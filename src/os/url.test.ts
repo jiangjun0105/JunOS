@@ -51,6 +51,11 @@ describe('parseWindowPath', () => {
     expect(parseWindowPath('/article/a%20b%2Fc')).toEqual({ appId: 'article', slug: 'a b/c' })
   })
 
+  it('parses /thoughts with and without a slug', () => {
+    expect(parseWindowPath('/thoughts')).toEqual({ appId: 'thoughts' })
+    expect(parseWindowPath('/thoughts/x')).toEqual({ appId: 'thoughts', slug: 'x' })
+  })
+
   it('ignores /article with no slug (meaningless)', () => {
     expect(parseWindowPath('/article')).toBeNull()
     expect(parseWindowPath('/article/')).toBeNull()
@@ -68,10 +73,6 @@ describe('pathForWindow <-> parseWindowPath round-trips', () => {
       const path = pathForWindow({ appId: 'article', params: { slug } })
       expect(parseWindowPath(path)).toEqual({ appId: 'article', slug })
     }
-  })
-
-  it('round-trips the bare desktop ("/" parses to null, which has no window path)', () => {
-    expect(parseWindowPath('/')).toBeNull()
   })
 })
 

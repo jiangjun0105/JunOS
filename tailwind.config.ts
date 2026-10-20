@@ -24,6 +24,14 @@ const config: Config = {
         'accent-2': 'rgb(var(--accent-2) / <alpha-value>)',
         'accent-3': 'rgb(var(--accent-3) / <alpha-value>)',
       },
+      fontSize: {
+        meta: '13px',
+        label: '14px',
+        ui: '15px',
+        field: '16px',
+        prose: '18px',
+        title: '22px',
+      },
       borderRadius: {
         tile: 'var(--radius-tile)',
         btn: 'var(--radius-btn)', // small ~6px corner for buttons/chips/menu items

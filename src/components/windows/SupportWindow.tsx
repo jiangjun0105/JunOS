@@ -6,29 +6,14 @@ import { Img } from '@/components/Img'
 import { haloLevel, haloScales, smoothHalo } from './callHalo'
 
 /**
- * "Call Me" app — talk to Jun's AI double, in this window.
+ * Talk to Jun's AI double over ElevenLabs' headless client, not their widget:
+ * the widget fixed-positions a floating orb to the viewport, which is wrong
+ * inside a desktop of windows. The SDK handles mic capture, playback and barge-in.
+ * No transcript; it's a phone call.
  *
- * The call runs over the ElevenLabs Conversational AI WebSocket
- * (wss://api.elevenlabs.io/v1/convai/conversation) via their headless client,
- * NOT their embeddable widget: the widget fixed-positions a floating orb to the
- * viewport and owns its own look, which is wrong inside a desktop made of
- * windows. Driving the connection ourselves means the controls are plain JunOS
- * components.
- *
- * The SDK is doing the parts that are genuinely hard and easy to get subtly
- * wrong: mic capture and 16 kHz PCM framing, playback scheduling, and barge-in
- * (cutting the agent off the moment the visitor speaks).
- *
- * No transcript: it's a phone call. Reading along would pull attention out of
- * the conversation, and the visitor already heard it.
- *
- * The agent's prompt, knowledge base and post-call analysis are provisioned from
- * the knowledge base by scripts/provision-agent.mjs — see kb/agent/.
- *
- * The agent id is public by design (it only names which public agent to call),
- * so it ships as a NEXT_PUBLIC_ env var. Unset — a fresh clone, a preview deploy
- * without the var — the window degrades to the photo and says so rather than
- * rendering a dead button.
+ * The agent id is public, so it ships as NEXT_PUBLIC_ELEVENLABS_AGENT_ID. When
+ * unset, the window falls back to the photo and says so. The agent itself is
+ * provisioned by scripts/provision-agent.mjs (see kb/agent/).
  */
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID
 
@@ -52,9 +37,7 @@ export function SupportWindow() {
       </div>
     )
   }
-  // The provider owns the connection; CallPanel is a child so its hooks are
-  // never called conditionally. The photo and heading live inside it too —
-  // they change with the call state, so they can't sit outside the provider.
+  // CallPanel is a child so its hooks are never called conditionally.
   return (
     <ConversationProvider>
       <CallPanel agentId={AGENT_ID} />
@@ -72,8 +55,7 @@ function CallPanel({ agentId }: { agentId: string }) {
   const { status, isSpeaking, isMuted, setMuted, startSession, endSession, getOutputVolume } =
     conversation
 
-  // End the call if the window is closed mid-conversation — otherwise the
-  // socket (and the microphone) would outlive the UI that owns them.
+  // End the call on unmount so the socket and mic don't outlive the window.
   const endRef = useRef(endSession)
   endRef.current = endSession
   const statusRef = useRef(status)
@@ -88,8 +70,7 @@ function CallPanel({ agentId }: { agentId: string }) {
   async function call() {
     setError(null)
     try {
-      // Ask before connecting, so a refusal is a clear message here rather than
-      // a socket that opens and then hears nothing.
+      // Ask first so a refusal gives a clear message instead of a silent socket.
       await navigator.mediaDevices.getUserMedia({ audio: true })
     } catch {
       setError('I need microphone access to take the call — allow it and try again.')
@@ -102,11 +83,8 @@ function CallPanel({ agentId }: { agentId: string }) {
   const connecting = status === 'connecting'
   const inCall = connected || connecting
 
-  // The breathing halo. Driven straight from the SDK's output volume on every
-  // animation frame — written to the DOM through refs, NOT React state, so the
-  // window doesn't re-render 60× a second. Only runs while Jun is talking; the
-  // moment he stops, the level eases to 0 and the loop ends. Under
-  // prefers-reduced-motion the halo is a static wash instead (below).
+  // Breathing halo: driven from output volume each frame via refs, not state, to
+  // avoid 60 re-renders/s. Reduced-motion users get a static wash instead.
   const innerRef = useRef<HTMLSpanElement>(null)
   const outerRef = useRef<HTMLSpanElement>(null)
   const levelRef = useRef(0)
@@ -141,14 +119,7 @@ function CallPanel({ agentId }: { agentId: string }) {
 
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 text-center">
-      {/* The photo carries the call state: a quiet outline at rest, and while
-          Jun is talking a halo that breathes with his voice — two soft accent
-          washes (no hard outline), the inner swelling a little and the outer a
-          lot. Cheaper to read at a glance than text. Both sit a few px outside
-          the photo and are scaled from their centre by the frame loop above;
-          `motion-reduce:` gives reduced-motion users a static wash. The vertical
-          margin is the room the outer wash needs at full swell, so it never
-          spills over the heading below. */}
+      {/* Halo around the photo shows when Jun is talking; vertical margin leaves room for the outer wash at full swell. */}
       <div className="relative my-4 flex-none">
         <span
           ref={outerRef}
@@ -170,20 +141,14 @@ function CallPanel({ agentId }: { agentId: string }) {
         />
       </div>
 
-      {/* `relative` so the text stacks above the (absolutely positioned) halo.
-          LAYOUT IS FIXED ACROSS CALL STATES: the panel is vertically centred, so
-          anything that changes height between "idle" and "in a call" would shift
-          the photo the moment the call starts. Every slot below therefore keeps
-          its size — the pitch/status slot is a fixed-height box, and the
-          footnote is hidden with `invisible` (which keeps its space) rather than
-          removed. */}
+      {/* `relative` stacks text above the halo. Layout is fixed across call states
+          (fixed-height slot, `invisible` footnote) so the centred photo never shifts. */}
       <div className="relative space-y-1">
-        <h1 className="font-body text-[22px] font-bold">Talk to AI Jun</h1>
-        {/* In a call the pitch is over — the status takes its place in the same
-            two-line slot, so the controls stay exactly where they were. */}
+        <h1 className="font-body text-title font-bold">Talk to AI Jun</h1>
+        {/* In a call the status replaces the pitch in the same slot. */}
         <div className="flex h-11 items-center justify-center">
           {inCall ? (
-            <p className="flex items-center justify-center gap-2 text-[15px] font-bold text-ink">
+            <p className="flex items-center justify-center gap-2 text-ui font-bold text-ink">
               {connecting ? (
                 <span className="text-muted">Connecting…</span>
               ) : (
@@ -197,9 +162,9 @@ function CallPanel({ agentId }: { agentId: string }) {
               )}
             </p>
           ) : (
-            <p className="text-[15px] leading-snug text-muted">
-              Ask my AI double about my experience, the projects I&apos;m building, or the
-              research — or leave a message for me.
+            <p className="text-ui leading-snug text-muted">
+              Ask my AI double about my experience, the projects I&apos;m building, or the research
+              — or leave a message for me.
             </p>
           )}
         </div>
@@ -232,8 +197,7 @@ function CallPanel({ agentId }: { agentId: string }) {
         )}
       </div>
 
-      {/* Always rendered so its height is part of the fixed layout; empty until
-          there's something to say. */}
+      {/* Always rendered: its height is part of the fixed layout. */}
       <p className="min-h-5 max-w-xs text-sm text-accent-3" role="alert">
         {error}
       </p>
@@ -249,11 +213,7 @@ function CallPanel({ agentId }: { agentId: string }) {
   )
 }
 
-/**
- * One key on the dialer: a round icon button with its label underneath. Every
- * key is the same 52px circle whatever it does — only the fill changes — so the
- * row reads as a set of controls rather than a hierarchy.
- */
+/** Round 52px icon button with a label underneath; only the fill varies by variant. */
 function CallKey({
   label,
   variant,

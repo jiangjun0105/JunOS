@@ -52,7 +52,8 @@ const ROOT = new URL('..', import.meta.url).pathname
 const BUNDLE = join(ROOT, 'dist/agent-kb')
 
 if (!KEY) throw new Error('ELEVENLABS_API_KEY is not set (run with --env-file=.env)')
-if (!existsSync(BUNDLE)) throw new Error('dist/agent-kb missing — run scripts/build-agent-bundle.mjs first')
+if (!existsSync(BUNDLE))
+  throw new Error('dist/agent-kb missing — run scripts/build-agent-bundle.mjs first')
 
 async function api(path, init = {}) {
   const res = await fetch(`${API}${path}`, {
@@ -176,7 +177,10 @@ async function updateAgent(knowledge_base) {
       // Offered to the agent so it can colour its own turns, not just the
       // greeting. Kept short: every extra tag is another thing to misfire.
       suggested_audio_tags: [
-        { tag: 'cheerfully', description: 'Say it with a smile — the default colour of a greeting.' },
+        {
+          tag: 'cheerfully',
+          description: 'Say it with a smile — the default colour of a greeting.',
+        },
         { tag: 'warmly', description: 'For thanks, encouragement, or agreeing with the visitor.' },
         { tag: 'curious', description: 'When picking up a thread the visitor raised.' },
         { tag: 'laughs', description: 'Sparingly, when something is genuinely funny.' },

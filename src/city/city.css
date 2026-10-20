@@ -1,0 +1,282 @@
+/* ============================================================================
+   The city desktop (src/os/CityDesktop.tsx + src/city). Plain CSS, outside the
+   Tailwind layers: several of these classes are created by src/city/*.js, which
+   Tailwind's content scan doesn't read, so layered rules would be purged.
+   ============================================================================ */
+.city {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+.city-stage {
+  position: absolute;
+  inset: 0;
+}
+.hud {
+  position: absolute;
+  z-index: 3;
+  font-family: var(--font-mono);
+  color: rgb(var(--cyan));
+  text-shadow: var(--halo);
+}
+.city-status {
+  left: 16px;
+  top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.city-hint {
+  left: 16px;
+  bottom: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+.city-home {
+  right: 16px;
+  top: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  background: rgb(var(--bg) / 0.8);
+  border: 1px solid rgb(var(--cyan) / 0.5);
+  padding: 5px 10px;
+  cursor: pointer;
+  text-shadow: none;
+}
+.city-icons,
+.city-leads {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+.city-leads .ld {
+  stroke: rgb(var(--accent) / 0.65);
+  stroke-width: 1;
+  fill: none;
+}
+
+/* landmark icons (built by src/city/icons.js) */
+.ic3 {
+  all: unset;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 124px;
+  height: 92px;
+  justify-content: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  pointer-events: auto;
+  transform-origin: 50% 100%;
+  transition: opacity 0.4s;
+}
+.ic3 .rg {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--reticle-bg) / 0.85) 60%, transparent 62%);
+  transition: all 0.2s;
+}
+.ic3 .fr {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  stroke: rgb(var(--accent));
+  fill: none;
+  transition: filter 0.2s;
+}
+.ic3 svg.g {
+  width: 20px;
+  height: 20px;
+  stroke: rgb(var(--accent));
+  fill: none;
+  stroke-width: 1.6;
+  position: relative;
+}
+.ic3:is(:hover, :focus-visible, .on) .rg {
+  background: radial-gradient(circle, rgb(var(--accent)) 60%, transparent 62%);
+}
+.ic3:is(:hover, :focus-visible, .on) svg.g {
+  stroke: rgb(var(--bg));
+}
+.ic3:is(:hover, :focus-visible, .on) .fr {
+  filter: drop-shadow(0 0 5px rgb(var(--accent) / 0.9));
+}
+.ic3 b {
+  font: 600 10.5px var(--font-chrome);
+  letter-spacing: 0.1em;
+  color: rgb(var(--accent));
+  text-shadow:
+    0 0 2px rgb(var(--bg)),
+    0 0 6px rgb(var(--bg)),
+    0 0 10px rgb(var(--accent) / 0.45);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ic3 i {
+  font: 500 8.5px var(--font-mono);
+  font-style: normal;
+  letter-spacing: 0.08em;
+  color: rgb(var(--label-dim) / 0.7);
+  white-space: nowrap;
+  text-shadow:
+    0 0 2px rgb(var(--bg)),
+    0 0 5px rgb(var(--bg));
+}
+.ic3.away,
+.ld.away {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the window: hidden → .peek (hover card, top-right) → .open (grows from that corner). CityDesktop sets left/top/width/height */
+.w3 {
+  --grow: 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  outline: none;
+  background: rgb(var(--surface) / 0.94);
+  border: 1px solid rgb(var(--cyan) / 0.35);
+  box-shadow: var(--shadow-window);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s,
+    left var(--grow),
+    top var(--grow),
+    width var(--grow),
+    height var(--grow);
+}
+.w3.peek,
+.w3.open {
+  opacity: 1;
+  visibility: visible;
+}
+.w3.open {
+  pointer-events: auto;
+}
+.w3t {
+  flex: none;
+  background: rgb(var(--cyan));
+  color: rgb(var(--bg));
+  font: 600 11px var(--font-chrome);
+  letter-spacing: 0.14em;
+  padding: 7px 12px;
+  display: flex;
+  justify-content: space-between;
+}
+.w3t span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.w3x {
+  all: unset;
+  cursor: pointer;
+  padding: 0 4px;
+  visibility: hidden;
+}
+.open .w3x {
+  visibility: visible;
+}
+.w3x:focus-visible {
+  outline: 2px solid rgb(var(--bg));
+}
+/* peek → open: padding, type sizes and the CTA ease with the window (--grow); the app's own content fades in as it lands */
+.w3b {
+  flex: 1;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--cyan) / 0.35) transparent;
+  padding: 16px 18px;
+  color: rgb(var(--ink));
+  font: 13px/1.65 var(--font-body);
+  transition:
+    padding var(--grow),
+    font-size var(--grow);
+}
+.w3b > * {
+  transition:
+    font-size var(--grow),
+    margin var(--grow),
+    opacity 0.3s,
+    max-height var(--grow);
+}
+.open .w3b {
+  padding: 28px 36px;
+  font-size: 15px;
+}
+.w3b > h3 {
+  margin: 0 0 4px;
+  font: 600 17px var(--font-chrome);
+  color: rgb(var(--heading));
+  max-width: 24ch;
+}
+.open .w3b > h3 {
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+.w3b > .lead {
+  margin: 0 0 10px;
+  max-width: 62ch;
+  color: rgb(var(--ink));
+}
+.w3b > .k {
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  color: rgb(var(--cyan));
+  margin-bottom: 10px;
+}
+.w3b > .cta {
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  color: rgb(var(--accent));
+  max-height: 2em;
+  overflow: hidden;
+}
+.open .w3b > .cta {
+  opacity: 0;
+  max-height: 0;
+}
+.w3b > .more {
+  animation: w3in 0.5s 0.6s both;
+}
+.w3b > .lead + .cta + .more {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgb(var(--border));
+}
+@keyframes w3in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (max-width: 719px) {
+  .city-hint {
+    display: none;
+  }
+  .open .w3b {
+    padding: 20px;
+  }
+}

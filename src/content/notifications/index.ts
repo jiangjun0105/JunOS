@@ -1,12 +1,8 @@
-import type { ComponentType } from 'react'
+import type { MdxLoader } from '../articles'
 
 /**
- * The notification feed — Jun's changelog for this site. Newest first; the bell
- * in the menu bar renders these in order, and a card is clickable when it has a
- * `load` body.
+ * The notification feed — Jun's changelog for this site. Newest first.
  */
-export type NotificationLoader = () => Promise<{ default: ComponentType }>
-
 export interface NotificationMeta {
   slug: string
   title: string
@@ -14,8 +10,8 @@ export interface NotificationMeta {
   date: string
   /** Short blurb shown in the notification card. */
   summary: string
-  /** Long MDX body shown in the reader window. If absent, clicking does nothing. */
-  load?: NotificationLoader
+  /** Long MDX body shown in the reader window. */
+  load: MdxLoader
 }
 
 export const notifications: NotificationMeta[] = [
@@ -28,10 +24,6 @@ export const notifications: NotificationMeta[] = [
     load: () => import('./site-relaunched.mdx'),
   },
 ]
-
-export const notificationLoaders: Record<string, NotificationLoader> = Object.fromEntries(
-  notifications.filter((n) => n.load).map((n) => [n.slug, n.load!]),
-)
 
 export function getNotification(slug: string): NotificationMeta | undefined {
   return notifications.find((n) => n.slug === slug)

@@ -71,11 +71,17 @@ export async function POST(req: Request) {
     })
     if (error) {
       console.error('[api/email] resend error:', error)
-      return NextResponse.json({ error: 'Could not send right now. Please try again.' }, { status: 502 })
+      return NextResponse.json(
+        { error: 'Could not send right now. Please try again.' },
+        { status: 502 },
+      )
     }
     return NextResponse.json({ ok: true, id: data?.id })
   } catch (err) {
     console.error('[api/email] send threw:', err)
-    return NextResponse.json({ error: 'Could not send right now. Please try again.' }, { status: 502 })
+    return NextResponse.json(
+      { error: 'Could not send right now. Please try again.' },
+      { status: 502 },
+    )
   }
 }
