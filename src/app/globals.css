@@ -23,7 +23,7 @@
 }
 
 /* ============================================================================
-   Window-content skins (Files tree, chips, cards, article reader, media).
+   Window-content skins (Files tree, cards, article reader, media).
    Token-driven, so editing theme.css reskins everything.
    ============================================================================ */
 @layer components {
@@ -52,21 +52,6 @@
   .tree-children {
     @apply ml-2 pl-2;
     border-left: 1.5px solid rgb(var(--ink) / 0.18);
-  }
-
-  /* ---- accent "tag chips" (About window) ----
-     Shared shape here; colour per variant (accent → accent-2 → accent-3). */
-  .os-chip {
-    @apply rounded-btn border border-line px-3 py-1 text-sm text-ink;
-  }
-  .os-chip-1 {
-    @apply bg-accent/10;
-  }
-  .os-chip-2 {
-    @apply bg-accent-2/10;
-  }
-  .os-chip-3 {
-    @apply bg-accent-3/15;
   }
 }
 
@@ -169,6 +154,517 @@
   }
   .media-gallery {
     @apply my-3.5 grid gap-2;
+  }
+}
+
+/* ============================================================================
+   About window (src/components/windows/AboutWindow.tsx): "Jarvis callouts".
+   The photo sits in rotating rings; four callouts hang off amber leader lines,
+   like the city's landmark icons. Below ~640px of window width the stage
+   collapses to a column (container query), so it also works full-width on mobile.
+   ============================================================================ */
+.about {
+  container-type: inline-size;
+}
+.about-k,
+.call-k {
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--cyan));
+}
+.about-ident {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.about-name {
+  margin: 4px 0 0;
+  font: 700 34px/1.1 var(--font-chrome);
+  letter-spacing: 0.02em;
+  color: rgb(var(--heading));
+}
+.about-role {
+  margin-top: 6px;
+  font: 500 11px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+.about-li {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 10px;
+  vertical-align: middle;
+  border: 1px solid rgb(var(--cyan) / 0.6);
+  color: rgb(var(--cyan));
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.about-li:hover {
+  background: rgb(var(--cyan));
+  color: rgb(var(--bg));
+}
+.about-li svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.about-stage {
+  position: relative;
+  height: 300px;
+  margin: 0 -10px 10px;
+}
+.about-leads {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.about-leads polyline {
+  fill: none;
+  stroke: rgb(var(--accent) / 0.7);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: about-draw 1s 0.9s forwards;
+  transition:
+    stroke 0.2s,
+    stroke-width 0.2s,
+    filter 0.2s;
+}
+@keyframes about-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+/* the hovered callout's leader line lights up */
+.about-stage:has([data-co='0']:hover) [data-lead='0'],
+.about-stage:has([data-co='1']:hover) [data-lead='1'],
+.about-stage:has([data-co='2']:hover) [data-lead='2'],
+.about-stage:has([data-co='3']:hover) [data-lead='3'] {
+  stroke: rgb(var(--accent));
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 3px rgb(var(--accent)));
+}
+
+.about-photo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 170px;
+  height: 170px;
+  transform: translate(-50%, -50%);
+}
+/* circular crop inside the rings, zoomed onto the face (the photo is a wide beach shot) */
+.about-face {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.about-face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.7);
+  transform-origin: 42% 40%; /* the face's spot in /media/jun.jpeg */
+}
+.about-ring {
+  position: absolute;
+  inset: 0;
+  fill: none;
+  stroke: rgb(var(--cyan) / 0.8);
+  stroke-width: 0.8;
+  animation: about-spin 24s linear infinite;
+}
+.about-ring-2 {
+  stroke: rgb(var(--accent) / 0.6);
+  stroke-width: 1.5;
+  animation-duration: 40s;
+  animation-direction: reverse;
+}
+@keyframes about-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* callouts: tint, amber rail on the side facing the photo, nudge inward, OPEN ▸ */
+.about-co {
+  all: unset;
+  position: absolute;
+  width: 33%;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  opacity: 0;
+  animation: about-fade 0.5s forwards;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+button.about-co {
+  cursor: pointer;
+}
+button.about-co:focus-visible {
+  outline: 1px solid rgb(var(--accent));
+}
+.about-co[data-pos='tl'] {
+  left: 0;
+  top: 30px;
+  animation-delay: 1.2s;
+}
+.about-co[data-pos='tr'] {
+  right: 0;
+  top: 30px;
+  animation-delay: 1.3s;
+}
+.about-co[data-pos='bl'] {
+  left: 0;
+  bottom: 24px;
+  animation-delay: 1.4s;
+}
+.about-co[data-pos='br'] {
+  right: 0;
+  bottom: 24px;
+  animation-delay: 1.5s;
+}
+.about-co[data-pos='tl'],
+.about-co[data-pos='bl'] {
+  text-align: right;
+}
+.about-co::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  background: rgb(var(--accent));
+  transform: scaleY(0);
+  transition: transform 0.2s;
+}
+.about-co[data-pos='tr']::before,
+.about-co[data-pos='br']::before {
+  right: auto;
+  left: 0;
+}
+.about-co-t {
+  font: 600 13px var(--font-chrome);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--accent));
+  transition: color 0.2s;
+}
+.about-co-d {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgb(var(--muted));
+  transition: color 0.2s;
+}
+.about-co-go {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--accent));
+  transition:
+    max-height 0.2s,
+    opacity 0.2s,
+    margin 0.2s;
+}
+.about-co:hover {
+  background: rgb(var(--cyan) / 0.09);
+  transform: translateX(8px);
+}
+.about-co[data-pos='tr']:hover,
+.about-co[data-pos='br']:hover {
+  transform: translateX(-8px);
+}
+.about-co:hover::before {
+  transform: scaleY(1);
+}
+.about-co:hover .about-co-t {
+  color: rgb(var(--heading));
+}
+.about-co:hover .about-co-d {
+  color: rgb(var(--ink));
+}
+.about-co:hover .about-co-go {
+  max-height: 2em;
+  opacity: 1;
+  margin-top: 4px;
+}
+@keyframes about-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+.about-bio {
+  max-width: 64ch;
+  margin: 0 auto;
+  padding-left: 16px;
+  border-left: 2px solid rgb(var(--cyan) / 0.5);
+}
+.about-links {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 22px;
+}
+.about-links button {
+  all: unset;
+  cursor: pointer;
+  font: 600 11px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--accent));
+}
+.about-links button:hover,
+.about-links button:focus-visible {
+  text-decoration: underline;
+}
+
+/* narrow window: photo on top, callouts stacked, rail on the left */
+@container (max-width: 640px) {
+  .about-stage {
+    height: auto;
+    margin: 0 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .about-leads {
+    display: none;
+  }
+  .about-photo {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 10px;
+  }
+  .about-co[data-pos] {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    text-align: left;
+  }
+  .about-co[data-pos]::before {
+    left: 0;
+    right: auto;
+  }
+  .about-co[data-pos]:hover {
+    transform: translateX(8px);
+  }
+  .about-co-t {
+    font-size: 13px;
+  }
+}
+
+/* ============================================================================
+   Call Me window (src/components/windows/SupportWindow.tsx): the digital twin on
+   its radar projector (a canvas, drawn by hologram.ts) beside the call console.
+   Below ~640px of window width the console drops under the twin.
+   ============================================================================ */
+.call {
+  container-type: inline-size;
+  flex: 1;
+  display: flex;
+}
+.call-in {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 56fr 44fr;
+  min-height: 460px;
+}
+/* the canvases' pixel buffers are resized to their box every frame, so they must never size
+   that box themselves, or it grows to fit the buffer and the content creeps down: the twin
+   is absolutely positioned in its cell, the bar canvases have a fixed height and contain: size */
+.call-twin {
+  position: relative;
+  min-width: 0;
+}
+.call-twin canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.call-chan canvas {
+  contain: size;
+}
+.call-console {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding-left: 24px;
+  border-left: 1px solid rgb(var(--cyan) / 0.18);
+}
+.call-title {
+  margin: 6px 0 8px;
+  font: 700 30px/1.1 var(--font-chrome);
+  letter-spacing: 0.02em;
+  color: rgb(var(--heading));
+}
+.call-pitch {
+  margin: 0;
+  max-width: 40ch;
+  font-size: 14px;
+  color: rgb(var(--muted));
+}
+/* a channel: label on the left, its volume bars rising from the baseline on the right */
+.call-chan {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  align-items: end;
+  gap: 10px;
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  color: rgb(var(--muted));
+}
+.call-chan canvas {
+  display: block;
+  width: 100%;
+  height: 64px;
+}
+.call-statusrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.call-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 12px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+.call-status[data-phase='connecting'] {
+  color: rgb(var(--cyan));
+}
+.call-status[data-phase='speaking'] {
+  color: rgb(var(--accent));
+}
+.call-status[data-phase='listening'] {
+  color: rgb(var(--accent-2));
+}
+.call-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+.call-status[data-phase='connecting'] .call-dot {
+  animation: call-blink 0.5s steps(2) infinite;
+}
+@keyframes call-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+.call-timer {
+  font: 500 13px var(--font-mono);
+  letter-spacing: 0.1em;
+  color: rgb(var(--ink));
+}
+.call-keys {
+  display: flex;
+  gap: 10px;
+}
+.call-key {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  font: 600 11px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1px solid;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.call-key:focus-visible {
+  outline: 2px solid rgb(var(--cyan));
+  outline-offset: 2px;
+}
+.call-key:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.call-key svg {
+  width: 16px;
+  height: 16px;
+}
+.call-key[data-k='call'] {
+  color: rgb(var(--accent-2));
+  border-color: rgb(var(--accent-2) / 0.7);
+  background: rgb(var(--accent-2) / 0.08);
+}
+.call-key[data-k='call']:hover {
+  background: rgb(var(--accent-2));
+  color: rgb(var(--bg));
+}
+.call-key[data-k='end'] {
+  color: rgb(var(--accent-3));
+  border-color: rgb(var(--accent-3) / 0.7);
+  background: rgb(var(--accent-3) / 0.08);
+}
+.call-key[data-k='end']:hover {
+  background: rgb(var(--accent-3));
+  color: rgb(var(--bg));
+}
+.call-key[data-k='mute'] {
+  color: rgb(var(--ink));
+  border-color: rgb(var(--ink) / 0.4);
+}
+.call-key[data-k='mute']:enabled:hover,
+.call-key[data-k='mute'][aria-pressed='true'] {
+  background: rgb(var(--ink));
+  color: rgb(var(--bg));
+}
+.call-error {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 13px;
+  color: rgb(var(--accent-3));
+}
+.call-fine {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 11.5px;
+  color: rgb(var(--muted));
+  opacity: 0.8;
+}
+@container (max-width: 640px) {
+  .call-in {
+    grid-template-columns: 1fr;
+    grid-template-rows: 380px auto;
+  }
+  .call-console {
+    padding: 18px 0 0;
+    border-left: 0;
+    border-top: 1px solid rgb(var(--cyan) / 0.18);
   }
 }
 
