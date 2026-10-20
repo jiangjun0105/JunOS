@@ -24,10 +24,10 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera)); composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), .55, .35, .22)); composer.addPass(new OutputPass());
 addEventListener('resize', () => { W = innerWidth; H = innerHeight; renderer.setSize(W, H); composer.setSize(W, H); });
 
-// --- camera flights: a queue of eased legs { pos?, tgt?, shift?, ms } (a missing field holds its value). `shift` slides the projection
+// --- camera flights: a queue of eased legs { pos?, tgt?, shift?, ms, ease? } (a missing field holds its value). `shift` slides the projection
 // centre left by that many px, so the landmark sits in the middle of the free strip beside an open window instead of behind it ---
 let legs = [], fly = null, shift = 0;
-const ease = u => u < .5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;
+const ease = u => u < .5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2, easeOut = u => 1 - (1 - u) ** 3;
 const flyTo = (...steps) => { legs = steps; fly = null; };
 const applyShift = () => { camera.aspect = (W + 2 * shift) / H; camera.setViewOffset(W + 2 * shift, H, 2 * shift, 0, W, H); };   // aspect = the full virtual view's
 
@@ -58,11 +58,11 @@ function openApp(app, at) {
   fill(app, true); if (mode === 'hidden') snapToPeek();          // fill first: the snap's reflow gives new content its peek styles to grow from
   rect(openRect()); win.className = 'w3 open'; mode = 'open';
   icons.focus(app); controls.autoRotate = false; back = { pos: camera.position.clone(), tgt: controls.target.clone() };
-  // first swing round to the final viewing angle at the current distance (aim at the landmark, tilt from top-down to side-on), then dolly
+  // first swing round (ease-out, so it answers the click at once) to the final viewing angle at the current distance (aim at the landmark, tilt from top-down to side-on), then dolly
   // straight in along that line. The open icon is pinned over its landmark on screen, so its leader line stays vertical throughout
   const off = camera.position.clone().sub(controls.target).setY(0).normalize().multiplyScalar(1700).setY(1100), r = openRect();
   const far = off.clone().setLength(camera.position.distanceTo(at));
-  flyTo({ pos: at.clone().add(far), tgt: at.clone(), shift: (W - r.x) / 2, ms: 1000 }, { pos: at.clone().add(off), ms: 1400 });
+  flyTo({ pos: at.clone().add(far), tgt: at.clone(), shift: (W - r.x) / 2, ms: 1000, ease: easeOut }, { pos: at.clone().add(off), ms: 1400 });
 }
 function closeApp() {
   if (mode !== 'open') return;
@@ -88,7 +88,7 @@ renderer.setAnimationLoop(() => {
   const t = clock.getElapsedTime();
   if (!fly && legs.length) { const l = legs.shift(), p0 = camera.position.clone(), q0 = controls.target.clone();
     fly = { ...l, t0: performance.now(), p0, q0, s0: shift, pos: l.pos || p0, tgt: l.tgt || q0, shift: l.shift ?? shift }; }
-  if (fly) { const u = Math.min(1, (performance.now() - fly.t0) / fly.ms), e = ease(u);
+  if (fly) { const u = Math.min(1, (performance.now() - fly.t0) / fly.ms), e = (fly.ease || ease)(u);
     camera.position.lerpVectors(fly.p0, fly.pos, e); controls.target.lerpVectors(fly.q0, fly.tgt, e); shift = fly.s0 + (fly.shift - fly.s0) * e; applyShift(); if (u >= 1) fly = null; }
   waveTime.value = t; city?.update();
   controls.update(); composer.render();
