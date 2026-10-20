@@ -60,7 +60,7 @@ function openApp(app, at) {
   icons.focus(app); controls.autoRotate = false; back = { pos: camera.position.clone(), tgt: controls.target.clone() };
   const dir = camera.position.clone().sub(controls.target).setY(0).normalize(), r = openRect();
   // turn to face the landmark first, then dolly in: with the landmark on the projection centre the whole way, its leader line stays vertical
-  flyTo({ tgt: at.clone(), shift: (W - r.x) / 2, ms: 1200 }, { pos: at.clone().add(dir.multiplyScalar(1700)).setY(at.y + 1100), ms: 1400 });
+  flyTo({ tgt: at.clone(), shift: (W - r.x) / 2, ms: 2000 }, { pos: at.clone().add(dir.multiplyScalar(1700)).setY(at.y + 1100), ms: 1400 });
 }
 function closeApp() {
   if (mode !== 'open') return;
