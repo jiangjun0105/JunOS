@@ -14,8 +14,8 @@ export const metadata: Metadata = {
   title: 'JunOS',
   description: 'Jun Jiang, AI engineer: agent harnesses and a digital fly brain, on a 3D map of San Francisco.',
   icons: {
-    icon: '/icons/gear.png',
-    apple: '/icons/gear.png',
+    icon: '/icons/reticle.svg',
+    apple: '/icons/reticle-180.png',
   },
 }
 
