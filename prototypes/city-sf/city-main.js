@@ -22,35 +22,59 @@ const controls = new OrbitControls(camera, renderer.domElement);
 Object.assign(controls, { enableDamping: true, autoRotate: !cam, autoRotateSpeed: .12, maxPolarAngle: 1.4, minDistance: 250, maxDistance: 30000 }); controls.target.set(...view.tgt);
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera)); composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), .55, .35, .22)); composer.addPass(new OutputPass());
-addEventListener('resize', () => { W = innerWidth; H = innerHeight; camera.aspect = W / H; camera.updateProjectionMatrix(); renderer.setSize(W, H); composer.setSize(W, H); });
+addEventListener('resize', () => { W = innerWidth; H = innerHeight; renderer.setSize(W, H); composer.setSize(W, H); });
 
-// --- camera flights (1.8 s, eased) ---
-let fly = null;
+// --- camera flights (1.8 s, eased). `shift` slides the projection centre left by that many px, so the
+// landmark sits in the middle of the free strip beside an open window instead of behind it ---
+let fly = null, shift = 0;
 const ease = u => u < .5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;
-const flyTo = (pos, tgt) => { fly = { t0: performance.now(), p0: camera.position.clone(), q0: controls.target.clone(), p1: pos, q1: tgt }; };
+const flyTo = (pos, tgt, s1 = shift) => { fly = { t0: performance.now(), p0: camera.position.clone(), q0: controls.target.clone(), p1: pos, q1: tgt, s0: shift, s1 }; };
+const applyShift = () => { camera.aspect = (W + 2 * shift) / H; camera.setViewOffset(W + 2 * shift, H, 2 * shift, 0, W, H); };   // aspect = the full virtual view's
 
-// --- app window ---
-const win = $('win3');
-let icons = null;
-function openApp(app, at) {
-  icons.select(app); controls.autoRotate = false;
-  const dir = camera.position.clone().sub(controls.target).setY(0).normalize();
-  flyTo(at.clone().add(dir.multiplyScalar(1700)).setY(at.y + 1100), at.clone());
-  $('w3title').textContent = `${app.id.toUpperCase()}.MD`;
-  $('w3body').innerHTML = `<div class="k">◢ ${app.place} · ${app.label.toUpperCase()}</div>` + (app.body || `<h3>${app.label}</h3><p>${app.desc}</p>`);
-  win.classList.remove('open'); void win.offsetWidth; win.classList.add('open');     // restart the open animation
+// --- app window: hidden → peek (hover: a small card in the bottom corner away from the icon) → open (click: grows over most of the screen) ---
+const win = $('win3'), PEEK = { w: 320, h: 168, m: 20, bottom: 40 }, OPEN = { left: .36, top: 56, m: 20 };
+let icons = null, mode = 'hidden', peekTimer = 0, back = null;
+const rect = r => Object.assign(win.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
+const peekRect = pin => ({ x: pin.x > W / 2 ? PEEK.m : W - PEEK.w - PEEK.m, y: H - PEEK.bottom - PEEK.h, w: PEEK.w, h: PEEK.h });
+const openRect = () => { const x = Math.round(W * OPEN.left); return { x, y: OPEN.top, w: W - x - OPEN.m, h: H - OPEN.top - OPEN.m }; };
+const deg = v => Math.abs(v).toFixed(4) + '°';
+function fill(app, full) {
+  $('w3title').textContent = `${app.id.toUpperCase()}.MD${full ? '' : ' · PREVIEW'}`;
+  const [la, lo] = app.at, kick = `<div class="k">◢ ${app.place} · ${deg(la)}N ${deg(lo)}W</div>`;
+  $('w3body').innerHTML = kick + (full ? app.body || `<h3>${app.label}</h3><p>${app.desc}</p><p class="ph">The ${app.label} window renders here.</p>`
+                                       : `<h4>${app.label}</h4><p>${app.desc}</p><div class="cta">CLICK TO OPEN ▸</div>`);
 }
-function closeApp() { win.classList.remove('open'); icons?.select(null); controls.autoRotate = true; }
+function peek(app, pin) {
+  clearTimeout(peekTimer); if (mode === 'open') return;
+  if (!app) { peekTimer = setTimeout(() => { win.className = 'w3'; mode = 'hidden'; }, 150); return; }
+  if (mode === 'hidden') { win.style.transition = 'none'; rect(peekRect(pin)); void win.offsetWidth; win.style.transition = ''; } else rect(peekRect(pin));
+  fill(app, false); win.className = 'w3 peek'; mode = 'peek';
+}
+function openApp(app, at) {
+  clearTimeout(peekTimer); if (mode === 'open') return;
+  const pin = icons.pins.find(p => p.app === app);
+  if (mode === 'hidden') { win.style.transition = 'none'; rect(peekRect(pin)); void win.offsetWidth; win.style.transition = ''; }
+  fill(app, true); rect(openRect()); win.className = 'w3 open'; mode = 'open';
+  icons.focus(app); controls.autoRotate = false; back = { pos: camera.position.clone(), tgt: controls.target.clone() };
+  const dir = camera.position.clone().sub(controls.target).setY(0).normalize(), r = openRect();
+  flyTo(at.clone().add(dir.multiplyScalar(1700)).setY(at.y + 1100), at.clone(), (W - r.x) / 2);
+}
+function closeApp() {
+  if (mode !== 'open') return;
+  win.className = 'w3'; mode = 'hidden'; icons.focus(null); controls.autoRotate = true;
+  flyTo(back.pos, back.tgt, 0);
+}
 $('w3x').onclick = closeApp;
 addEventListener('keydown', e => { if (e.key === 'Escape') closeApp(); });
-$('home').onclick = () => { closeApp(); flyTo(new THREE.Vector3(...HOME.pos), new THREE.Vector3(...HOME.tgt)); };
+$('home').onclick = () => { closeApp(); flyTo(new THREE.Vector3(...HOME.pos), new THREE.Vector3(...HOME.tgt), 0); };
+addEventListener('resize', () => { if (mode === 'open') { const r = openRect(); rect(r); shift = (W - r.x) / 2; } applyShift(); });
 
 // --- load + build. Each source fails soft: no terrain → flat city, no OSM → terrain only ---
 let city = null;
 Promise.all([loadTerrain(), loadOSM().catch(() => null)]).then(([terrain, osm]) => {
   scene.add(buildGround(terrain, osm ? osm.coast : []), buildBridges(terrain.y));
   if (osm) { city = buildCity(osm, terrain.y); scene.add(city.group); }
-  icons = createIcons(scene, $('lay'), $('leads'), terrain.y, openApp);
+  icons = createIcons(scene, $('lay'), $('leads'), terrain.y, { open: openApp, hover: peek });
   $('st').textContent = osm ? `REAL DATA · ELEVATION ${terrain.city ? '✓' : '✗'} · ${city.stats}` : 'OSM UNAVAILABLE · TERRAIN ONLY';
 });
 
@@ -58,8 +82,8 @@ const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   const t = clock.getElapsedTime();
   if (fly) { const u = Math.min(1, (performance.now() - fly.t0) / 1800), e = ease(u);
-    camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.q0, fly.q1, e); if (u >= 1) fly = null; }
+    camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.q0, fly.q1, e); shift = fly.s0 + (fly.s1 - fly.s0) * e; applyShift(); if (u >= 1) fly = null; }
   waveTime.value = t; city?.update();
   controls.update(); composer.render();
-  icons?.update(t, camera, W, H, win.classList.contains('open') ? win.getBoundingClientRect() : null);
+  icons?.update(t, camera, { x0: 0, x1: mode === 'open' ? openRect().x : W, W, H });
 });

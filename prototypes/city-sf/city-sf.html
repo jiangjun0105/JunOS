@@ -23,14 +23,26 @@
   .ic3 b { font:600 10.5px 'Exo 2','IBM Plex Mono',sans-serif; letter-spacing:.1em; color:var(--accent); text-shadow:0 0 2px var(--bg), 0 0 6px var(--bg), 0 0 10px rgba(var(--accent-rgb),.45); text-transform:uppercase; white-space:nowrap; }
   .ic3 i { font:500 8.5px 'IBM Plex Mono',monospace; font-style:normal; letter-spacing:.08em; color:rgba(255,232,200,.7); white-space:nowrap; text-shadow:0 0 2px var(--bg), 0 0 5px var(--bg); }
 
-  .w3 { position:absolute; right:20px; top:48px; width:360px; z-index:4; background:#0b1013; border:1px solid rgba(var(--cyan-rgb),.35); box-shadow:0 0 40px rgba(var(--cyan-rgb),.2); display:none; }
-  .w3.open { display:block; animation:w3m .5s cubic-bezier(.2,.9,.3,1); }
-  @keyframes w3m { 0% { transform:scaleY(.02) scaleX(.6); opacity:0 } 40% { transform:scaleY(.02) scaleX(1); opacity:1 } 100% { transform:none } }
-  .w3t { background:var(--cyan); color:var(--bg); font:600 11px 'Exo 2','IBM Plex Mono',sans-serif; letter-spacing:.14em; padding:7px 12px; display:flex; justify-content:space-between; }
-  .w3x { all:unset; cursor:pointer; padding:0 4px; }
-  .w3b { padding:16px 18px; color:#b4c4cb; font:13px/1.65 'IBM Plex Sans',sans-serif; }
-  .w3b h3 { margin:0 0 8px; font:600 20px 'Exo 2','IBM Plex Sans',sans-serif; color:#eafcff; }
+  .ic3 { transform-origin:50% 100%; transition:opacity .4s; }
+  .ic3.away, .ld.away { opacity:0; pointer-events:none; }
+
+  /* app window: hidden → .peek (hover card, bottom corner) → .open (most of the screen). JS sets left/top/width/height */
+  .w3 { position:absolute; z-index:4; display:flex; flex-direction:column; overflow:hidden; background:rgba(9,14,17,.94); border:1px solid rgba(var(--cyan-rgb),.35);
+        box-shadow:0 0 40px rgba(var(--cyan-rgb),.2); backdrop-filter:blur(6px); opacity:0; visibility:hidden; pointer-events:none;
+        transition:opacity .2s, visibility .2s, left .55s cubic-bezier(.2,.9,.3,1), top .55s cubic-bezier(.2,.9,.3,1), width .55s cubic-bezier(.2,.9,.3,1), height .55s cubic-bezier(.2,.9,.3,1); }
+  .w3.peek, .w3.open { opacity:1; visibility:visible; }
+  .w3.open { pointer-events:auto; }
+  .w3t { flex:none; background:var(--cyan); color:var(--bg); font:600 11px 'Exo 2','IBM Plex Mono',sans-serif; letter-spacing:.14em; padding:7px 12px; display:flex; justify-content:space-between; }
+  .w3x { all:unset; cursor:pointer; padding:0 4px; visibility:hidden; } .open .w3x { visibility:visible; }
+  .w3b { flex:1; overflow:auto; padding:16px 18px; color:#b4c4cb; font:13px/1.65 'IBM Plex Sans',sans-serif; }
+  .open .w3b { padding:28px 36px; font-size:15px; animation:w3in .5s .2s both; }
+  @keyframes w3in { from { opacity:0; transform:translateY(8px) } }
+  .w3b h3 { margin:0 0 12px; font:600 30px 'Exo 2','IBM Plex Sans',sans-serif; color:#eafcff; max-width:24ch; }
+  .w3b h4 { margin:0 0 4px; font:600 17px 'Exo 2','IBM Plex Sans',sans-serif; color:#eafcff; }
+  .w3b p { margin:0 0 10px; max-width:62ch; }
   .w3b .k { font:500 10px 'IBM Plex Mono',monospace; letter-spacing:.12em; color:var(--cyan); margin-bottom:10px; }
+  .w3b .cta { font:600 10px 'IBM Plex Mono',monospace; letter-spacing:.12em; color:var(--accent); }
+  .w3b .ph { margin-top:24px; padding:40px; border:1px dashed rgba(var(--cyan-rgb),.3); color:rgba(var(--cyan-rgb),.6); font:500 11px 'IBM Plex Mono',monospace; letter-spacing:.1em; text-align:center; text-transform:uppercase; }
 </style>
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/" } }</script>
 <script type="module" src="/files/city-main.js"></script>
