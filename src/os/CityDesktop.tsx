@@ -143,6 +143,7 @@ export function CityDesktop() {
       <div
         ref={winRef}
         className={`w3 ${mode}`}
+        data-app={win?.appId}
         role={win ? 'dialog' : undefined}
         aria-label={win ? windowTitle(win) : undefined}
         aria-hidden={mode === 'hidden'}
