@@ -62,7 +62,7 @@ function openApp(app, at) {
   // straight in along that line. The open icon is pinned over its landmark on screen, so its leader line stays vertical throughout
   const off = camera.position.clone().sub(controls.target).setY(0).normalize().multiplyScalar(1700).setY(1100), r = openRect();
   const far = off.clone().setLength(camera.position.distanceTo(at));
-  flyTo({ pos: at.clone().add(far), tgt: at.clone(), shift: (W - r.x) / 2, ms: 1000, ease: easeOut }, { pos: at.clone().add(off), ms: 1400 });
+  flyTo({ pos: at.clone().add(far), tgt: at.clone(), shift: (W - r.x) / 2, ms: 500, ease: easeOut }, { pos: at.clone().add(off), ms: 1400 });
 }
 function closeApp() {
   if (mode !== 'open') return;
