@@ -9,6 +9,7 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { HOME, COLOR, MOTION } from './config.js';
 import { loadTerrain, buildGround, waveTime } from './terrain.js';
 import { buildBridges } from './bridges.js';
+import { buildSea } from './sea.js';
 import { loadOSM, buildCity } from './osm.js';
 import { createIcons } from './icons.js';
 import { createFlights, orbitOf, EASE } from './camera.js';
@@ -45,6 +46,9 @@ export function createCity(root, on) {
   controls.target.set(...view.tgt);
   const flights = createFlights(camera, controls);
   flights.resize(W, H);
+
+  const sea = buildSea();
+  scene.add(sea.group);
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
@@ -120,6 +124,7 @@ export function createCity(root, on) {
     const t = clock.getElapsedTime();
     flights.update();
     waveTime.value = t;
+    sea.update();
     city?.update();
     controls.update();
     composer.render();
