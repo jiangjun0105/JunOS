@@ -58,9 +58,11 @@ function openApp(app, at) {
   fill(app, true); if (mode === 'hidden') snapToPeek();          // fill first: the snap's reflow gives new content its peek styles to grow from
   rect(openRect()); win.className = 'w3 open'; mode = 'open';
   icons.focus(app); controls.autoRotate = false; back = { pos: camera.position.clone(), tgt: controls.target.clone() };
-  const dir = camera.position.clone().sub(controls.target).setY(0).normalize(), r = openRect();
-  // turn to face the landmark first, then dolly in: with the landmark on the projection centre the whole way, its leader line stays vertical
-  flyTo({ tgt: at.clone(), shift: (W - r.x) / 2, ms: 5000 }, { pos: at.clone().add(dir.multiplyScalar(1700)).setY(at.y + 1100), ms: 1400 });
+  // first swing round to the final viewing angle at the current distance (aim at the landmark, tilt from top-down to side-on), then dolly
+  // straight in along that line. The open icon is pinned over its landmark on screen, so its leader line stays vertical throughout
+  const off = camera.position.clone().sub(controls.target).setY(0).normalize().multiplyScalar(1700).setY(1100), r = openRect();
+  const far = off.clone().setLength(camera.position.distanceTo(at));
+  flyTo({ pos: at.clone().add(far), tgt: at.clone(), shift: (W - r.x) / 2, ms: 5000 }, { pos: at.clone().add(off), ms: 1400 });
 }
 function closeApp() {
   if (mode !== 'open') return;
