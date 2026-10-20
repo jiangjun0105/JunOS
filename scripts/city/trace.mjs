@@ -1,12 +1,12 @@
 // Real-time motion check. Opens the page in headless Chrome over the DevTools protocol (no dependencies) and, for each app:
 // click → trace every frame of the swing + dolly → Esc → trace the flight back. Then asserts what the motion should look like.
-//   node trace.mjs [url] [app ids...]        defaults: http://localhost:63483/files/city-sf.html  books about dev
+//   node scripts/city/trace.mjs [url] [app ids...]        defaults: http://localhost:3000/  books about projects  (needs `pnpm dev`)
 // Headless frames come slowly (SwiftShader), but they are real time, so durations are real; tolerances allow one frame.
 import { spawn } from 'node:child_process';
 
 const args = process.argv.slice(2);
-const url = args[0]?.startsWith('http') ? args.shift() : 'http://localhost:63483/files/city-sf.html';
-const apps = args.length ? args : ['books', 'about', 'dev'];
+const url = args[0]?.startsWith('http') ? args.shift() : 'http://localhost:3000/';
+const apps = args.length ? args : ['books', 'about', 'projects'];
 const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = 9333;
 const sleep = ms => new Promise(r => setTimeout(r, ms));

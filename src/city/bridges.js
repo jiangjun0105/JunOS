@@ -1,7 +1,7 @@
 // Golden Gate + Bay Bridge as line drawings. groundY(x, z) seats the anchorages on the terrain.
 import * as THREE from 'three';
-import { COLOR } from './city-config.js';
-import { xz, lerp, polyline, lines } from './city-geo.js';
+import { COLOR } from './config.js';
+import { xz, lerp, polyline, lines } from './geo.js';
 
 const seg = (L, a, b) => L.push(a[0], a[1], a[2], b[0], b[1], b[2]);
 

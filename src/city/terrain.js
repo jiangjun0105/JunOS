@@ -1,7 +1,7 @@
 // Terrain: AWS Terrarium elevation tiles → one graded wire grid (land + animated sea), fine island meshes, and the coastline.
 import * as THREE from 'three';
-import { EX, CITY, REGION, ISLANDS, COLOR } from './city-config.js';
-import { xz, ll, inBox, lines } from './city-geo.js';
+import { EX, CITY, REGION, ISLANDS, COLOR } from './config.js';
+import { xz, ll, inBox, lines } from './geo.js';
 
 // one zoom level over a [S, N, W, E] box → (x, z) => metres (negative = bay floor). Pixels: R*256 + G + B/256 - 32768
 async function dem(Z, [s, n, w, e]) {

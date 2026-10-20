@@ -12,7 +12,7 @@ Outlines are simplified (RDP, 1.2 m); footprints < 60 m² are dropped; untagged 
 import json, math, random, collections, gzip, sys, os
 random.seed(7)
 SRC, R = sys.argv[1], float(sys.argv[2]) if len(sys.argv) > 2 else 4000
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sf-osm.json')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'public', 'city', 'sf-osm.json')
 LAT0, LON0 = 37.7725, -122.4175; KX = 111320 * math.cos(math.radians(LAT0)); KZ = 110540     # same projection as city-geo.js
 xz = lambda la, lo: ((lo - LON0) * KX, -(la - LAT0) * KZ)
 ISLANDS = [(37.8240, 37.8295, -122.4265, -122.4195), (37.8050, 37.8330, -122.3800, -122.3580)]   # Alcatraz; Treasure + Yerba Buena

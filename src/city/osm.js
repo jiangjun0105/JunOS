@@ -1,8 +1,8 @@
 // OpenStreetMap layer: buildings, roads and the traffic running on them. Data = the snapshot, or a live Overpass query as fallback.
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { CITY, COLOR, OSM_SNAPSHOT } from './city-config.js';
-import { xz, rnd, polyline, lines } from './city-geo.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { CITY, COLOR, OSM_SNAPSHOT } from './config.js';
+import { xz, rnd, polyline, lines } from './geo.js';
 
 // → { blds: [{ h, pts }], roads: [{ deck, pts }], coast: [pts] }, pts in scene [x, z]
 export const loadOSM = () => snapshot().catch(overpass);

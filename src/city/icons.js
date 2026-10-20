@@ -1,7 +1,8 @@
 // Desktop icons: DOM reticles over landmarks, a 3D pulse ring on the ground, and leader lines. Laid out in screen space every frame.
 import * as THREE from 'three';
-import { APPS, GLYPH, COLOR } from './city-config.js';
-import { xz } from './city-geo.js';
+import { COLOR } from './config.js';
+import { APPS, GLYPH } from './landmarks.js';
+import { xz } from './geo.js';
 
 const RETICLE = '<svg class="fr" viewBox="0 0 46 46"><circle cx="23" cy="23" r="18" stroke-width="1"/><path d="M23 1v6M23 39v6M1 23h6M39 23h6" stroke-width="1.2"/></svg>';
 export const FOCUS_SCALE = 1.9;                                     // the open app's icon grows by this much

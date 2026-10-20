@@ -15,7 +15,8 @@ const config: Config = {
       colors: {
         surface: 'rgb(var(--surface) / <alpha-value>)',
         'surface-2': 'rgb(var(--surface-2) / <alpha-value>)',
-        desktop: 'rgb(var(--desktop-bg) / <alpha-value>)',
+        bg: 'rgb(var(--bg) / <alpha-value>)',
+        cyan: 'rgb(var(--cyan) / <alpha-value>)',
         ink: 'rgb(var(--ink) / <alpha-value>)',
         muted: 'rgb(var(--muted) / <alpha-value>)',
         line: 'rgb(var(--border) / <alpha-value>)',
@@ -37,6 +38,7 @@ const config: Config = {
         // chrome family (it reads --font-chrome); `body` is the document family.
         display: ['var(--font-chrome)'],
         body: ['var(--font-body)'],
+        mono: ['var(--font-mono)'],
       },
     },
   },
