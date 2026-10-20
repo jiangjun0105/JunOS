@@ -31,11 +31,11 @@ const ease = u => u < .5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;
 const flyTo = (pos, tgt, s1 = shift) => { fly = { t0: performance.now(), p0: camera.position.clone(), q0: controls.target.clone(), p1: pos, q1: tgt, s0: shift, s1 }; };
 const applyShift = () => { camera.aspect = (W + 2 * shift) / H; camera.setViewOffset(W + 2 * shift, H, 2 * shift, 0, W, H); };   // aspect = the full virtual view's
 
-// --- app window: hidden → peek (hover: a small card in the bottom corner away from the icon) → open (click: grows over most of the screen) ---
-const win = $('win3'), PEEK = { w: 320, h: 168, m: 20, bottom: 40 }, OPEN = { left: .36, top: 56, m: 20 };
+// --- app window: hidden → peek (hover: a small card in the top-right corner) → open (click: grows from that corner over most of the screen) ---
+const win = $('win3'), PEEK = { w: 320, h: 168 }, OPEN = { left: .36, top: 56, m: 20 };
 let icons = null, mode = 'hidden', peekTimer = 0, back = null;
 const rect = r => Object.assign(win.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
-const peekRect = pin => ({ x: pin.x > W / 2 ? PEEK.m : W - PEEK.w - PEEK.m, y: H - PEEK.bottom - PEEK.h, w: PEEK.w, h: PEEK.h });
+const peekRect = () => ({ x: W - PEEK.w - OPEN.m, y: OPEN.top, w: PEEK.w, h: PEEK.h });     // shares the open window's top-right corner
 const openRect = () => { const x = Math.round(W * OPEN.left); return { x, y: OPEN.top, w: W - x - OPEN.m, h: H - OPEN.top - OPEN.m }; };
 const deg = v => Math.abs(v).toFixed(4) + '°';
 function fill(app, full) {
@@ -44,16 +44,16 @@ function fill(app, full) {
   $('w3body').innerHTML = kick + (full ? app.body || `<h3>${app.label}</h3><p>${app.desc}</p><p class="ph">The ${app.label} window renders here.</p>`
                                        : `<h4>${app.label}</h4><p>${app.desc}</p><div class="cta">CLICK TO OPEN ▸</div>`);
 }
-function peek(app, pin) {
+const snapToPeek = () => { win.style.transition = 'none'; rect(peekRect()); void win.offsetWidth; win.style.transition = ''; };
+function peek(app) {
   clearTimeout(peekTimer); if (mode === 'open') return;
   if (!app) { peekTimer = setTimeout(() => { win.className = 'w3'; mode = 'hidden'; }, 150); return; }
-  if (mode === 'hidden') { win.style.transition = 'none'; rect(peekRect(pin)); void win.offsetWidth; win.style.transition = ''; } else rect(peekRect(pin));
+  if (mode === 'hidden') snapToPeek();
   fill(app, false); win.className = 'w3 peek'; mode = 'peek';
 }
 function openApp(app, at) {
   clearTimeout(peekTimer); if (mode === 'open') return;
-  const pin = icons.pins.find(p => p.app === app);
-  if (mode === 'hidden') { win.style.transition = 'none'; rect(peekRect(pin)); void win.offsetWidth; win.style.transition = ''; }
+  if (mode === 'hidden') snapToPeek();
   fill(app, true); rect(openRect()); win.className = 'w3 open'; mode = 'open';
   icons.focus(app); controls.autoRotate = false; back = { pos: camera.position.clone(), tgt: controls.target.clone() };
   const dir = camera.position.clone().sub(controls.target).setY(0).normalize(), r = openRect();
