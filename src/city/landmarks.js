@@ -1,11 +1,11 @@
 // Which window each landmark opens, where it stands, and its peek-card copy. Pure data: safe to import on the server.
 // ids are the window registry's (src/os/apps.tsx). `lift` = metres above the ground the icon anchors at.
 export const APPS = [
-  { id: 'about', label: 'About me', place: 'ALCATRAZ ISLAND', at: [37.82670, -122.42300], desc: 'Robotics → silicon → maps → LLMs → fly brains.' },
+  { id: 'about', label: 'About me', place: 'MISSION BAY', at: [37.76760, -122.39170], desc: 'Robotics → silicon → maps → LLMs → fly brains.' },
   { id: 'support', label: 'Call me', place: 'SUTRO TOWER', at: [37.75520, -122.45280], lift: 300, desc: 'Talk to my voice agent. Which is, technically, me.' },
   { id: 'thoughts', label: 'Thoughts', place: 'GOLDEN GATE PARK', at: [37.76940, -122.48620], desc: 'Essays. Reasoned, not felt.' },
   { id: 'projects', label: 'Development', place: 'SALESFORCE TOWER', at: [37.78975, -122.39675], lift: 326, desc: 'The agent harness. It plans, executes, verifies.' },
-  { id: 'research', label: 'Research', place: 'MISSION BAY', at: [37.76760, -122.39170], desc: 'Uploading a fly brain into a digital body.' },
+  { id: 'research', label: 'Research', place: 'ALCATRAZ ISLAND', at: [37.82670, -122.42300], desc: 'Uploading a fly brain into a digital body.' },
   { id: 'files', label: 'Files', place: 'TREASURE ISLAND', at: [37.82350, -122.37060], desc: 'Everything, as a tree.' },
   { id: 'books', label: 'Books', place: 'MAIN LIBRARY', at: [37.77905, -122.41575], desc: 'Where several of my ideas came from.' },
   { id: 'email', label: 'Email', place: 'GOLDEN GATE BRIDGE', at: [37.81830, -122.47850], desc: 'Response time: immediate.' },
