@@ -11,6 +11,14 @@ export const ISLANDS = [
 export const HOME = { pos: [5200, 8200, 12500], tgt: [-1200, 0, -800] };   // overview camera, scene metres
 export const OSM_SNAPSHOT = '/files/sf-osm.json';
 
+// Camera motion (see city-camera.js for yaw / pitch / dist). Opening an app = swing, then dolly; heading is kept throughout.
+export const MOTION = {
+  swing: { ms: 1000 },                // aim at the landmark and tilt to `view.pitch`, staying at the current distance
+  dolly: { ms: 1400 },                // then push straight in to `view.dist`
+  view: { pitch: 33, dist: 2025 },    // the open app's framing: degrees above the horizon, metres from the landmark
+  back: { ms: 1800 },                 // close / Overview: fly back in one eased leg
+};
+
 // 3D colours. The DOM accent / cyan come from the CSS variables in city-sf.html.
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 export const COLOR = {
