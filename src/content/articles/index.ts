@@ -1,28 +1,20 @@
 import type { ComponentType } from 'react'
 
 /**
- * The article content layer. Articles are .mdx files in this folder; their
- * METADATA lives here as typed objects (instead of frontmatter) so it's fully
- * typed and trivial to sort / filter / group for the Research index and the
- * File Explorer.
+ * Article metadata lives here as typed objects (not frontmatter) so it is easy
+ * to sort and group for the Research index and the File Explorer.
  *
- * Bodies are generated from the knowledge base in `kb/refined/` — that is the
- * source of truth. To change an article's text, edit the matching file under
- * `kb/refined/` and regenerate the .mdx (see kb/README.md); don't treat the
- * .mdx as the original.
+ * Bodies are generated from `kb/refined/`, the source of truth: edit the
+ * matching file there and regenerate the .mdx (see kb/README.md).
  *
  * To add an article:
- *   1. create `my-slug.mdx` in this folder (write prose; use <Figure>, <Video>,
- *      <Embed>, <Gallery> freely — they're globally available);
- *   2. add a metadata entry to `articles` below (pick a `kind` + `section`),
- *      INCLUDING its `load: () => import('./my-slug.mdx')` — the loader is
- *      co-located on the metadata so a new article is a single object, with no
- *      second parallel map to keep in sync;
- *   3. drop any images / short clips in /public/media/my-slug/.
- * It then appears automatically in the Research window (research articles), the
- * Development window (project articles) and the File Explorer — nested under its
- * `section` sub-folder.
+ *   1. create `my-slug.mdx` in this folder (<Gallery> is available globally);
+ *   2. add an entry to `articles` with its `load: () => import('./my-slug.mdx')`;
+ *   3. put images in /public/media/my-slug/.
  */
+
+/** Lazy, code-split loader for an .mdx body; the reader feeds it to `dynamic()`. */
+export type MdxLoader = () => Promise<{ default: ComponentType }>
 
 /**
  * An article's top-level folder.
@@ -32,15 +24,8 @@ import type { ComponentType } from 'react'
  */
 export type ArticleKind = 'research' | 'project' | 'personal'
 
-/**
- * The lazy loader for an article body. Returns the article's .mdx module
- * (code-split, fetched on demand). `articleLoaders` below is derived from these,
- * and `ArticleWindow` feeds the result straight to Next's `dynamic()`.
- */
-export type ArticleLoader = () => Promise<{ default: ComponentType }>
-
 export interface ArticleMeta {
-  /** Must match the .mdx filename (and so the key in the derived `articleLoaders`). */
+  /** Must match the .mdx filename. */
   slug: string
   title: string
   /** ISO date (YYYY-MM-DD) — the `updated:` date of the source file in kb/refined/. */
@@ -51,15 +36,8 @@ export interface ArticleMeta {
   kind: ArticleKind
   /** Topic sub-folder within its kind (the second layer of structure). */
   section: string
-  /** Optional cover image path under /public (shown by the Research index). */
-  cover?: string
-  /**
-   * Lazy import of this article's .mdx body. Co-located with the rest of the
-   * metadata so an article is one self-contained object — `articleLoaders` is
-   * derived from these (see below), not maintained as a separate parallel map.
-   * The path MUST match `slug` (e.g. slug 'foo' → `() => import('./foo.mdx')`).
-   */
-  load: ArticleLoader
+  /** Lazy import of the .mdx body; the path must match `slug`. */
+  load: MdxLoader
 }
 
 /**
@@ -77,7 +55,6 @@ export const articles: ArticleMeta[] = [
     tags: ['snn', 'connectome', 'embodied-ai'],
     kind: 'research',
     section: 'Post-transformer models',
-    cover: '/icons/research.png',
     load: () => import('./snn-overview.mdx'),
   },
   {
@@ -89,7 +66,6 @@ export const articles: ArticleMeta[] = [
     tags: ['epistemology', 'neuroscience', 'method'],
     kind: 'research',
     section: 'Post-transformer models',
-    cover: '/icons/books.png',
     load: () => import('./why-biology.mdx'),
   },
   {
@@ -101,7 +77,6 @@ export const articles: ArticleMeta[] = [
     tags: ['snn', 'connectome', 'training'],
     kind: 'research',
     section: 'Post-transformer models',
-    cover: '/icons/gear.png',
     load: () => import('./structure-over-weights.mdx'),
   },
   {
@@ -113,7 +88,6 @@ export const articles: ArticleMeta[] = [
     tags: ['snn', 'connectome', 'stack'],
     kind: 'research',
     section: 'Post-transformer models',
-    cover: '/icons/development.png',
     load: () => import('./how-im-building-it.mdx'),
   },
   {
@@ -125,7 +99,6 @@ export const articles: ArticleMeta[] = [
     tags: ['snn', 'stdp', 'learning'],
     kind: 'research',
     section: 'Post-transformer models',
-    cover: '/icons/research.png',
     load: () => import('./learning-mechanisms.mdx'),
   },
   {
@@ -137,7 +110,6 @@ export const articles: ArticleMeta[] = [
     tags: ['snn', 'lif', 'motor-control'],
     kind: 'research',
     section: 'Post-transformer models',
-    cover: '/icons/projects.png',
     load: () => import('./stage-1-current-work.mdx'),
   },
 
@@ -151,7 +123,6 @@ export const articles: ArticleMeta[] = [
     tags: ['publications', 'patents', 'robotics'],
     kind: 'research',
     section: 'Track record',
-    cover: '/icons/folder.png',
     load: () => import('./publications.mdx'),
   },
 
@@ -165,7 +136,6 @@ export const articles: ArticleMeta[] = [
     tags: ['agents', 'sdlc', 'developer-velocity'],
     kind: 'project',
     section: 'Projects',
-    cover: '/icons/development.png',
     load: () => import('./agent-harness.mdx'),
   },
   {
@@ -177,7 +147,6 @@ export const articles: ArticleMeta[] = [
     tags: ['web', 'nextjs', 'design'],
     kind: 'project',
     section: 'Projects',
-    cover: '/icons/about.png',
     load: () => import('./junos-website.mdx'),
   },
   {
@@ -189,7 +158,6 @@ export const articles: ArticleMeta[] = [
     tags: ['archived', 'context-engineering', 'bitter-lesson'],
     kind: 'project',
     section: 'Projects',
-    cover: '/icons/earnings.png',
     load: () => import('./repo-understanding-tool.mdx'),
   },
 
@@ -203,7 +171,6 @@ export const articles: ArticleMeta[] = [
     tags: ['bio', 'robotics', 'ai'],
     kind: 'personal',
     section: 'Life',
-    cover: '/icons/about_me.png',
     load: () => import('./about-me.mdx'),
   },
 
@@ -216,24 +183,9 @@ export const articles: ArticleMeta[] = [
     tags: ['now'],
     kind: 'personal',
     section: 'Now',
-    cover: '/icons/thoughts.png',
     load: () => import('./what-im-doing-now.mdx'),
   },
 ]
-
-/**
- * Lazy component loaders, keyed by slug. Each article is code-split and only
- * fetched when its reader window opens (see ArticleWindow).
- *
- * DERIVED from `articles` rather than hand-maintained: each article carries its
- * own `load` (co-located with its metadata), so this map can't drift out of sync
- * with the metadata the way a second hand-written table used to. The exported
- * name, shape, and type are unchanged, so existing consumers (e.g. ArticleWindow's
- * `articleLoaders[slug]`) keep working exactly as before.
- */
-export const articleLoaders: Record<string, ArticleLoader> = Object.fromEntries(
-  articles.map((a) => [a.slug, a.load]),
-)
 
 /** Look up a single article's metadata by slug. */
 export function getArticle(slug: string): ArticleMeta | undefined {

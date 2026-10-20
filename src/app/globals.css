@@ -1,5 +1,5 @@
 /* Fonts are self-hosted via next/font in src/app/layout.tsx.
-   Design tokens (plain CSS variables), then Tailwind, then the content skins and the city desktop. */
+   Design tokens (plain CSS variables), then Tailwind, then the content skins. The city desktop is in src/city/city.css. */
 @import '../styles/theme.css';
 
 /* Desktop-first: the city is a pointer + roomy-viewport experience. On a narrow
@@ -29,7 +29,7 @@
 @layer components {
   /* ---- file-explorer tree ---- */
   .tree {
-    @apply font-body text-[16px] text-ink;
+    @apply font-body text-field text-ink;
     line-height: 1.4;
   }
   .tree-row {
@@ -54,11 +54,8 @@
     border-left: 1.5px solid rgb(var(--ink) / 0.18);
   }
 
-  /* ---- accent "tag chips" (About windows) ----
-     The shared chip SHAPE lives here; the accent COLOR stays per-variant so the
-     three-accent cycle (accent → accent-2 → accent-3) reads at a glance. Mirrors
-     how .article-tag carries its own shape+skin in one class. The opacities match
-     the hand-written originals: accent/-2 at /10, accent-3 at /15 (it's lighter). */
+  /* ---- accent "tag chips" (About window) ----
+     Shared shape here; colour per variant (accent → accent-2 → accent-3). */
   .os-chip {
     @apply rounded-btn border border-line px-3 py-1 text-sm text-ink;
   }
@@ -74,7 +71,7 @@
 }
 
 /* ============================================================================
-   Article reader (MDX windows) + media blocks (Figure / Gallery / Video / Embed).
+   Article reader (MDX windows) + media blocks (Figure / Gallery).
    Most long-form element styling lives in src/mdx-components.tsx; these classes
    cover the reader chrome, index cards, and media wrappers.
    ============================================================================ */
@@ -84,7 +81,7 @@
     @apply mb-3 flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed border-line/25 pb-2;
   }
   .article-meta {
-    @apply flex items-center gap-1.5 font-display text-[13px] font-semibold uppercase tracking-wide text-muted;
+    @apply flex items-center gap-1.5 font-display text-meta font-semibold uppercase tracking-wide text-muted;
   }
   .article-tags {
     @apply flex flex-wrap gap-1;
@@ -101,21 +98,7 @@
     @apply border-0 bg-transparent p-0;
   }
 
-  /* ---- shared list card + pill ----
-     Originally the Research index's `.article-card` / `.article-card-kind`; now
-     generalized since Development and Books inline the exact same shape.
-
-     `.os-card` is JUST the rounded list tile shape — the common ground shared by
-     Research (a clickable <button>), Development, and Books (plain <li>s). The
-     interactive bits the Research button additionally needs (it's a <button>, so
-     it must be told to fill width, lay out as a block, left-align, and animate its
-     hover tint) live in `.os-card-button` so the plain <li> cards don't silently
-     gain a hover-darken/transition they never had.
-
-     `.os-pill` is the small tag/status pill (top-right of a card). It carries NO
-     `capitalize`: Development/Books tags ("🪟 web") must stay as authored, and the
-     Research index's kind is now title-cased in JS via formatKind() instead — one
-     source of truth for casing (see ui/formatKind.ts), no CSS text-transform. */
+  /* ---- shared list card + pill ---- */
   .os-card {
     @apply rounded-tile border border-line bg-surface-2/50 p-3;
   }
@@ -127,6 +110,9 @@
   }
   .os-pill {
     @apply rounded-full border border-line bg-surface px-2 py-0.5 text-xs;
+  }
+  .os-label {
+    @apply font-body text-sm font-bold uppercase tracking-wide text-muted;
   }
 
   /* ---- book cover thumbnail (Books app) ----
@@ -150,11 +136,7 @@
     @apply h-full w-full object-cover;
   }
 
-  /* ---- inline action button ("Read the full story →", "Read more →") ----
-     A text action INSIDE a window body, as opposed to `.os-btn`, which is the
-     22px window-control glyph in the title bar. Same rounded-btn + ink border
-     language as the chips, tinted with the primary accent so it reads as the
-     call to action on a card. */
+  /* ---- inline action button ("Read the full story →"), accent-tinted ---- */
   .os-action-btn {
     @apply rounded-btn border border-line bg-accent/10 px-3 py-1 text-sm font-bold text-ink transition-colors;
   }
@@ -183,86 +165,14 @@
     box-shadow: var(--shadow-soft);
   }
   .media-caption {
-    @apply mt-1.5 text-center text-[13px] italic text-muted;
+    @apply mt-1.5 text-center text-meta italic text-muted;
   }
   .media-gallery {
     @apply my-3.5 grid gap-2;
   }
-  .media-video {
-    @apply block w-full rounded-tile border-2 border-line;
-    background: rgb(var(--media-letterbox));
-    box-shadow: var(--shadow-soft);
-  }
-  .media-embed {
-    @apply relative w-full overflow-hidden rounded-tile border-2 border-line;
-    aspect-ratio: 16 / 9;
-    box-shadow: var(--shadow-soft);
-  }
-  .media-embed iframe {
-    @apply absolute inset-0 h-full w-full;
-    border: 0;
-  }
-  .media-fallback {
-    @apply grid place-items-center rounded-tile border-2 border-dashed border-line/40 bg-surface-2/40 px-4 py-8 text-center;
-  }
 }
 
-/* ============================================================================
-   The city desktop (src/os/CityDesktop.tsx + src/city). Plain CSS, outside the
-   Tailwind layers: several of these classes are created by src/city/*.js, which
-   Tailwind's content scan doesn't read, so layered rules would be purged.
-   ============================================================================ */
-.city { position: fixed; inset: 0; overflow: hidden; }
-.city-stage { position: absolute; inset: 0; }
-.hud { position: absolute; z-index: 3; font-family: var(--font-mono); color: rgb(var(--cyan)); text-shadow: var(--halo); }
-.city-status { left: 16px; top: 12px; font-size: 11px; font-weight: 600; letter-spacing: .06em; }
-.city-hint { left: 16px; bottom: 12px; font-size: 10px; font-weight: 500; letter-spacing: .08em; opacity: .7; }
-.city-home { right: 16px; top: 10px; font-size: 10px; font-weight: 600; letter-spacing: .1em; background: rgb(var(--bg) / .8); border: 1px solid rgb(var(--cyan) / .5); padding: 5px 10px; cursor: pointer; text-shadow: none; }
-.city-icons, .city-leads { position: absolute; inset: 0; z-index: 2; pointer-events: none; width: 100%; height: 100%; }
-.city-leads .ld { stroke: rgb(var(--accent) / .65); stroke-width: 1; fill: none; }
-
-/* landmark icons (built by src/city/icons.js) */
-.ic3 { all: unset; position: absolute; left: 0; top: 0; width: 124px; height: 92px; justify-content: flex-end; display: flex; flex-direction: column; align-items: center; gap: 4px;
-       cursor: pointer; pointer-events: auto; transform-origin: 50% 100%; transition: opacity .4s; }
-.ic3 .rg { position: relative; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle, rgb(4 10 14 / .85) 60%, transparent 62%); transition: all .2s; }
-.ic3 .fr { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; stroke: rgb(var(--accent)); fill: none; transition: filter .2s; }
-.ic3 svg.g { width: 20px; height: 20px; stroke: rgb(var(--accent)); fill: none; stroke-width: 1.6; position: relative; }
-.ic3:is(:hover, :focus-visible, .on) .rg { background: radial-gradient(circle, rgb(var(--accent)) 60%, transparent 62%); }
-.ic3:is(:hover, :focus-visible, .on) svg.g { stroke: rgb(var(--bg)); }
-.ic3:is(:hover, :focus-visible, .on) .fr { filter: drop-shadow(0 0 5px rgb(var(--accent) / .9)); }
-.ic3 b { font: 600 10.5px var(--font-chrome); letter-spacing: .1em; color: rgb(var(--accent)); text-shadow: 0 0 2px rgb(var(--bg)), 0 0 6px rgb(var(--bg)), 0 0 10px rgb(var(--accent) / .45); text-transform: uppercase; white-space: nowrap; }
-.ic3 i { font: 500 8.5px var(--font-mono); font-style: normal; letter-spacing: .08em; color: rgb(255 232 200 / .7); white-space: nowrap; text-shadow: 0 0 2px rgb(var(--bg)), 0 0 5px rgb(var(--bg)); }
-.ic3.away, .ld.away { opacity: 0; pointer-events: none; }
-
-/* the window: hidden → .peek (hover card, top-right) → .open (grows from that corner). CityDesktop sets left/top/width/height */
-.w3 { --grow: .9s cubic-bezier(.65, 0, .35, 1); position: absolute; z-index: 4; display: flex; flex-direction: column; overflow: hidden; outline: none;
-      background: rgb(var(--surface) / .94); border: 1px solid rgb(var(--cyan) / .35); box-shadow: var(--shadow-window); backdrop-filter: blur(6px);
-      opacity: 0; visibility: hidden; pointer-events: none;
-      transition: opacity .2s, visibility .2s, left var(--grow), top var(--grow), width var(--grow), height var(--grow); }
-.w3.peek, .w3.open { opacity: 1; visibility: visible; }
-.w3.open { pointer-events: auto; }
-.w3t { flex: none; background: rgb(var(--cyan)); color: rgb(var(--bg)); font: 600 11px var(--font-chrome); letter-spacing: .14em; padding: 7px 12px; display: flex; justify-content: space-between; }
-.w3t span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.w3x { all: unset; cursor: pointer; padding: 0 4px; visibility: hidden; }
-.open .w3x { visibility: visible; }
-.w3x:focus-visible { outline: 2px solid rgb(var(--bg)); }
-/* peek → open: padding, type sizes and the CTA ease with the window (--grow); the app's own content fades in as it lands */
-.w3b { flex: 1; overflow: hidden auto; scrollbar-width: thin; scrollbar-color: rgb(var(--cyan) / .35) transparent; padding: 16px 18px; color: rgb(var(--ink)); font: 13px/1.65 var(--font-body); transition: padding var(--grow), font-size var(--grow); }
-.w3b > * { transition: font-size var(--grow), margin var(--grow), opacity .3s, max-height var(--grow); }
-.open .w3b { padding: 28px 36px; font-size: 15px; }
-.w3b > h3 { margin: 0 0 4px; font: 600 17px var(--font-chrome); color: #eafcff; max-width: 24ch; }
-.open .w3b > h3 { font-size: 30px; margin-bottom: 12px; }
-.w3b > .lead { margin: 0 0 10px; max-width: 62ch; color: rgb(var(--ink)); }
-.w3b > .k { font: 500 10px var(--font-mono); letter-spacing: .12em; color: rgb(var(--cyan)); margin-bottom: 10px; }
-.w3b > .cta { font: 600 10px var(--font-mono); letter-spacing: .12em; color: rgb(var(--accent)); max-height: 2em; overflow: hidden; }
-.open .w3b > .cta { opacity: 0; max-height: 0; }
-.w3b > .more { animation: w3in .5s .6s both; }
-.w3b > .lead + .cta + .more { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgb(var(--border)); }
-@keyframes w3in { from { opacity: 0; transform: translateY(8px); } }
-@media (max-width: 719px) { .city-hint { display: none; } .open .w3b { padding: 20px; } }
-
-/* Respect the OS "reduce motion" setting: neutralize CSS transitions/animations.
-   (Framer Motion transform animations are handled via <MotionConfig reducedMotion="user">.) */
+/* Respect the OS "reduce motion" setting: neutralize CSS transitions/animations. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

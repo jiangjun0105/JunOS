@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { sectionsByKind, type ArticleKind } from '@/content/articles'
 import { notifications } from '@/content/notifications'
-import type { AppId } from '@/os/apps'
+import { apps, type AppId } from '@/os/apps'
 import { useWindows } from '@/os/WindowManager'
-import { FileGlyph as PageGlyph } from './ui/FileGlyph'
+import { FileGlyph } from './ui/FileGlyph'
 
-/** File kind drives the color-coded page glyph (matching the sample project). */
+/** File kind drives the color-coded page glyph. */
 type FileKind = 'doc' | 'txt' | 'csv' | 'exe'
 
 /** A node in the file tree: a folder (expandable) or a file that opens an app. */
@@ -40,24 +40,24 @@ function articleFolders(kind: ArticleKind): TreeNode[] {
   }))
 }
 
-/**
- * The tree shown in the File Explorer. Files open their app's window on click; the
- * Research / Projects / Personal folders are generated from src/content/articles,
- * so new
- * articles appear here automatically. Extend or nest more folders to grow it.
- */
+/** Research / Projects / Personal folders are generated from src/content/articles. */
+const shortcut = (appId: AppId, fileKind: FileKind): TreeNode => ({
+  kind: 'file',
+  name: apps[appId].title,
+  appId,
+  fileKind,
+})
+
 const TREE: TreeNode[] = [
   {
     kind: 'folder',
     name: 'JunOS',
-    // App shortcuts. Names must match the app titles in src/os/apps.tsx, since
-    // that title is what the opened window shows.
     children: [
-      { kind: 'file', name: 'About me', appId: 'about', fileKind: 'doc' },
-      { kind: 'file', name: 'Development', appId: 'projects', fileKind: 'csv' },
-      { kind: 'file', name: 'Thoughts', appId: 'thoughts', fileKind: 'doc' },
-      { kind: 'file', name: 'Books', appId: 'books', fileKind: 'txt' },
-      { kind: 'file', name: 'Call Me', appId: 'support', fileKind: 'exe' },
+      shortcut('about', 'doc'),
+      shortcut('projects', 'csv'),
+      shortcut('thoughts', 'doc'),
+      shortcut('books', 'txt'),
+      shortcut('support', 'exe'),
     ],
   },
   { kind: 'folder', name: 'Research', children: articleFolders('research') },
@@ -69,19 +69,19 @@ const TREE: TreeNode[] = [
     children: notifications.map((n) => ({
       kind: 'file' as const,
       name: n.title,
-      appId: 'notification' as AppId,
+      appId: 'notification',
       fileKind: 'doc' as const,
       params: { slug: n.slug },
     })),
   },
 ]
 
-/** File Explorer — an expandable folder tree (like the Hand-drawn OS design). */
+/** File Explorer: an expandable folder tree. */
 export function FilesWindow() {
   return (
     <div className="tree">
-      {TREE.map((node, i) => (
-        <TreeRow key={i} node={node} />
+      {TREE.map((node) => (
+        <TreeRow key={node.name} node={node} />
       ))}
     </div>
   )
@@ -108,8 +108,11 @@ function TreeRow({ node }: { node: TreeNode }) {
         </button>
         {open && (
           <div className="tree-children">
-            {node.children.map((child, i) => (
-              <TreeRow key={i} node={child} />
+            {node.children.map((child) => (
+              <TreeRow
+                key={`${child.name}:${child.kind === 'file' ? (child.params?.slug ?? child.appId) : ''}`}
+                node={child}
+              />
             ))}
           </div>
         )}
@@ -121,20 +124,18 @@ function TreeRow({ node }: { node: TreeNode }) {
     <button
       type="button"
       className="tree-row"
-      onClick={() =>
-        openApp(node.appId, node.params ? { params: node.params, title: node.name } : undefined)
-      }
+      onClick={() => openApp(node.appId, node.params ? { params: node.params } : undefined)}
     >
       <span className="tree-twist" aria-hidden />
       <span className="tree-ico">
-        <FileGlyph kind={node.fileKind} />
+        <KindGlyph kind={node.fileKind} />
       </span>
       <span className="tree-name">{node.name}</span>
     </button>
   )
 }
 
-/** Yellow folder glyph (matches the sample's tree folder; outline = currentColor/ink). */
+/** Yellow folder glyph. */
 function FolderGlyph() {
   return (
     <svg viewBox="0 0 24 20" width="19" height="16" aria-hidden>
@@ -149,13 +150,8 @@ function FolderGlyph() {
   )
 }
 
-/** Simple page glyph, color-coded by file kind (matches the sample).
-    The page silhouette + folded corner come from the shared <FileGlyph> primitive;
-    only the colored rule-lines (a small grid for csv, horizontal rules otherwise)
-    are drawn here. Colors are theme tokens (theme.css) so the palette is
-    reskinnable; doc reuses --accent and csv reuses --accent-2 — the same tokens
-    Books' note/quote use. */
-function FileGlyph({ kind }: { kind?: FileKind }) {
+/** Page glyph with kind-colored rule-lines (a grid for csv). */
+function KindGlyph({ kind }: { kind?: FileKind }) {
   const color = kind
     ? {
         doc: 'rgb(var(--accent))',
@@ -165,7 +161,7 @@ function FileGlyph({ kind }: { kind?: FileKind }) {
       }[kind]
     : 'rgb(var(--file-default))'
   return (
-    <PageGlyph width={15} height={18}>
+    <FileGlyph width={15} height={18}>
       {kind === 'csv' ? (
         <path
           d="M5 11.5 h8 M5 14.5 h8 M5 17.5 h8 M9 10.5 v8"
@@ -182,6 +178,6 @@ function FileGlyph({ kind }: { kind?: FileKind }) {
           fill="none"
         />
       )}
-    </PageGlyph>
+    </FileGlyph>
   )
 }

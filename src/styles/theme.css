@@ -12,7 +12,6 @@
   --bg: 2 6 10; /* the night behind the city, and the page */
   --surface: 9 14 17; /* window body */
   --surface-2: 15 26 32; /* cards and panels inside a window */
-  --media-letterbox: 0 0 0; /* behind <video> (.media-video) */
 
   /* ---- text + lines ---- */
   --ink: 214 228 234;
@@ -21,6 +20,9 @@
 
   /* ---- accents ---- */
   --accent: 255 178 63; /* amber — icons, links, the primary action */
+  --heading: 234 252 255; /* window headings */
+  --reticle-bg: 4 10 14; /* behind landmark icon rings */
+  --label-dim: 255 232 200; /* landmark sub-labels */
   --cyan: 25 225 255; /* instrument cyan — title bars, HUD text */
   --accent-2: 92 222 142; /* green — "ok" */
   --accent-3: 255 110 80; /* coral — warnings, the third chip colour */
@@ -37,7 +39,6 @@
   --radius-btn: 2px;
 
   /* ---- shadows: a faint cyan glow instead of a cast ---- */
-  --shadow-ink: 0 0 0;
   --shadow-window: 0 0 40px rgb(var(--cyan) / 0.2);
   --shadow-soft: 0 0 0 1px rgb(var(--cyan) / 0.08), 0 0 14px rgb(var(--cyan) / 0.08);
 

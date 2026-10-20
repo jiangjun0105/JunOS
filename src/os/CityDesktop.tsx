@@ -2,8 +2,11 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { APPS } from '@/city/landmarks'
+import type { City } from '@/city/scene'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { apps, isAppId } from './apps'
-import { useWindows } from './WindowManager'
+import { windowKey } from './url'
+import { useWindows, windowTitle } from './WindowManager'
 import { WindowUrlSync } from './WindowUrlSync'
 
 /**
@@ -13,18 +16,16 @@ import { WindowUrlSync } from './WindowUrlSync'
  * holding the corner, while the camera swings to the landmark and pushes in).
  */
 type Rect = { x: number; y: number; w: number; h: number }
-type City = {
-  focus: (appId: string, shift: number) => void
-  release: () => void
-  home: () => void
-  setShift: (px: number) => void
-  dispose: () => void
-}
 
 const PEEK = { w: 320, h: 168 }
 const OPEN = { left: 0.36, top: 56, m: 20, compact: 720 } // below `compact` px wide the open window takes the full width
 
-const peekRect = (W: number): Rect => ({ x: W - PEEK.w - OPEN.m, y: OPEN.top, w: PEEK.w, h: PEEK.h }) // shares the open window's top-right corner
+const peekRect = (W: number): Rect => ({
+  x: W - PEEK.w - OPEN.m,
+  y: OPEN.top,
+  w: PEEK.w,
+  h: PEEK.h,
+}) // shares the open window's top-right corner
 function openRect(W: number, H: number): Rect {
   const x = W < OPEN.compact ? OPEN.m : Math.round(W * OPEN.left)
   return { x, y: OPEN.top, w: W - x - OPEN.m, h: H - OPEN.top - OPEN.m }
@@ -100,7 +101,13 @@ export function CityDesktop() {
   useLayoutEffect(() => {
     const el = winRef.current
     if (!el || !size.W) return
-    const put = (r: Rect) => Object.assign(el.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' })
+    const put = (r: Rect) =>
+      Object.assign(el.style, {
+        left: r.x + 'px',
+        top: r.y + 'px',
+        width: r.w + 'px',
+        height: r.h + 'px',
+      })
     if (prevMode.current === 'hidden' && mode !== 'hidden') {
       el.style.transition = 'none'
       put(peekRect(size.W))
@@ -126,7 +133,8 @@ export function CityDesktop() {
       <div ref={rootRef} className="city-stage" />
       <div className="hud city-status">{status}</div>
       <div className="hud city-hint">
-        REAL TERRAIN (AWS, 1.6× HEIGHT) + OPENSTREETMAP · DRAG ORBIT · SCROLL ZOOM · RIGHT-DRAG PAN · CLICK AN ICON
+        REAL TERRAIN (AWS, 1.6× HEIGHT) + OPENSTREETMAP · DRAG ORBIT · SCROLL ZOOM · RIGHT-DRAG PAN
+        · CLICK AN ICON
       </div>
       <button type="button" className="hud city-home" onClick={() => city?.home()}>
         ⌂ OVERVIEW
@@ -136,7 +144,7 @@ export function CityDesktop() {
         ref={winRef}
         className={`w3 ${mode}`}
         role={win ? 'dialog' : undefined}
-        aria-label={win?.title}
+        aria-label={win ? windowTitle(win) : undefined}
         aria-hidden={mode === 'hidden'}
         tabIndex={-1}
       >
@@ -161,7 +169,9 @@ export function CityDesktop() {
           )}
           {App && (
             <div className="more">
-              <App params={win?.params} />
+              <ErrorBoundary key={windowKey(win!.appId, win!.params)}>
+                <App params={win?.params} />
+              </ErrorBoundary>
             </div>
           )}
         </div>

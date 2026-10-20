@@ -1,26 +1,10 @@
 import type { MetadataRoute } from 'next'
-import { appList } from '@/os/apps'
+import { appList, isLaunchable, type AppId } from '@/os/apps'
+import { SITE_URL } from '@/site'
 import { articles } from '@/content/articles'
 import { thoughts } from '@/content/thoughts'
 
-/**
- * Canonical origin for absolute URLs. See the same constant in `page.tsx` —
- * overridable per-environment via NEXT_PUBLIC_SITE_URL, falling back to the
- * project's production domain (junbot.dev). Duplicated rather than shared because
- * this WP only touches the app/ files.
- */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://junbot.dev'
-
-/**
- * PERF-3: a sitemap so crawlers can discover every deep link the SPA exposes.
- * It enumerates the SAME paths `generateStaticParams` prerenders:
- *   - `/`                         the desktop home
- *   - `/<id>`                     each launchable app window (cheap to include)
- *   - `/article/<slug>`           each article reader
- *
- * `lastModified` uses each article's publish date so re-published articles
- * re-surface; non-dated routes use build time.
- */
+/** Lists the same paths generateStaticParams prerenders. */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
 
@@ -28,10 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: SITE_URL, lastModified: now, changeFrequency: 'weekly', priority: 1 },
   ]
 
-  // Launcher windows only — `article`/`notification` (launcher: false) have no
-  // standalone landing intent of their own (articles are listed individually).
   const apps: MetadataRoute.Sitemap = appList
-    .filter((a) => a.launcher !== false)
+    .filter((a) => isLaunchable(a.id as AppId))
     .map((a) => ({
       url: `${SITE_URL}/${a.id}`,
       lastModified: now,

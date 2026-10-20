@@ -1,20 +1,21 @@
 'use client'
 
 import { useState } from 'react'
+import { WindowHeader } from './ui/WindowHeader'
 
-/**
- * "Email" app — a Gmail-style compose window for writing to Jun.
- *
- * The recipient is FIXED to jiangjun0105@gmail.com: this is a "message Jun"
- * form, not a general mail client. A visitor fills in their own address (which
- * becomes the Reply-To), a subject, and the message body.
- *
- * Submitting POSTs to /api/email, which sends the mail via Resend. See that
- * route for validation, the verified From domain, and the honeypot check.
- */
+/** Gmail-style compose form that POSTs to /api/email (Resend; validation and honeypot live in that route). */
 
 /** Where every message from this app is addressed. Not user-editable. */
 const RECIPIENT = 'jiangjun0105@gmail.com'
+
+// Muted fixed-width label and borderless input; the row underline highlights on focus.
+const labelClass =
+  'w-16 shrink-0 font-display text-label font-semibold uppercase tracking-wide text-muted'
+const inputClass =
+  'min-w-0 flex-1 bg-transparent text-field text-ink placeholder:text-muted/55 focus:outline-none disabled:opacity-60'
+
+const sendClass =
+  'inline-flex items-center gap-2 rounded-tile border border-ink bg-accent px-5 py-2 font-display text-field font-bold uppercase tracking-wide text-surface shadow-soft transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0'
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -52,7 +53,8 @@ export function EmailWindow() {
 
   // Editing after an error clears it so the form feels calm again.
   const onEdit =
-    (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (setter: (value: string) => void) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setter(e.target.value)
       if (status === 'error') {
         setStatus('idle')
@@ -79,12 +81,10 @@ export function EmailWindow() {
     <form onSubmit={handleSubmit} className="flex min-h-full flex-col">
       {/* To — fixed recipient, shown as a locked chip (not an input). */}
       <div className="flex items-center gap-3 border-b border-line/70 py-1.5">
-        <span className="w-16 shrink-0 font-display text-[14px] font-semibold uppercase tracking-wide text-muted">
-          To
-        </span>
+        <span className={labelClass}>To</span>
         <span
           title="Messages from this app always go to Jun"
-          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-[15px] text-ink"
+          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-ui text-ink"
         >
           <LockGlyph />
           {RECIPIENT}
@@ -121,7 +121,7 @@ export function EmailWindow() {
           value={subject}
           onChange={onEdit(setSubject)}
           disabled={sending}
-          placeholder="What&rsquo;s this about?"
+          placeholder="What's this about?"
           className={inputClass}
         />
       </div>
@@ -147,16 +147,12 @@ export function EmailWindow() {
         onChange={onEdit(setBody)}
         disabled={sending}
         placeholder="Write your message. This note goes straight to Jun's inbox. He'll reply to your address."
-        className="mt-3 min-h-[150px] w-full flex-1 resize-none rounded-md bg-transparent text-[16px] leading-relaxed text-ink placeholder:text-muted/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/25"
+        className="mt-3 min-h-[150px] w-full flex-1 resize-none rounded-md bg-transparent text-field leading-relaxed text-ink placeholder:text-muted/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/25"
       />
 
       {/* Footer: send button + error status. */}
       <footer className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line/70 pt-3">
-        <button
-          type="submit"
-          disabled={sending}
-          className="inline-flex items-center gap-2 rounded-tile border border-ink bg-accent px-5 py-2 font-display text-[16px] font-bold uppercase tracking-wide text-surface shadow-soft transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
-        >
+        <button type="submit" disabled={sending} className={sendClass}>
           {sending ? (
             'Sending…'
           ) : (
@@ -168,7 +164,7 @@ export function EmailWindow() {
         </button>
 
         {status === 'error' && (
-          <p className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-accent-3">
+          <p className="inline-flex items-center gap-1.5 text-label font-semibold text-accent-3">
             <span aria-hidden>⚠</span>
             {error}
           </p>
@@ -185,34 +181,28 @@ function SentConfirmation({ onReset }: { onReset: () => void }) {
       <span className="grid h-16 w-16 place-items-center rounded-full border border-ink bg-accent-2/15 text-accent-2">
         <CheckGlyph />
       </span>
-      <div className="space-y-1">
-        <h1 className="font-display text-[22px] font-bold text-ink">Message sent</h1>
-        <p className="text-[16px] text-muted">
-          Thanks — your note is on its way to Jun. He&rsquo;ll reply straight to your email.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onReset}
-        className="rounded-tile border border-ink bg-surface-2 px-4 py-2 font-display text-[15px] font-bold uppercase tracking-wide text-ink shadow-soft transition-transform hover:-translate-y-0.5 active:translate-y-0"
-      >
+      <WindowHeader
+        title="Message sent"
+        subtitle="Thanks — your note is on its way to Jun. He'll reply straight to your email."
+      />
+      <button type="button" onClick={onReset} className="os-action-btn">
         Write another
       </button>
     </div>
   )
 }
 
-/* Shared field classes — a muted fixed-width label and a borderless input whose
-   row underline highlights on focus (the Gmail compose look). */
-const labelClass =
-  'w-16 shrink-0 font-display text-[14px] font-semibold uppercase tracking-wide text-muted'
-const inputClass =
-  'min-w-0 flex-1 bg-transparent text-[16px] text-ink placeholder:text-muted/55 focus:outline-none disabled:opacity-60'
-
 /** Tiny lock marking the recipient as fixed. */
 function LockGlyph() {
   return (
-    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" className="text-muted" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      width="12"
+      height="12"
+      fill="currentColor"
+      className="text-muted"
+      aria-hidden
+    >
       <path d="M12 2a4 4 0 0 0-4 4v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V6a4 4 0 0 0-4-4zm-2 6V6a2 2 0 1 1 4 0v2h-4z" />
     </svg>
   )
@@ -230,7 +220,17 @@ function SendGlyph() {
 /** Check mark for the success screen. */
 function CheckGlyph() {
   return (
-    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      width="30"
+      height="30"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M5 13l4 4L19 7" />
     </svg>
   )

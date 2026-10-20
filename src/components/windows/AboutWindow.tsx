@@ -1,20 +1,16 @@
 'use client'
 
 import { Img } from '@/components/Img'
-import { getArticle } from '@/content/articles'
 import { useWindows } from '@/os/WindowManager'
 import { ChipRow } from './ui/ChipRow'
+import { WindowHeader } from './ui/WindowHeader'
 
-/**
- * The "About me" app — the short version of Jun's bio, with buttons into the two
- * personal articles (the full story and the Now page). The long copy lives in
- * src/content/articles/about-me.mdx, generated from kb/refined/about-me.md.
- */
+/** Short bio with buttons into the two personal articles; the long copy lives in src/content/articles/about-me.mdx. */
 export function AboutWindow() {
   const { openApp } = useWindows()
 
   function openArticle(slug: string) {
-    openApp('article', { params: { slug }, title: getArticle(slug)?.title })
+    openApp('article', { params: { slug } })
   }
 
   return (
@@ -26,22 +22,19 @@ export function AboutWindow() {
           draggable={false}
           className="hidden h-24 w-24 flex-none rounded-full object-cover shadow-soft sm:block"
         />
-        <div className="space-y-1">
-          <h1 className="font-body text-[22px] font-bold">Hi, I&apos;m Jun</h1>
-          <p className="text-[18px] text-muted">
-            AI engineer at Woven by Toyota, rebuilding the software development lifecycle
-            around agents.
-          </p>
-        </div>
+        <WindowHeader
+          title="Hi, I'm Jun"
+          subtitle="AI engineer at Woven by Toyota, rebuilding the software development lifecycle around agents."
+        />
       </div>
 
-      <p className="text-[18px]">
-        I&apos;ve shipped LLM-powered products end to end there and as CTO of a voice-AI startup
-        I co-founded, and I design multi-agent harnesses that plan, implement, review, and test
-        real coding work with a human in the loop. In my free time I study spiking neural networks by
+      <p className="text-prose">
+        I&apos;ve shipped LLM-powered products end to end there and as CTO of a voice-AI startup I
+        co-founded, and I design multi-agent harnesses that plan, implement, review, and test real
+        coding work with a human in the loop. In my free time I study spiking neural networks by
         putting uploaded biological brains into digital bodies.
       </p>
-      <p className="text-[18px]">
+      <p className="text-prose">
         I&apos;m based in the San Francisco Bay Area, California, after about ten years in Japan; I
         grew up in a small town in North China, and I speak Chinese, Japanese, and English.
       </p>
@@ -60,7 +53,11 @@ export function AboutWindow() {
         <button type="button" className="os-action-btn" onClick={() => openArticle('about-me')}>
           Read the full story →
         </button>
-        <button type="button" className="os-action-btn" onClick={() => openArticle('what-im-doing-now')}>
+        <button
+          type="button"
+          className="os-action-btn"
+          onClick={() => openArticle('what-im-doing-now')}
+        >
           What I&apos;m doing now →
         </button>
       </div>

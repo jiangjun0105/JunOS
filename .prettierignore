@@ -1,0 +1,5 @@
+src/content/**/*.mdx
+kb/
+public/
+pnpm-lock.yaml
+dist

@@ -1,6 +1,9 @@
 'use client'
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { getArticle } from '@/content/articles'
+import { getNotification } from '@/content/notifications'
+import { getThought } from '@/content/thoughts'
 import { apps, type AppId } from './apps'
 import { windowKey } from './url'
 
@@ -11,13 +14,12 @@ import { windowKey } from './url'
  */
 export interface OpenWindow {
   appId: AppId
-  title: string
   params?: Record<string, unknown>
 }
 
 interface WindowManagerValue {
   win: OpenWindow | null
-  openApp: (appId: AppId, opts?: { params?: Record<string, unknown>; title?: string }) => void
+  openApp: (appId: AppId, opts?: { params?: Record<string, unknown> }) => void
   close: () => void
 }
 
@@ -27,13 +29,12 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
   const [win, setWin] = useState<OpenWindow | null>(null)
 
   const openApp = useCallback<WindowManagerValue['openApp']>((appId, opts) => {
-    const def = apps[appId]
-    if (!def) return
+    if (!apps[appId]) return
     const params = opts?.params
     setWin((cur) =>
       cur && windowKey(cur.appId, cur.params) === windowKey(appId, params)
         ? cur
-        : { appId, params, title: opts?.title ?? def.title }
+        : { appId, params },
     )
   }, [])
 
@@ -49,7 +50,11 @@ export function useWindows(): WindowManagerValue {
   return ctx
 }
 
-/** Like {@link useWindows}, but `null` outside a provider (for MDX links, which could in principle render anywhere). */
-export function useWindowsOptional(): WindowManagerValue | null {
-  return useContext(WindowManagerContext)
+/** Window title: the article/thought/notification title for readers, else the app's. */
+export function windowTitle(win: OpenWindow): string {
+  const slug = typeof win.params?.slug === 'string' ? win.params.slug : undefined
+  const get = { article: getArticle, thoughts: getThought, notification: getNotification }[
+    win.appId as string
+  ] as ((slug: string) => { title: string } | undefined) | undefined
+  return (slug && get?.(slug)?.title) || apps[win.appId].title
 }

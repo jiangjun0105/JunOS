@@ -1,16 +1,4 @@
-/**
- * A flex-wrap row of accent "tag chips" — the little rounded labels at the foot
- * of the About windows ("🌳 nature", "🪟 window manager", …).
- *
- * Both About windows hand-wrote these chips and cycled the three accent skins by
- * hand: chip 0 → accent, 1 → accent-2, 2 → accent-3, then wrap. We reproduce that
- * exact cycle here by index (`i % 3`), mapping to the `.os-chip-1/-2/-3` skins so
- * the colors (and their /10, /10, /15 opacities) match the originals precisely.
- * The chip SHAPE + the cycling logic now live in one place; each window just
- * passes its list of emoji+label strings.
- */
-
-/** The three accent skins, in cycle order — index 0,1,2 then repeat. */
+/** Wrapping row of accent chips; the three accent skins cycle by index. */
 const CHIP_VARIANTS = ['os-chip-1', 'os-chip-2', 'os-chip-3'] as const
 
 export function ChipRow({ items }: { items: string[] }) {
