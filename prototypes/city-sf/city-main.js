@@ -41,8 +41,10 @@ const deg = v => Math.abs(v).toFixed(4) + '°';
 function fill(app, full) {
   $('w3title').textContent = `${app.id.toUpperCase()}.MD${full ? '' : ' · PREVIEW'}`;
   const [la, lo] = app.at, kick = `<div class="k">◢ ${app.place} · ${deg(la)}N ${deg(lo)}W</div>`;
-  $('w3body').innerHTML = kick + (full ? app.body || `<h3>${app.label}</h3><p>${app.desc}</p><p class="ph">The ${app.label} window renders here.</p>`
-                                       : `<h4>${app.label}</h4><p>${app.desc}</p><div class="cta">CLICK TO OPEN ▸</div>`);
+  // same markup in both states, kept on open so the transition grows it in place (CSS); .cta shows in peek, .more fades in once open
+  if (win.dataset.app === app.id) return; win.dataset.app = app.id;
+  $('w3body').innerHTML = kick + `<h3>${app.label}</h3><p class="lead">${app.desc}</p><div class="cta">CLICK TO OPEN ▸</div>`
+                        + `<div class="more">${app.body || `<p class="ph">The ${app.label} window renders here.</p>`}</div>`;
 }
 const snapToPeek = () => { win.style.transition = 'none'; rect(peekRect()); void win.offsetWidth; win.style.transition = ''; };
 function peek(app) {
@@ -53,8 +55,8 @@ function peek(app) {
 }
 function openApp(app, at) {
   clearTimeout(peekTimer); if (mode === 'open') return;
-  if (mode === 'hidden') snapToPeek();
-  fill(app, true); rect(openRect()); win.className = 'w3 open'; mode = 'open';
+  fill(app, true); if (mode === 'hidden') snapToPeek();          // fill first: the snap's reflow gives new content its peek styles to grow from
+  rect(openRect()); win.className = 'w3 open'; mode = 'open';
   icons.focus(app); controls.autoRotate = false; back = { pos: camera.position.clone(), tgt: controls.target.clone() };
   const dir = camera.position.clone().sub(controls.target).setY(0).normalize(), r = openRect();
   flyTo(at.clone().add(dir.multiplyScalar(1700)).setY(at.y + 1100), at.clone(), (W - r.x) / 2);
