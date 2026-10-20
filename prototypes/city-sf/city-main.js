@@ -24,11 +24,11 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera)); composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), .55, .35, .22)); composer.addPass(new OutputPass());
 addEventListener('resize', () => { W = innerWidth; H = innerHeight; renderer.setSize(W, H); composer.setSize(W, H); });
 
-// --- camera flights (1.8 s, eased). `shift` slides the projection centre left by that many px, so the
-// landmark sits in the middle of the free strip beside an open window instead of behind it ---
-let fly = null, shift = 0;
+// --- camera flights: a queue of eased legs { pos?, tgt?, shift?, ms } (a missing field holds its value). `shift` slides the projection
+// centre left by that many px, so the landmark sits in the middle of the free strip beside an open window instead of behind it ---
+let legs = [], fly = null, shift = 0;
 const ease = u => u < .5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;
-const flyTo = (pos, tgt, s1 = shift) => { fly = { t0: performance.now(), p0: camera.position.clone(), q0: controls.target.clone(), p1: pos, q1: tgt, s0: shift, s1 }; };
+const flyTo = (...steps) => { legs = steps; fly = null; };
 const applyShift = () => { camera.aspect = (W + 2 * shift) / H; camera.setViewOffset(W + 2 * shift, H, 2 * shift, 0, W, H); };   // aspect = the full virtual view's
 
 // --- app window: hidden → peek (hover: a small card in the top-right corner) → open (click: grows from that corner over most of the screen) ---
@@ -59,16 +59,17 @@ function openApp(app, at) {
   rect(openRect()); win.className = 'w3 open'; mode = 'open';
   icons.focus(app); controls.autoRotate = false; back = { pos: camera.position.clone(), tgt: controls.target.clone() };
   const dir = camera.position.clone().sub(controls.target).setY(0).normalize(), r = openRect();
-  flyTo(at.clone().add(dir.multiplyScalar(1700)).setY(at.y + 1100), at.clone(), (W - r.x) / 2);
+  // turn to face the landmark first, then dolly in: with the landmark on the projection centre the whole way, its leader line stays vertical
+  flyTo({ tgt: at.clone(), shift: (W - r.x) / 2, ms: 600 }, { pos: at.clone().add(dir.multiplyScalar(1700)).setY(at.y + 1100), ms: 1400 });
 }
 function closeApp() {
   if (mode !== 'open') return;
   win.className = 'w3'; mode = 'hidden'; icons.focus(null); controls.autoRotate = true;
-  flyTo(back.pos, back.tgt, 0);
+  flyTo({ pos: back.pos, tgt: back.tgt, shift: 0, ms: 1800 });
 }
 $('w3x').onclick = closeApp;
 addEventListener('keydown', e => { if (e.key === 'Escape') closeApp(); });
-$('home').onclick = () => { closeApp(); flyTo(new THREE.Vector3(...HOME.pos), new THREE.Vector3(...HOME.tgt), 0); };
+$('home').onclick = () => { closeApp(); flyTo({ pos: new THREE.Vector3(...HOME.pos), tgt: new THREE.Vector3(...HOME.tgt), shift: 0, ms: 1800 }); };
 addEventListener('resize', () => { if (mode === 'open') { const r = openRect(); rect(r); shift = (W - r.x) / 2; } applyShift(); });
 
 // --- load + build. Each source fails soft: no terrain → flat city, no OSM → terrain only ---
@@ -83,8 +84,10 @@ Promise.all([loadTerrain(), loadOSM().catch(() => null)]).then(([terrain, osm]) 
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   const t = clock.getElapsedTime();
-  if (fly) { const u = Math.min(1, (performance.now() - fly.t0) / 1800), e = ease(u);
-    camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.q0, fly.q1, e); shift = fly.s0 + (fly.s1 - fly.s0) * e; applyShift(); if (u >= 1) fly = null; }
+  if (!fly && legs.length) { const l = legs.shift(), p0 = camera.position.clone(), q0 = controls.target.clone();
+    fly = { ...l, t0: performance.now(), p0, q0, s0: shift, pos: l.pos || p0, tgt: l.tgt || q0, shift: l.shift ?? shift }; }
+  if (fly) { const u = Math.min(1, (performance.now() - fly.t0) / fly.ms), e = ease(u);
+    camera.position.lerpVectors(fly.p0, fly.pos, e); controls.target.lerpVectors(fly.q0, fly.tgt, e); shift = fly.s0 + (fly.shift - fly.s0) * e; applyShift(); if (u >= 1) fly = null; }
   waveTime.value = t; city?.update();
   controls.update(); composer.render();
   icons?.update(t, camera, { x0: 0, x1: mode === 'open' ? openRect().x : W, W, H });

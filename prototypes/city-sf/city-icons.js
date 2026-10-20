@@ -46,12 +46,13 @@ function layout(pins, camera, { x0, x1, W, H }, focused, k) {
     p.ax = (sv.x + 1) / 2 * W; p.ay = (1 - sv.y) / 2 * H; vis.push(p); }
   vis.sort((a, b) => b.ay - a.ay);                                  // nearest to the bottom first, so far-away icons are the ones that move
   for (const p of vis) {
+    // the open app's icon stays plumb over its landmark (no clamp, no x easing), so its leader is vertical
     p.s += ((focused ? FOCUS_SCALE : 1) - p.s) * k / 2; const w = p.w * p.s, h = p.h * p.s;
-    const bx = { x: Math.min(x1 - w / 2 - PAD, Math.max(x0 + w / 2 + PAD, p.ax)), y: Math.min(H - PAD, Math.max(TOPM + h, p.ay - LIFT * p.s)), w, h };
+    const bx = { x: focused ? p.ax : Math.min(x1 - w / 2 - PAD, Math.max(x0 + w / 2 + PAD, p.ax)), y: Math.min(H - PAD, Math.max(TOPM + h, p.ay - LIFT * p.s)), w, h };
     for (let n = 0, hit; n <= placed.length && (hit = placed.find(q => hits(q, bx))); n++) bx.y = hit.y - hit.h;
     if (bx.y - bx.h < TOPM) { bx.y = TOPM + bx.h; for (let n = 0, hit; n <= placed.length && (hit = placed.find(q => hits(q, bx))); n++) bx.y = hit.y + bx.h; }
     placed.push(bx);
-    if (p.x === null) { p.x = bx.x; p.y = bx.y; } else { p.x += (bx.x - p.x) * k; p.y += (bx.y - p.y) * k; }
+    if (p.x === null) { p.x = bx.x; p.y = bx.y; } else { p.x = focused ? bx.x : p.x + (bx.x - p.x) * k; p.y += (bx.y - p.y) * k; }
     p.el.style.transform = `translate(${p.x - p.w / 2}px, ${p.y - p.h}px) scale(${p.s})`;           // origin: bottom centre (CSS)
     const ey = p.ay < p.y - h / 2 ? p.y - h : p.y;                  // leader leaves the icon's bottom, or its top if the icon ended up below its landmark
     p.ld.setAttribute('d', `M${p.x} ${ey}L${p.ax} ${p.ay}M${p.ax - 2.5} ${p.ay}a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0`);
