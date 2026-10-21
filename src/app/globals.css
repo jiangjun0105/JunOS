@@ -110,19 +110,22 @@
     color: rgb(var(--heading));
     text-shadow: 0 0 14px rgb(var(--cyan) / 0.25);
   }
-  .article-prose h1 + p {
+  .article-prose > h1 + p:has(> em:only-child) {
     @apply mb-6 text-muted;
+  }
+  .article-prose > h1 + p:has(> em:only-child) > em {
+    font-style: normal;
   }
   .article-prose h2 {
     counter-increment: h2;
-    @apply mb-3 mt-8 font-display text-[13px] font-semibold uppercase tracking-[0.1em] text-cyan;
+    @apply mb-3 mt-8 font-display text-meta font-semibold uppercase tracking-[0.1em] text-cyan;
   }
   .article-prose h2::before {
     content: '// ' counter(h2, decimal-leading-zero);
     @apply mb-1 block font-mono text-[12px] font-medium tracking-[0.05em] text-accent;
   }
   .article-prose h3 {
-    @apply mb-2 mt-6 font-display text-[13px] font-semibold uppercase tracking-[0.16em] text-cyan;
+    @apply mb-2 mt-6 font-display text-meta font-semibold uppercase tracking-[0.16em] text-cyan;
   }
   .article-prose p {
     @apply mb-3.5;
@@ -211,7 +214,7 @@
       margin-left: 174px;
     }
     .article-prose > h1,
-    .article-prose > h1 + p,
+    .article-prose > h1 + p:has(> em:only-child),
     .article-prose > hr {
       margin-left: 0;
     }
