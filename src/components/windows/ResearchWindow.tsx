@@ -404,12 +404,9 @@ export function ResearchWindow() {
 
   return (
     <div className="res" ref={root}>
-      <div className="res-k">◢ 05 / RESEARCH · POST-TRANSFORMER MODELS</div>
-      <h1 className="res-name">Research</h1>
       <p className="res-sub">
-        Transformers are too big and too hungry to live inside a robot, and they can&apos;t absorb
-        experience into themselves. Biological brains do both. A free-time, small-GPU project in
-        three stages: an uploaded fruit-fly connectome, a digital body, and learning.
+        Transformers can&apos;t fit in a robot or learn from experience. A fly brain does both, so
+        I&apos;m uploading one into a digital body.
       </p>
       <div className="res-spec">
         <span>
@@ -435,7 +432,6 @@ export function ResearchWindow() {
         <i className="res-br res-tr" />
         <i className="res-br res-bl" />
         <i className="res-br res-brr" />
-        <div className="res-scan" />
         <span className="res-cap">◢ SPECIMEN · D. MELANOGASTER · MALE CNS · SOMATA {npts}</span>
         <span className="res-cap res-r">
           <span className="res-rec">●</span> ROT <b data-rot>000</b>° · DRAG TO ORBIT

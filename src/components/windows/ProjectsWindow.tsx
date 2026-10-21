@@ -374,8 +374,6 @@ export function ProjectsWindow() {
 
   return (
     <div className="dev">
-      <div className="dev-k">◢ 04 / DEVELOPMENT · BOARD UNDER PROBE</div>
-      <h1 className="dev-name">Development</h1>
       <p className="dev-sub">
         What I&apos;ve been building, laid out as one board. Hover a part to probe it; click to read
         the write-up.

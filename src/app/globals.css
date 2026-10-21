@@ -1183,15 +1183,8 @@ button.about-co:focus-visible {
   text-transform: uppercase;
   color: rgb(var(--cyan));
 }
-.dev-name {
-  margin: 8px 0 6px;
-  font: 700 34px/1.1 var(--font-chrome);
-  letter-spacing: 0.02em;
-  color: rgb(var(--heading));
-}
 .dev-sub {
   margin: 0 0 18px;
-  max-width: 64ch;
   font-size: 14px;
   color: rgb(var(--muted));
 }
@@ -1589,9 +1582,6 @@ button.about-co:focus-visible {
   color: rgb(var(--accent));
 }
 @container (max-width: 640px) {
-  .dev-name {
-    font-size: 28px;
-  }
   .dev-row {
     grid-template-columns: 36px 1fr auto;
     gap: 4px 12px;
@@ -1625,15 +1615,8 @@ button.about-co:focus-visible {
   text-transform: uppercase;
   color: rgb(var(--cyan));
 }
-.res-name {
-  margin: 8px 0 6px;
-  font: 700 34px/1.1 var(--font-chrome);
-  letter-spacing: 0.02em;
-  color: rgb(var(--heading));
-}
 .res-sub {
   margin: 0 0 14px;
-  max-width: 66ch;
   font-size: 14px;
   color: rgb(var(--muted));
 }
@@ -1749,22 +1732,6 @@ button.about-co:focus-visible {
   right: 8px;
   bottom: 8px;
   border-width: 0 2px 2px 0;
-}
-.res-scan {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -40px;
-  height: 40px;
-  background: linear-gradient(transparent, rgb(var(--cyan) / 0.12), transparent);
-  border-bottom: 1px solid rgb(var(--cyan) / 0.4);
-  animation: res-scan 4.6s linear infinite;
-  pointer-events: none;
-}
-@keyframes res-scan {
-  to {
-    top: 100%;
-  }
 }
 .res-vf .res-cap {
   left: 18px;
@@ -1959,9 +1926,6 @@ button.about-co:focus-visible {
   color: rgb(var(--accent));
 }
 @container (max-width: 640px) {
-  .res-name {
-    font-size: 28px;
-  }
   .res-strip {
     grid-template-columns: 1fr;
   }
