@@ -24,20 +24,24 @@ export type MdxLoader = () => Promise<{ default: ComponentType }>
  */
 export type ArticleKind = 'research' | 'project' | 'personal'
 
-export interface ArticleMeta {
+/** What every document (article, thought, notification) carries. */
+export interface DocMeta {
   /** Must match the .mdx filename. */
   slug: string
   title: string
   /** ISO date (YYYY-MM-DD) — the `updated:` date of the source file in kb/refined/. */
   date: string
   summary: string
+  /** Lazy import of the .mdx body; the path must match `slug`. */
+  load: MdxLoader
+}
+
+export interface ArticleMeta extends DocMeta {
   tags: string[]
   /** Top-level folder: research → "Research", project → "Projects", personal → "Personal". */
   kind: ArticleKind
   /** Topic sub-folder within its kind (the second layer of structure). */
   section: string
-  /** Lazy import of the .mdx body; the path must match `slug`. */
-  load: MdxLoader
 }
 
 /**
@@ -186,11 +190,6 @@ export const articles: ArticleMeta[] = [
     load: () => import('./what-im-doing-now.mdx'),
   },
 ]
-
-/** Look up a single article's metadata by slug. */
-export function getArticle(slug: string): ArticleMeta | undefined {
-  return articles.find((a) => a.slug === slug)
-}
 
 /** All articles of a given kind, in `articles` order. */
 export function articlesByKind(kind: ArticleKind): ArticleMeta[] {

@@ -32,7 +32,7 @@ export function ProjectsWindow() {
             <ArticleCard
               title={project.title}
               summary={project.summary}
-              onClick={() => openApp('article', { params: { slug: project.slug } })}
+              onClick={() => openApp('article', { slug: project.slug })}
               aside={
                 TAGS[project.slug] && (
                   <span className="os-pill flex-none">{TAGS[project.slug]}</span>

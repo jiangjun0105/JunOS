@@ -16,7 +16,6 @@ const config: Config = {
         surface: 'rgb(var(--surface) / <alpha-value>)',
         'surface-2': 'rgb(var(--surface-2) / <alpha-value>)',
         bg: 'rgb(var(--bg) / <alpha-value>)',
-        cyan: 'rgb(var(--cyan) / <alpha-value>)',
         ink: 'rgb(var(--ink) / <alpha-value>)',
         muted: 'rgb(var(--muted) / <alpha-value>)',
         line: 'rgb(var(--border) / <alpha-value>)',

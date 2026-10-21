@@ -5,11 +5,10 @@ export const CITY = [37.7, 37.845, -122.525, -122.3] // [S, N, W, E] detailed te
 export const REGION = [37.33, 38.22, -123.05, -121.8] // coarse ring (z10): Marin, East Bay hills, Mt Diablo, the Peninsula
 // islands get z14 terrain and a fine mesh; build-sf-osm.py keeps every building inside these boxes too
 export const ISLANDS = [
-  { name: 'ALCATRAZ', box: [37.824, 37.8295, -122.4265, -122.4195], step: 12 },
-  { name: 'TREASURE + YERBA BUENA', box: [37.805, 37.833, -122.38, -122.358], step: 20 },
+  { box: [37.824, 37.8295, -122.4265, -122.4195], step: 12 },
+  { box: [37.805, 37.833, -122.38, -122.358], step: 20 },
 ]
 export const HOME = { pos: [5200, 8200, 12500], tgt: [-1200, 0, -800] } // overview camera, scene metres
-export const OSM_SNAPSHOT = '/city/sf-osm.json'
 
 // Camera motion (see camera.js for yaw / pitch / dist). Opening an app = swing, then dolly; heading is kept throughout.
 export const MOTION = {

@@ -4,8 +4,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Img } from '@/components/Img'
 import { useWindows } from '@/os/WindowManager'
 import { books, type Essay } from '@/content/books'
-import { getArticle } from '@/content/articles'
-import { getThought } from '@/content/thoughts'
+import { getDoc } from '@/content'
+import { cssVar, prefersReducedMotion } from './dom'
 import { R, layoutNet, leadPoints, panelTop, type Net } from './engrams'
 
 const NARROW = 640 // below this stage width the network folds into a grid with the readout under it
@@ -15,8 +15,7 @@ const cls = (...c: (string | false)[]) => c.filter(Boolean).join(' ')
 const essayKey = (e: Essay) => `${e.app}:${e.slug}`
 const ESSAYS = [...new Map(books.map((b) => [essayKey(b.essay), b.essay])).values()]
 const FED = books.map((b) => ESSAYS.findIndex((e) => essayKey(e) === essayKey(b.essay)))
-const essayTitle = (e: Essay) =>
-  (e.app === 'article' ? getArticle(e.slug) : getThought(e.slug))?.title ?? e.slug
+const essayTitle = (e: Essay) => getDoc(e.app, e.slug)?.title ?? e.slug
 const RATE = books.map((_, i) => 28 + ((i * 17) % 31)) // dry, fixed "spike rates" (Hz)
 const SYN_COUNT = layoutNet(1000, 600, FED, ESSAYS.length).syns.length
 
@@ -86,7 +85,7 @@ export function BooksWindow() {
   useEffect(() => {
     if (!book) return
     const full = book.blurb.length
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (prefersReducedMotion()) {
       setTyped(full)
       return
     }
@@ -107,10 +106,9 @@ export function BooksWindow() {
   // pulses along the synapses + the spike raster
   useEffect(() => {
     const L = live.current // the same object every render; only its fields change
-    const css = getComputedStyle(document.documentElement)
-    const cyan = css.getPropertyValue('--cyan').trim()
-    const heading = css.getPropertyValue('--heading').trim()
-    const font = css.getPropertyValue('--font-mono').trim() || 'monospace'
+    const cyan = cssVar('--cyan')
+    const heading = cssVar('--heading')
+    const font = cssVar('--font-mono') || 'monospace'
     const canvas = rasterRef.current!
     const cx = canvas.getContext('2d')!
     const g = pulsesRef.current!
@@ -184,7 +182,7 @@ export function BooksWindow() {
         cx.fillRect(w - ((now - s.t) / SPAN) * (w - 48), rh * s.ch + 8, 2, rh - 16)
     }
 
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (prefersReducedMotion()) {
       draw(performance.now()) // one still frame
       L.burst = () => {}
       return
@@ -321,7 +319,7 @@ export function BooksWindow() {
             }}
             className={cls('eng-essay', j === ek && 'on')}
             style={net ? { left: net.essays[j].x, top: net.essays[j].y } : undefined}
-            onClick={() => openApp(e.app, { params: { slug: e.slug } })}
+            onClick={() => openApp(e.app, { slug: e.slug })}
           >
             <span className="eng-dot" />
             <span className="eng-elab">
@@ -428,7 +426,7 @@ export function BooksWindow() {
                 <footer>
                   <button
                     type="button"
-                    onClick={() => openApp(book.essay.app, { params: { slug: book.essay.slug } })}
+                    onClick={() => openApp(book.essay.app, { slug: book.essay.slug })}
                   >
                     {essayTitle(book.essay)} ▸
                   </button>

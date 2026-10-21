@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { CityDesktop } from '@/os/CityDesktop'
-import { appList, isLaunchable, type AppId } from '@/os/apps'
-import { articles, getArticle, type ArticleKind } from '@/content/articles'
-import { thoughts, getThought } from '@/content/thoughts'
+import { APPS } from '@/city/landmarks'
+import { getDoc } from '@/content'
+import type { ArticleKind } from '@/content/articles'
+import { sitePaths } from '@/os/paths'
 import { parseWindowPath } from '@/os/url'
 import { DESCRIPTION, SITE_URL } from '@/site'
 
@@ -20,12 +21,7 @@ const KIND_ICON: Record<ArticleKind, string> = {
 
 // Without this, an optional catch-all renders on demand; enumerating paths makes them static.
 export function generateStaticParams(): { segments: string[] }[] {
-  return [
-    { segments: [] },
-    ...appList.filter((a) => isLaunchable(a.id as AppId)).map((a) => ({ segments: [a.id] })),
-    ...articles.map((a) => ({ segments: ['article', a.slug] })),
-    ...thoughts.map((t) => ({ segments: ['thoughts', t.slug] })),
-  ]
+  return sitePaths.map((segments) => ({ segments }))
 }
 
 export async function generateMetadata({
@@ -36,17 +32,10 @@ export async function generateMetadata({
   const { segments } = await params
   const intent = parseWindowPath('/' + (segments ?? []).join('/'))
 
-  const doc =
-    intent?.slug &&
-    (intent.appId === 'article'
-      ? getArticle(intent.slug)
-      : intent.appId === 'thoughts'
-        ? getThought(intent.slug)
-        : undefined)
-
-  const article = intent?.appId === 'article' && intent.slug ? getArticle(intent.slug) : undefined
-  const icon = article ? KIND_ICON[article.kind] : intent?.appId
-  const images = icon && icon !== 'article' ? [`${SITE_URL}/og/${icon}`] : undefined
+  const doc = getDoc(intent?.appId ?? '', intent?.slug)
+  const icon = doc?.kind ? KIND_ICON[doc.kind] : intent?.appId
+  // Only landmark apps have an /og card.
+  const images = APPS.some((a) => a.id === icon) ? [`${SITE_URL}/og/${icon}`] : undefined
 
   if (intent && doc) {
     const { title, summary } = doc

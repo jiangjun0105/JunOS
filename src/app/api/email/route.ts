@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { RECIPIENT_EMAIL } from '@/site'
 
 /**
  * POST /api/email — delivers a message from the Email app to Jun's inbox.
@@ -12,8 +13,6 @@ import { Resend } from 'resend'
  * production via the Vercel ↔ Resend Marketplace integration.
  */
 
-/** Fixed recipient — every message from this app goes here. */
-const RECIPIENT = 'jiangjun0105@gmail.com'
 /** Verified sender. Local part is arbitrary; the domain must be Resend-verified. */
 const FROM = 'JunOS <contact@junbot.dev>'
 
@@ -64,7 +63,7 @@ export async function POST(req: Request) {
   try {
     const { data, error } = await resend.emails.send({
       from: FROM,
-      to: RECIPIENT,
+      to: RECIPIENT_EMAIL,
       replyTo: f, // a reply in Gmail goes back to the visitor
       subject: s,
       text: `From: ${f}\n\n${b}`,

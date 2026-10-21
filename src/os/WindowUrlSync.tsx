@@ -21,7 +21,7 @@ export function WindowUrlSync() {
     const parsed = parseWindowPath(pathname)
     if (!parsed || !isAppId(parsed.appId)) return
     if (parsed.slug || isLaunchable(parsed.appId)) {
-      openApp(parsed.appId, parsed.slug ? { params: { slug: parsed.slug } } : undefined)
+      openApp(parsed.appId, { slug: parsed.slug })
     }
   }, [pathname, openApp])
 

@@ -1,39 +1,20 @@
 import type { MetadataRoute } from 'next'
-import { appList, isLaunchable, type AppId } from '@/os/apps'
+import { getDoc } from '@/content'
+import { sitePaths } from '@/os/paths'
 import { SITE_URL } from '@/site'
-import { articles } from '@/content/articles'
-import { thoughts } from '@/content/thoughts'
+
+const PRIORITY: Record<string, number> = { article: 0.8, thoughts: 0.7 }
 
 /** Lists the same paths generateStaticParams prerenders. */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
-
-  const home: MetadataRoute.Sitemap = [
-    { url: SITE_URL, lastModified: now, changeFrequency: 'weekly', priority: 1 },
-  ]
-
-  const apps: MetadataRoute.Sitemap = appList
-    .filter((a) => isLaunchable(a.id as AppId))
-    .map((a) => ({
-      url: `${SITE_URL}/${a.id}`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    }))
-
-  const articlePages: MetadataRoute.Sitemap = articles.map((a) => ({
-    url: `${SITE_URL}/article/${encodeURIComponent(a.slug)}`,
-    lastModified: new Date(a.date),
-    changeFrequency: 'monthly',
-    priority: 0.8,
-  }))
-
-  const thoughtPages: MetadataRoute.Sitemap = thoughts.map((t) => ({
-    url: `${SITE_URL}/thoughts/${encodeURIComponent(t.slug)}`,
-    lastModified: new Date(t.date),
-    changeFrequency: 'monthly',
-    priority: 0.7,
-  }))
-
-  return [...home, ...apps, ...articlePages, ...thoughtPages]
+  return sitePaths.map(([appId, slug]) => {
+    const date = getDoc(appId, slug)?.date
+    return {
+      url: [SITE_URL, appId, slug && encodeURIComponent(slug)].filter(Boolean).join('/'),
+      lastModified: date ? new Date(date) : now,
+      changeFrequency: appId ? 'monthly' : 'weekly',
+      priority: appId ? (PRIORITY[appId] ?? 0.6) : 1,
+    }
+  })
 }

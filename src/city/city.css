@@ -133,9 +133,7 @@
   letter-spacing: 0.08em;
   color: rgb(var(--label-dim) / 0.7);
   white-space: nowrap;
-  text-shadow:
-    0 0 2px rgb(var(--bg)),
-    0 0 5px rgb(var(--bg));
+  text-shadow: var(--halo);
 }
 .ic3.away,
 .ld.away {
@@ -245,7 +243,6 @@
 .w3b > .lead {
   margin: 0 0 10px;
   max-width: 62ch;
-  color: rgb(var(--ink));
 }
 .w3b > .k {
   font: 500 10px var(--font-mono);
@@ -285,22 +282,16 @@
   display: flex;
   flex-direction: column;
 }
-.open:is([data-app='about'], [data-app='support']) .w3b > .more {
+.open:is([data-app='about'], [data-app='support'], [data-app='books']) .w3b > .more {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   margin-top: 16px;
   padding-top: 0;
   border-top: 0;
 }
-.open[data-app='books'] .w3b > .more {
-  flex: 1 0 auto;
-  display: flex;
-  flex-direction: column;
-  margin-top: 16px;
-  padding-top: 0;
-  border-top: 0;
+.open:is([data-app='about'], [data-app='support']) .w3b > .more {
+  justify-content: center;
 }
 @keyframes w3in {
   from {

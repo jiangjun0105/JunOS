@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { sectionsByKind, type ArticleKind } from '@/content/articles'
 import { notifications } from '@/content/notifications'
 import { apps, type AppId } from '@/os/apps'
 import { useWindows } from '@/os/WindowManager'
-import { FileGlyph } from './ui/FileGlyph'
 
 /** File kind drives the color-coded page glyph. */
 type FileKind = 'doc' | 'txt' | 'csv' | 'exe'
@@ -18,7 +17,7 @@ type TreeNode =
       name: string
       appId: AppId
       fileKind?: FileKind
-      params?: Record<string, unknown>
+      slug?: string
     }
 
 /**
@@ -35,7 +34,7 @@ function articleFolders(kind: ArticleKind): TreeNode[] {
       name: a.title,
       appId: 'article',
       fileKind: 'doc' as const,
-      params: { slug: a.slug },
+      slug: a.slug,
     })),
   }))
 }
@@ -71,7 +70,7 @@ const TREE: TreeNode[] = [
       name: n.title,
       appId: 'notification',
       fileKind: 'doc' as const,
-      params: { slug: n.slug },
+      slug: n.slug,
     })),
   },
 ]
@@ -110,7 +109,7 @@ function TreeRow({ node }: { node: TreeNode }) {
           <div className="tree-children">
             {node.children.map((child) => (
               <TreeRow
-                key={`${child.name}:${child.kind === 'file' ? (child.params?.slug ?? child.appId) : ''}`}
+                key={`${child.name}:${child.kind === 'file' ? (child.slug ?? child.appId) : ''}`}
                 node={child}
               />
             ))}
@@ -124,7 +123,7 @@ function TreeRow({ node }: { node: TreeNode }) {
     <button
       type="button"
       className="tree-row"
-      onClick={() => openApp(node.appId, node.params ? { params: node.params } : undefined)}
+      onClick={() => openApp(node.appId, { slug: node.slug })}
     >
       <span className="tree-twist" aria-hidden />
       <span className="tree-ico">
@@ -161,7 +160,7 @@ function KindGlyph({ kind }: { kind?: FileKind }) {
       }[kind]
     : 'rgb(var(--file-default))'
   return (
-    <FileGlyph width={15} height={18}>
+    <FileGlyph>
       {kind === 'csv' ? (
         <path
           d="M5 11.5 h8 M5 14.5 h8 M5 17.5 h8 M9 10.5 v8"
@@ -179,5 +178,28 @@ function KindGlyph({ kind }: { kind?: FileKind }) {
         />
       )}
     </FileGlyph>
+  )
+}
+
+/** Page-with-folded-corner glyph; children are the inner rule-lines. */
+function FileGlyph({ children }: { children?: ReactNode }) {
+  return (
+    <svg viewBox="0 0 19 23" width={15} height={18} aria-hidden>
+      <path
+        d="M3 2 h8 l5 5 v13 q0 1-1 1 H4 q-1 0-1-1 Z"
+        fill="rgb(var(--file-page))"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M11 2 v5 h5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      {children}
+    </svg>
   )
 }

@@ -43,3 +43,32 @@ export function lines(pts, mat, col) {
   if (col) g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3))
   return new THREE.LineSegments(g, mat)
 }
+
+// consecutive pairs of [x, z, ...] points → flat [x, y, z, x, y, z, ...] segments, y fixed (or pt[2] when y is omitted)
+export function segs(pts, y) {
+  const o = []
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1],
+      c = pts[i]
+    o.push(a[0], y ?? a[2], a[1], c[0], y ?? c[2], c[1])
+  }
+  return o
+}
+
+// Moving dots: colour is a flat [r, g, b, ...] array per item; step(item) advances one and returns its [x, y, z]. → { points, update() }
+export function movers(items, col, mat, step) {
+  const g = new THREE.BufferGeometry()
+  g.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(new Float32Array(items.length * 3), 3),
+  )
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3))
+  const pos = g.attributes.position
+  return {
+    points: new THREE.Points(g, mat),
+    update() {
+      items.forEach((m, i) => pos.setXYZ(i, ...step(m)))
+      pos.needsUpdate = true
+    },
+  }
+}

@@ -5,7 +5,7 @@
          --data-urlencode 'data=[out:json][timeout:300];way["building"](37.700,-122.525,37.845,-122.300);out geom tags;' > /tmp/blds.json
   2. python3 build-sf-osm.py /tmp/blds.json [R=4000]
 
-Keeps: every tower ≥ 50 m, every building on the ISLANDS (keep in sync with city-config.js), and a sample of the rest:
+Keeps: every tower ≥ 50 m, every building on the ISLANDS (keep in sync with src/city/config.js), and a sample of the rest:
 per 200 m cell, f = min(4, sqrt(n)/2.2) / (1 + (d/R)²) buildings, d = distance from downtown, randomly rounded.
 Outlines are simplified (RDP, 1.2 m); footprints < 60 m² are dropped; untagged heights become 8–14 m.
 """

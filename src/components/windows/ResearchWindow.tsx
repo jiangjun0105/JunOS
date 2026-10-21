@@ -52,7 +52,7 @@ export function ResearchWindow() {
                 <ArticleCard
                   title={a.title}
                   summary={a.summary}
-                  onClick={() => openApp('article', { params: { slug: a.slug } })}
+                  onClick={() => openApp('article', { slug: a.slug })}
                 >
                   <TagList tags={a.tags} className="mt-1.5" />
                 </ArticleCard>

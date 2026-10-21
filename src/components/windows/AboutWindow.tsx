@@ -26,7 +26,7 @@ export function AboutWindow() {
   const { openApp } = useWindows()
 
   function openArticle(slug: string) {
-    openApp('article', { params: { slug } })
+    openApp('article', { slug })
   }
 
   // The Digital Double is the stealth startup's product: describe the project, never the company.
