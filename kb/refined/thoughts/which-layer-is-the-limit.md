@@ -1,0 +1,40 @@
+---
+title: Which layer is the limit? — first principles as a hierarchy of constraints
+section: thoughts
+tags: [first-principles, reasoning, hierarchy, musk, isaacson, architecture, connectome, structural-plasticity, next-generation-models, curiosity]
+sources: [raw/2026-10-20-books-elon-musk.md, raw/2026-10-20-books-xinxizhuan.md]
+related: [books/elon-musk-biography.md, research/structure-over-weights.md, thoughts/20-watts-vs-megawatts.md, books/xinxizhuan.md]
+updated: 2026-10-20
+status: draft
+---
+
+What I took from Walter Isaacson's Elon Musk is first principles thinking, and it changed how I analyze problems.
+
+# If physics doesn't forbid it
+
+When Musk wanted to build a rocket, everyone thought it was impossible. His attitude was: if physics doesn't forbid it, why can't we do it? Reason from first principles and the actual limit on most things comes down to a few fundamental rules — mathematics, physics, chemistry, biology, the behavior of social groups, philosophy. Anything above those is a limit people set, not one nature did.
+
+# A hierarchy of constraints
+
+That gave me a hierarchical way to see at which level I'm truly being limited:
+
+- Is it the mathematics? Then it is probably just impossible.
+- Is it information — how much there is, and how efficiently it's used? Wu Jun's 信息传 gave me this level, as fundamental as math or physics; it's behind my case against backprop in [20 Watts of Carbon vs. Megawatts of Silicon](20-watts-vs-megawatts.md).
+- Is it physics, while the math allows it?
+- Or is it biology, while the physics allows it?
+
+Find the lowest level that actually says no. If none does, the limit is ours, and it can be moved.
+
+# Applied to how we build minds
+
+When I rethink how we should design models for intelligent machines — human-like AI — my view is that the biological brain is mathematically doing something very similar to an artificial neural network. So how brains learn and evolve can inspire how we design the next networks.
+
+Look at a mapped biological brain and you don't see a clean, well-organized structure. Its connections keep evolving across most of a creature's life, shaped by changes in its environment and much else.
+
+Today we train only the weights: we hand-design the architecture, then train the weights inside it. A brain trains both the weights and the connections — the connectome. Run that through the hierarchy and the fixed architecture isn't a limit of math, physics, or biology; biology plainly doesn't have it. It's a limit we chose, and it makes our current way of training quite limited.
+
+We've lifted a limit like this once already: machine learning stopped us hand-designing the weights. Lift the fixed architecture too and we should be able to do much more, especially on tasks like controlling a physical body. The full case, and the fly-brain evidence behind it, is in [Structure over weights](../research/structure-over-weights.md).
+
+# Why it made me curious about everything
+
+Combined with first principles, the hierarchy taught me to analyze problems across levels, and to see how subjects stack on one another. That has sparked a lot of curiosity in me toward all kinds of fields: each one I learn is another level I can check. The more I know, the better I can analyze a problem from the right level.

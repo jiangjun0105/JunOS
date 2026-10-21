@@ -1,11 +1,11 @@
 ---
 title: Thoughts
 section: thoughts
-updated: 2026-09-05
+updated: 2026-10-20
 status: draft
 ---
 
-Ten essays on coding with AI, next-generation models, learning, health, and how I make decisions. They share one spine — start from something that works and extend it — which the first essay names.
+Eleven essays on coding with AI, next-generation models, learning, health, and how I make decisions. They share one spine — start from something that works and extend it — which the first essay names.
 
 **[Bottom-up](bottom-up.md)** — The one idea under everything I build: the harness, the brain, how I learn, even how I train. Start from a working model; extend one verified step at a time.
 
@@ -24,5 +24,7 @@ Ten essays on coding with AI, next-generation models, learning, health, and how 
 **[Why I'm optimistic about the AI revolution](why-im-optimistic-about-ai.md)** — Every productivity leap frees humans for creative work. AI is the next one, and it will move faster than we did because it inherits across generations.
 
 **[Face reality](face-reality.md)** — Dalio's first principle, seek truth from facts, in three layers — and the post-mortem habit it gave me.
+
+**[Which layer is the limit?](which-layer-is-the-limit.md)** — First principles as a hierarchy of constraints: is the limit math, information, physics, or biology, or one we chose? A fixed network architecture is the last kind.
 
 **[The body is one system](the-body-is-one-system.md)** — What a desk worker actually needs from the gym: not one big muscle, but the whole chain assembled right. Posture is a productivity issue.

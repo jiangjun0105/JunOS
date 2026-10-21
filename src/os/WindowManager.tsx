@@ -21,26 +21,48 @@ interface WindowManagerValue {
   win: OpenWindow | null
   openApp: (appId: AppId, opts?: { params?: Record<string, unknown> }) => void
   close: () => void
+  /** The window that was showing before this one, if any; `back` returns to it. */
+  canGoBack: boolean
+  back: () => void
 }
 
 const WindowManagerContext = createContext<WindowManagerValue | null>(null)
 
 export function WindowManagerProvider({ children }: { children: ReactNode }) {
-  const [win, setWin] = useState<OpenWindow | null>(null)
+  // Swapping content pushes the old window here so `back` can return to it; closing clears it.
+  const [state, setState] = useState<{ win: OpenWindow | null; stack: OpenWindow[] }>({
+    win: null,
+    stack: [],
+  })
+  const { win, stack } = state
 
   const openApp = useCallback<WindowManagerValue['openApp']>((appId, opts) => {
     if (!apps[appId]) return
     const params = opts?.params
-    setWin((cur) =>
-      cur && windowKey(cur.appId, cur.params) === windowKey(appId, params)
+    setState((cur) =>
+      cur.win && windowKey(cur.win.appId, cur.win.params) === windowKey(appId, params)
         ? cur
-        : { appId, params },
+        : { win: { appId, params }, stack: cur.win ? [...cur.stack, cur.win] : [] },
     )
   }, [])
 
-  const close = useCallback(() => setWin(null), [])
+  const close = useCallback(() => setState({ win: null, stack: [] }), [])
 
-  const value = useMemo(() => ({ win, openApp, close }), [win, openApp, close])
+  const back = useCallback(
+    () =>
+      setState((cur) =>
+        cur.stack.length
+          ? { win: cur.stack[cur.stack.length - 1], stack: cur.stack.slice(0, -1) }
+          : cur,
+      ),
+    [],
+  )
+
+  const canGoBack = stack.length > 0
+  const value = useMemo(
+    () => ({ win, openApp, close, canGoBack, back }),
+    [win, openApp, close, canGoBack, back],
+  )
   return <WindowManagerContext.Provider value={value}>{children}</WindowManagerContext.Provider>
 }
 

@@ -2,9 +2,9 @@
 title: Structure over weights — what a simulated fly brain says about how brains should be trained
 section: research
 tags: [snn, connectome, robustness, architecture-search, embodiment, eon-systems, flywire, mujoco, neuromechfly, neurogenesis, pruning, training-paradigm]
-sources: [raw/2026-09-03-research-structure-over-weights.md]
-related: [research/snn-overview.md, thoughts/bottom-up.md]
-updated: 2026-09-04
+sources: [raw/2026-09-03-research-structure-over-weights.md, raw/2026-10-20-books-elon-musk.md]
+related: [research/snn-overview.md, thoughts/bottom-up.md, thoughts/which-layer-is-the-limit.md]
+updated: 2026-10-20
 status: draft
 fact-check: 2026-09-04 — Eon Systems posts (Mar 2026) and Shiu et al., Nature 2024. See notes at bottom.
 ---
@@ -20,6 +20,10 @@ Weights, in other words, are not where the intelligence lives. Structure is. The
 # What that means for training
 
 Mainstream deep learning does it backwards: hand-design a fixed architecture, then spend all the effort training the parameters inside it. The fly says the architecture is the part that carries the function and the parameters fall out of it.
+
+A real brain doesn't split the work that way. It trains both the weights and the connections — the connectome. And a mapped brain is not a clean, well-organized structure: its wiring keeps evolving across most of a creature's life, shaped by changes in its environment and much else.
+
+We've lifted a limit like this once already. Hand-designing the architecture is like hand-designing all the weights, which is basically what algorithm design was before machine learning. Think how limited the traditional approaches were, and how much more we could do once that limit was gone. If we can also remove the fixed architecture, we should be able to do much more again, especially on tasks like controlling a physical body. (Why I read the fixed architecture as a limit we chose rather than one nature set: [Which layer is the limit?](../thoughts/which-layer-is-the-limit.md).)
 
 If we ever want to train a real brain — an SNN or whatever comes after — I think two things have to be true:
 

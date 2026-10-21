@@ -92,6 +92,14 @@ export const thoughts: ThoughtMeta[] = [
     load: () => import('./face-reality.mdx'),
   },
   {
+    slug: 'which-layer-is-the-limit',
+    title: 'Which Layer Is the Limit?',
+    date: '2026-10-20',
+    summary:
+      'First principles as a hierarchy: is the limit math, information, physics, or biology — or one we chose? A fixed network architecture is the last kind.',
+    load: () => import('./which-layer-is-the-limit.mdx'),
+  },
+  {
     slug: 'the-body-is-one-system',
     title: 'The Body Is One System',
     date: '2026-09-03',
