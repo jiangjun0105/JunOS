@@ -4,20 +4,34 @@ import { useEffect, useRef, useState } from 'react'
 import { articlesByKind } from '@/content/articles'
 import { useWindows } from '@/os/WindowManager'
 
-/** Board-only presentation: not article metadata, so it lives here. area = the brain region a channel lights. */
-type Channel = { slug: string; area: 'OL' | 'CB' | 'CX' | 'MB' | 'VNC' }
+/** VNC long axis is 7.3° off level in the scan (PCA of VNC somata, y-z plane); rotate it flat. */
+const PITCH = (7.3 * Math.PI) / 180
+
+/**
+ * Board-only presentation: not article metadata, so it lives here. area = the brain region a
+ * channel lights; idea = the thesis the article argues, shown as its hook.
+ */
+type Channel = { slug: string; area: 'OL' | 'CB' | 'CX' | 'MB' | 'VNC'; idea?: string }
 
 const WORK: Channel[] = [
   { slug: 'stage-1-current-work', area: 'VNC' },
+  {
+    slug: 'how-im-building-it',
+    area: 'CB',
+    idea: 'Backprop is a biological myth; local rules and growing networks are the alternative.',
+  },
   { slug: 'learning-mechanisms', area: 'MB' },
-  { slug: 'snn-overview', area: 'CB' },
-  { slug: 'how-im-building-it', area: 'CB' },
 ]
-const THEORY: Channel[] = [
-  { slug: 'why-biology', area: 'OL' },
+const WHY: Channel[] = [
+  { slug: 'snn-overview', area: 'CB' },
+  {
+    slug: 'why-biology',
+    area: 'OL',
+    idea: 'Learn the principles, not the mechanism — we don’t build airplanes that flap.',
+  },
   { slug: 'structure-over-weights', area: 'CX' },
 ]
-const ALL = [...WORK, ...THEORY]
+const ALL = [...WORK, ...WHY]
 
 /** Stage milestones, from stage-1-current-work + snn-overview. */
 const MS: [string, 'done' | 'now' | ''][][] = [
@@ -41,18 +55,10 @@ const MS: [string, 'done' | 'now' | ''][][] = [
   ],
 ]
 
-/** Short version of kb/refined/research/INDEX.md's "ideas underneath". */
-const IDEAS: string[] = [
-  'Learn the principles, not the mechanism — we don’t build airplanes that flap.',
-  'Indirect observation: build a model of how the thing works, then design the cheap experiment.',
-  'The hierarchy of sciences bottoms out in math, so the brain is a math problem.',
-  'Structure over weights — a fly brain moves a body with nothing trained.',
-  'Backprop is a biological myth; local rules and growing networks are the alternative.',
-]
-
 // ---------- 3D connectome (male CNS v1.0, CC-BY) ----------
 // mcns-somata.bin: N×3 int16 xyz | N uint8 group | N uint8 colour
-// mcns-fibers.bin: M×6 int16 segment endpoints | M uint8 group | M uint8 colour
+// mcns-fibers.bin: u32 M | u32 K | K×u16 segments per neuron | M×6 int16 segment endpoints
+//                  | M uint8 group | M uint8 colour | M uint8 path distance from the soma (6 µm)
 // group: 0 optic · 1 central · 2 VNC · 3 brain↔body · colour: hash of cell type (FlyWire-style)
 const PAL = [
   '25 225 255',
@@ -65,6 +71,11 @@ const PAL = [
   '255 80 90',
 ]
 const AREA_GROUP = { OL: 0, CB: 1, CX: 1, MB: 1, VNC: 2 }
+// spikes, in fiber-distance units (6 µm) per ms: ~0.6 µm/ms is slow-motion for a real axon, but readable
+const SPEED = 0.1
+const TAIL = 10
+const RATE = 0.00002 // per neuron per ms
+const MAX_SPIKES = 260
 
 type Specimen = {
   n: number
@@ -73,27 +84,30 @@ type Specimen = {
   X: Float32Array // projected x, y, depth per soma
   m: number
   FP: Int16Array
-  R: [number, number, number, number][] // fiber runs [from, to, group, colour]
+  D: Uint8Array // path distance of each segment from its soma, 6 µm units
+  R: [number, number, number, number, number][] // one run per neuron [from, to, group, colour, farthest D]
   FX: Float32Array // projected segment endpoints
 }
 
 function decode(sb: ArrayBuffer, fb: ArrayBuffer): Specimen {
   const n = sb.byteLength / 8
-  const m = fb.byteLength / 14
   const sg = new Uint8Array(sb, n * 6, n)
   const sc = new Uint8Array(sb, n * 7, n)
   // bucket indices by group*8+colour once, so each frame is 32 batched paths
   const B: number[][] = Array.from({ length: 32 }, () => [])
   sg.forEach((g, i) => B[g * 8 + sc[i]].push(i))
-  // segments are stored neuron by neuron: split into runs, shuffle so no colour always paints last
-  const fg = new Uint8Array(fb, m * 12, m)
-  const fc = new Uint8Array(fb, m * 13, m)
+  // segments are stored neuron by neuron (K run lengths up front); shuffle runs so no colour always paints last
+  const [m, k] = new Uint32Array(fb, 0, 2)
+  const len = new Uint16Array(fb, 8, k)
+  const o = 8 + 2 * k
+  const fg = new Uint8Array(fb, o + m * 12, m)
+  const fc = new Uint8Array(fb, o + m * 13, m)
+  const D = new Uint8Array(fb, o + m * 14, m)
   const R: Specimen['R'] = []
-  for (let i = 0, a = 0; i <= m; i++) {
-    if (i === m || (i && (fg[i] !== fg[a] || fc[i] !== fc[a]))) {
-      R.push([a, i, fg[a], fc[a]])
-      a = i
-    }
+  for (let i = 0, a = 0; i < k; a += len[i++]) {
+    let far = 0
+    for (let j = a; j < a + len[i]; j++) far = Math.max(far, D[j])
+    R.push([a, a + len[i], fg[a], fc[a], far])
   }
   for (let i = R.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
@@ -105,7 +119,8 @@ function decode(sb: ArrayBuffer, fb: ArrayBuffer): Specimen {
     B: B.map((x) => Uint32Array.from(x)),
     X: new Float32Array(n * 3),
     m,
-    FP: new Int16Array(fb, 0, m * 6),
+    FP: new Int16Array(fb, o, m * 6),
+    D,
     R,
     FX: new Float32Array(m * 4),
   }
@@ -152,10 +167,9 @@ function Milestones({ stage }: { stage: number }) {
 }
 
 /**
- * "Stage strip": the three-stage plan as three recording columns over a rotating male-CNS
- * specimen. Hovering or focusing a channel lights its brain region. Canvases (specimen, live
- * raster, flat lines) share one rAF loop that pauses when hidden or scrolled out of view, and
- * under prefers-reduced-motion renders only on demand (drag, hover, resize).
+ * "Stage strip": a rotating male-CNS specimen over the three-stage plan. Hovering or focusing a
+ * channel lights its brain region. The specimen's rAF loop pauses when hidden or scrolled out of
+ * view, and under prefers-reduced-motion renders only on demand (drag, hover, resize).
  */
 export function ResearchWindow() {
   const { openApp } = useWindows()
@@ -178,80 +192,19 @@ export function ResearchWindow() {
     if (!el) return
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const cloud = el.querySelector<HTMLCanvasElement>('[data-cloud]')!
-    const raster = el.querySelector<HTMLCanvasElement>('[data-raster]')!
-    const flats = [...el.querySelectorAll<HTMLCanvasElement>('[data-flat]')]
     const rotEl = el.querySelector('[data-rot]')!
 
-    let seed = 11
-    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
-
-    // ----- live raster: 64 units, each tied to a channel; spikes drift left as age grows
-    const pop = Array.from({ length: 64 }, (_, i) => ({
-      rate: 1 + rnd() * 9,
-      group: i % ALL.length,
-      ages: [] as number[],
-    }))
-    let auto = 0
-    let autoT = 0
-    const step = (dt: number) => {
-      autoT += dt
-      if (autoT > 4000) {
-        autoT = 0
-        auto = (auto + 1) % WORK.length
-      }
-      const sel = hotRef.current < 0 ? auto : hotRef.current
-      for (const p of pop) {
-        const boost = p.group === sel ? (hotRef.current >= 0 ? 6 : 2.2) : 1
-        if (rnd() < (p.rate * boost * dt) / 1000) p.ages.push(0)
-        p.ages = p.ages.map((a) => a + dt).filter((a) => a < 12000)
-      }
-    }
-    for (let i = 0; i < 400; i++) step(16) // pre-roll so a static frame is not empty
-    const drawRaster = () => {
-      if (!fit(raster)) return
-      const g = raster.getContext('2d')!
-      const { width: W, height: H } = raster
-      const sel = hotRef.current < 0 ? auto : hotRef.current
-      g.clearRect(0, 0, W, H)
-      pop.forEach((p, i) => {
-        g.fillStyle = p.group === sel ? 'rgb(255 178 63)' : 'rgb(25 225 255 / .6)'
-        const y = 26 + i * ((H - 32) / 64)
-        for (const a of p.ages) g.fillRect(W - 0.16 * a, y, 3, 2.2)
-      })
-    }
-
-    // ----- "no signal" lines for the queued stages
-    const drawFlat = (cv: HTMLCanvasElement, now: number) => {
-      if (!fit(cv)) return
-      const g = cv.getContext('2d')!
-      const { width: W, height: H } = cv
-      g.clearRect(0, 0, W, H)
-      g.strokeStyle = 'rgb(25 225 255 / .08)'
-      g.lineWidth = 1
-      for (let x = 0; x < W; x += 24) {
-        g.beginPath()
-        g.moveTo(x, 0)
-        g.lineTo(x, H)
-        g.stroke()
-      }
-      g.strokeStyle = 'rgb(138 160 170 / .45)'
-      g.setLineDash([6, 6])
-      g.beginPath()
-      g.moveTo(0, H * 0.62)
-      g.lineTo(W, H * 0.62)
-      g.stroke()
-      g.setLineDash([])
-      g.fillStyle = 'rgb(25 225 255 / .35)'
-      g.fillRect((now / 18) % W, 0, 2, H) // slow scanning cursor: armed, waiting
-    }
-
-    // ----- specimen: roll around the long brain→VNC axis (fixed 114° start, seen from above),
-    // yaw auto-spin around screen-vertical (near side moves left-to-right), mild perspective
-    let rot = (114 * Math.PI) / 180
-    let yaw = (20 * Math.PI) / 180
+    // ----- specimen: data axes are x = left↔right, -y = dorsal, z = head→tail. Start as a fly
+    // standing side-on, head left: roll 0 keeps the back up, PITCH levels the VNC (it rises 7°
+    // toward the tail in the dissected scan). Yaw auto-spins around screen-vertical (near side
+    // left-to-right); drag x = yaw, drag y = roll around the long axis. Mild perspective.
+    const [cp, sp] = [Math.cos(PITCH), Math.sin(PITCH)]
+    let rot = 0
+    let yaw = 0
     const spin = 0.00018
     let drag: [number, number] | null = null
     let S: Specimen | null = null
+    const spikes: [number, number][] = [] // [run, front distance from the soma]
     const drawCloud = () => {
       if (!S || !fit(cloud)) return
       const g = cloud.getContext('2d')!
@@ -259,10 +212,10 @@ export function ResearchWindow() {
       const sc = Math.min(W / 3.6, H / 1.85) // margin so the optic lobes clear the frame at any roll
       const [cx, cy] = [W / 2, H / 2]
       const [ca, sa, cy2, sy2] = [Math.cos(rot), Math.sin(rot), Math.cos(yaw), Math.sin(yaw)]
-      const proj = (x: number, y: number, z: number, out: Float32Array, o: number) => {
-        x /= 32767
-        y /= 32767
-        z /= 32767
+      const proj = (px: number, py: number, pz: number, out: Float32Array, o: number) => {
+        const x = px / 32767
+        const y = (py * cp + pz * sp) / 32767 // pitch: level the VNC
+        const z = (pz * cp - py * sp) / 32767
         const sy = y * ca - x * sa
         const dp = y * sa + x * ca
         const sx = z * cy2 + dp * sy2
@@ -306,14 +259,39 @@ export function ResearchWindow() {
           g.fillRect(S.X[o], S.X[o + 1], r, r)
         }
       }
+      // spikes: a bright front running out from the soma along path distance, fading tail behind it
+      g.globalCompositeOperation = 'lighter'
+      g.lineCap = 'round'
+      for (const [r, front] of spikes) {
+        const [a, e, , c] = S.R[r]
+        for (let j = a; j < e; j++) {
+          const behind = front - S.D[j]
+          if (behind < 0 || behind > TAIL) continue
+          const o = j * 4
+          const al = 1 - behind / TAIL
+          g.lineWidth = 2
+          g.strokeStyle = `rgb(${PAL[c]} / ${0.35 * al})`
+          g.beginPath()
+          g.moveTo(S.FX[o], S.FX[o + 1])
+          g.lineTo(S.FX[o + 2], S.FX[o + 3])
+          g.stroke()
+          // bead at the segment middle: coloured halo, white core
+          const [mx, my] = [(S.FX[o] + S.FX[o + 2]) / 2, (S.FX[o + 1] + S.FX[o + 3]) / 2]
+          g.fillStyle = `rgb(${PAL[c]} / ${0.45 * al})`
+          g.fillRect(mx - 2.5, my - 2.5, 5, 5)
+          g.fillStyle = `rgb(255 255 255 / ${0.9 * al})`
+          g.fillRect(mx - 1, my - 1, 2, 2)
+        }
+      }
+      g.globalCompositeOperation = 'source-over'
       rotEl.textContent = String(Math.floor((((-yaw * 180) / Math.PI) % 360) + 360) % 360).padStart(
         3,
         '0',
       )
     }
 
-    // ----- one loop for all canvases: only while the document and a canvas are visible
-    const visible = new Set<HTMLCanvasElement>()
+    // ----- render loop: only while the document and the specimen are visible
+    let onScreen = false
     let raf = 0
     let last = 0
     const frame = (now: number) => {
@@ -322,11 +300,22 @@ export function ResearchWindow() {
       const dt = reduced ? 0 : Math.min(50, now - last)
       last = now
       if (drag === null) yaw -= spin * dt
-      step(dt)
-      if (visible.has(raster)) drawRaster()
-      for (const cv of flats) if (visible.has(cv)) drawFlat(cv, reduced ? 0 : now)
-      if (visible.has(cloud)) drawCloud()
-      if (!reduced && visible.size) raf = requestAnimationFrame(frame)
+      if (S && dt) {
+        // advance, retire past the farthest tip, then fire new ones (hovered region fires harder;
+        // Stage 1 is the VNC, so its brain↔body cable fires with it)
+        for (const s of spikes) s[1] += SPEED * dt
+        for (let i = spikes.length - 1; i >= 0; i--) {
+          if (spikes[i][1] - TAIL > S.R[spikes[i][0]][4]) spikes.splice(i, 1)
+        }
+        const hg = hotRef.current < 0 ? -1 : AREA_GROUP[ALL[hotRef.current].area]
+        for (let r = 0; r < S.R.length && spikes.length < MAX_SPIKES; r++) {
+          const k = S.R[r][2]
+          const boost = k === hg || (hg === 2 && k === 3) ? 10 : hg < 0 ? 1 : 0.3
+          if (Math.random() < RATE * boost * dt) spikes.push([r, 0])
+        }
+      }
+      if (onScreen) drawCloud()
+      if (!reduced && onScreen) raf = requestAnimationFrame(frame)
     }
     const run = () => {
       if (raf || document.hidden) return
@@ -335,18 +324,13 @@ export function ResearchWindow() {
     }
     kick.current = run
 
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) visible.add(e.target as HTMLCanvasElement)
-        else visible.delete(e.target as HTMLCanvasElement)
-      }
+    const io = new IntersectionObserver(([e]) => {
+      onScreen = e.isIntersecting
       run()
     })
     const ro = new ResizeObserver(run)
-    for (const cv of [cloud, raster, ...flats]) {
-      io.observe(cv)
-      ro.observe(cv)
-    }
+    io.observe(cloud)
+    ro.observe(cloud)
     document.addEventListener('visibilitychange', run)
 
     // near surface follows the pointer: drag right turns left-to-right, drag down rolls toward you
@@ -412,11 +396,11 @@ export function ResearchWindow() {
         <span>
           <span className="res-t">{a.title}</span>
           <span className="res-d">{a.summary}</span>
+          {c.idea && <span className="res-idea">{c.idea}</span>}
         </span>
       </button>
     )
   }
-  const pub = articles.get('publications')
 
   return (
     <div className="res" ref={root}>
@@ -464,9 +448,7 @@ export function ResearchWindow() {
         </span>
       </div>
 
-      <div className="res-k res-sec res-first">
-        ◢ THE PLAN · 3 STAGES <span className="res-tag">· 1 RECORDING</span>
-      </div>
+      <div className="res-k res-sec res-first">◢ THE PLAN · 3 STAGES</div>
       <div className="res-strip">
         <div className="res-col">
           <div className="res-hd">
@@ -475,12 +457,6 @@ export function ResearchWindow() {
               <div className="res-stt">Development</div>
             </div>
             <span className="res-chip res-live">● LIVE · 2026</span>
-          </div>
-          <div className="res-mini">
-            <canvas data-raster aria-hidden="true" />
-            <span className="res-cap">
-              <span className="res-rec">●</span> REC · POPULATION
-            </span>
           </div>
           <Milestones stage={0} />
         </div>
@@ -491,10 +467,6 @@ export function ResearchWindow() {
               <div className="res-stt">Morphology</div>
             </div>
             <span className="res-chip res-q">QUEUED</span>
-          </div>
-          <div className="res-mini">
-            <canvas data-flat aria-hidden="true" />
-            <span className="res-cap res-dim">NO SIGNAL</span>
           </div>
           <div className="res-std">
             Change the body — injury, environment, wheels for legs — keep every neuron, see if the
@@ -510,10 +482,6 @@ export function ResearchWindow() {
             </div>
             <span className="res-chip res-q">QUEUED</span>
           </div>
-          <div className="res-mini">
-            <canvas data-flat aria-hidden="true" />
-            <span className="res-cap res-dim">NO SIGNAL</span>
-          </div>
           <div className="res-std">
             Change body and brain together: overgrow neurons, then prune to the body — the way
             newborns do.
@@ -522,32 +490,11 @@ export function ResearchWindow() {
         </div>
       </div>
 
-      <div className="res-k res-sec">◢ STAGE 1 · CHANNELS</div>
+      <div className="res-k res-sec">◢ STAGE 1 · THE WORK</div>
       <div className="res-chans">{WORK.map(channel)}</div>
 
-      <div className="res-k res-sec">◢ THE THINKING BEHIND IT</div>
-      <div className="res-chans res-quiet">{THEORY.map(channel)}</div>
-
-      <div className="res-k res-sec">◢ THE IDEAS UNDERNEATH</div>
-      <ul className="res-ideas">
-        {IDEAS.map((idea) => (
-          <li key={idea}>{idea}</li>
-        ))}
-      </ul>
-
-      {pub && (
-        <>
-          <div className="res-k res-sec">◢ TRACK RECORD</div>
-          <div className="res-rows">
-            <button type="button" className="res-row" onClick={() => open(pub.slug)}>
-              <span className="res-n">P01</span>
-              <span className="res-t">{pub.title}</span>
-              <span className="res-d">{pub.summary}</span>
-              <span className="res-go">OPEN ▸</span>
-            </button>
-          </div>
-        </>
-      )}
+      <div className="res-k res-sec">◢ WHY THIS APPROACH</div>
+      <div className="res-chans">{WHY.map(channel)}</div>
     </div>
   )
 }

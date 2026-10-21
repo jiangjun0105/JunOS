@@ -1682,9 +1682,6 @@ button.about-co:focus-visible {
 .res-sec.res-first {
   margin-top: 0;
 }
-.res-tag {
-  color: rgb(var(--muted));
-}
 
 /* captions over instruments */
 .res-cap {
@@ -1696,9 +1693,6 @@ button.about-co:focus-visible {
   color: rgb(var(--cyan));
   text-shadow: 0 0 4px #000;
   pointer-events: none;
-}
-.res-cap.res-dim {
-  color: rgb(var(--muted));
 }
 .res-rec {
   color: #ff5a4a;
@@ -1851,15 +1845,6 @@ button.about-co:focus-visible {
 .res-chip.res-q {
   color: rgb(var(--muted));
 }
-.res-mini {
-  position: relative;
-  border: 1px solid rgb(var(--cyan) / 0.2);
-}
-.res-mini canvas {
-  display: block;
-  width: 100%;
-  height: 96px;
-}
 
 /* milestones */
 .res-ms {
@@ -1897,16 +1882,18 @@ button.about-co:focus-visible {
 }
 
 /* channel rows (hover or focus lights the brain region) */
-.res-chans,
-.res-rows {
+.res-chans {
   border-top: 1px solid rgb(var(--cyan) / 0.18);
 }
-.res-ch,
-.res-row {
+.res-ch {
   position: relative;
   display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 16px;
+  align-items: center;
   width: 100%;
   margin: 0;
+  padding: 12px 4px;
   border: 0;
   border-bottom: 1px solid rgb(var(--cyan) / 0.18);
   background: none;
@@ -1918,25 +1905,11 @@ button.about-co:focus-visible {
     background 0.2s,
     padding 0.2s;
 }
-.res-ch {
-  grid-template-columns: 52px 1fr;
-  gap: 16px;
-  align-items: center;
-  padding: 12px 4px;
-}
-.res-row {
-  grid-template-columns: 36px 220px 1fr 54px;
-  gap: 14px;
-  align-items: baseline;
-  padding: 11px 4px;
-}
-.res-ch:focus-visible,
-.res-row:focus-visible {
+.res-ch:focus-visible {
   outline: 1px solid rgb(var(--cyan));
   outline-offset: -1px;
 }
-.res-ch::before,
-.res-row::before {
+.res-ch::before {
   content: '';
   position: absolute;
   left: 0;
@@ -1964,60 +1937,26 @@ button.about-co:focus-visible {
   line-height: 1.5;
   color: rgb(var(--muted));
 }
-.res-quiet .res-t,
-.res-row .res-t {
-  font-size: 14px;
+/* the idea an article argues, as its one-line hook */
+.res-idea {
+  display: block;
+  margin-top: 4px;
+  font: 500 11px/1.5 var(--font-mono);
+  letter-spacing: 0.04em;
+  color: rgb(var(--accent) / 0.85);
 }
-.res-go {
-  font: 600 10px var(--font-mono);
-  letter-spacing: 0.12em;
-  text-align: right;
-  color: rgb(var(--accent));
-  opacity: 0;
-  transition: opacity 0.2s;
+.res-idea::before {
+  content: '▸ ';
 }
-.res-ch.res-hot,
-.res-row:hover,
-.res-row:focus-visible {
+.res-ch.res-hot {
   padding-left: 12px;
   background: rgb(var(--cyan) / 0.05);
 }
-.res-ch.res-hot::before,
-.res-row:hover::before,
-.res-row:focus-visible::before {
+.res-ch.res-hot::before {
   transform: scaleY(1);
 }
-.res-ch.res-hot .res-t,
-.res-row:hover .res-t,
-.res-row:focus-visible .res-t {
+.res-ch.res-hot .res-t {
   color: rgb(var(--accent));
-}
-.res-row:hover .res-go,
-.res-row:focus-visible .res-go {
-  opacity: 1;
-}
-
-/* ideas */
-.res-ideas {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: res-i;
-}
-.res-ideas li {
-  display: grid;
-  grid-template-columns: 34px 1fr;
-  gap: 12px;
-  padding: 7px 0;
-  border-bottom: 1px dashed rgb(var(--cyan) / 0.14);
-  font-size: 13.5px;
-}
-.res-ideas li::before {
-  counter-increment: res-i;
-  content: 'A' counter(res-i, decimal-leading-zero);
-  font: 500 10px/2.1 var(--font-mono);
-  letter-spacing: 0.1em;
-  color: rgb(var(--cyan) / 0.7);
 }
 @container (max-width: 640px) {
   .res-name {
@@ -2032,16 +1971,6 @@ button.about-co:focus-visible {
   }
   .res-col:first-child {
     border-top: 0;
-  }
-  .res-row {
-    grid-template-columns: 36px 1fr;
-    gap: 4px 12px;
-  }
-  .res-row .res-d {
-    grid-column: 2;
-  }
-  .res-go {
-    display: none;
   }
 }
 
