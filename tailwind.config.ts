@@ -22,6 +22,7 @@ const config: Config = {
         accent: 'rgb(var(--accent) / <alpha-value>)',
         'accent-2': 'rgb(var(--accent-2) / <alpha-value>)',
         'accent-3': 'rgb(var(--accent-3) / <alpha-value>)',
+        cyan: 'rgb(var(--cyan) / <alpha-value>)',
       },
       fontSize: {
         meta: '13px',

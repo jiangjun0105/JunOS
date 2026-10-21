@@ -50,6 +50,7 @@ export function MdxReader({ noun, slug, meta, lead }: MdxReaderProps) {
     <div>
       <header className="article-head">
         <div className="article-meta">
+          <span className="article-meta-key">LOG</span>
           <time dateTime={meta.date}>{formatDate(meta.date)}</time>
           {meta.kind && (
             <>

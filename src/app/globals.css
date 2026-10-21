@@ -61,26 +61,175 @@
    cover the reader chrome, index cards, and media wrappers.
    ============================================================================ */
 @layer components {
-  /* meta row above the body: date · kind, with tag chips on the right */
+  /* meta row above the body: a bracketed mono line (LOG date · kind) with # chips */
   .article-head {
-    @apply mb-3 flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed border-line/25 pb-2;
+    @apply relative mb-5 flex flex-wrap items-center justify-between gap-2 border-y border-line px-2.5 py-1.5;
+  }
+  .article-head::before,
+  .article-head::after {
+    content: '';
+    @apply absolute -bottom-1 -top-1 w-px bg-cyan/70;
+  }
+  .article-head::before {
+    left: 0;
+  }
+  .article-head::after {
+    right: 0;
   }
   .article-meta {
-    @apply flex items-center gap-1.5 font-display text-meta font-semibold uppercase tracking-wide text-muted;
+    @apply flex items-center gap-1.5 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-muted;
+  }
+  .article-meta-key {
+    @apply font-semibold text-cyan;
   }
   .article-tags {
     @apply flex flex-wrap gap-1;
   }
   .article-tag {
-    @apply rounded-full border border-line/40 bg-surface-2/60 px-2 py-0.5 text-[11px] font-medium text-muted;
+    @apply border border-cyan/35 px-1.5 font-mono text-[11px] font-medium text-cyan;
   }
 
-  /* long-form body: keep the first heading flush; strip inline-code skin inside pre */
+  /* ---- long-form body: the "spec sheet" reader ----
+     Plex Sans body capped at ~62ch; h2s become numbered (// 01) section labels.
+     When the window is wide enough they float into a left gutter like a
+     datasheet; narrow windows stack them above the text instead. */
+  .article-prose {
+    container-type: inline-size;
+    counter-reset: h2;
+    font: 400 16px/1.7 var(--font-body);
+    color: rgb(var(--ink) / 0.92);
+  }
+  .article-prose > * {
+    max-width: 62ch;
+  }
   .article-prose > :first-child {
     margin-top: 0;
   }
+  .article-prose h1 {
+    @apply mb-2 font-display text-[30px] font-semibold leading-tight;
+    color: rgb(var(--heading));
+    text-shadow: 0 0 14px rgb(var(--cyan) / 0.25);
+  }
+  .article-prose h1 + p {
+    @apply mb-6 text-muted;
+  }
+  .article-prose h2 {
+    counter-increment: h2;
+    @apply mb-3 mt-8 font-display text-[13px] font-semibold uppercase tracking-[0.1em] text-cyan;
+  }
+  .article-prose h2::before {
+    content: '// ' counter(h2, decimal-leading-zero);
+    @apply mb-1 block font-mono text-[12px] font-medium tracking-[0.05em] text-accent;
+  }
+  .article-prose h3 {
+    @apply mb-2 mt-6 font-display text-[13px] font-semibold uppercase tracking-[0.16em] text-cyan;
+  }
+  .article-prose p {
+    @apply mb-3.5;
+  }
+  .article-prose strong {
+    @apply font-semibold;
+    color: rgb(var(--heading));
+  }
+  .article-prose ul,
+  .article-prose ol {
+    @apply mb-3.5 list-none p-0;
+  }
+  .article-prose li {
+    @apply relative mb-1.5 pl-[26px];
+  }
+  .article-prose ul > li::before {
+    content: '▸';
+    @apply absolute left-1.5 text-accent;
+  }
+  .article-prose ol {
+    counter-reset: li;
+  }
+  .article-prose ol > li {
+    counter-increment: li;
+  }
+  .article-prose ol > li::before {
+    content: counter(li, decimal-leading-zero);
+    @apply absolute left-0 top-[0.2em] font-mono text-[12px] font-medium text-accent;
+  }
+  .article-prose li > ul,
+  .article-prose li > ol {
+    @apply mb-0 mt-1.5;
+  }
+  .article-prose blockquote {
+    @apply my-5 border-l-2 border-accent px-3.5 py-2;
+    background: linear-gradient(90deg, rgb(var(--accent) / 0.07), transparent 70%);
+  }
+  .article-prose blockquote::before {
+    content: 'NOTE ▸';
+    @apply mb-1 block font-mono text-[11px] font-semibold tracking-[0.14em] text-accent;
+  }
+  .article-prose blockquote > :last-child {
+    @apply mb-0;
+  }
+  .article-prose hr {
+    @apply my-8 h-[9px] border-0;
+    max-width: none;
+    background:
+      linear-gradient(rgb(var(--cyan) / 0.7), rgb(var(--cyan) / 0.7)) center / 1px 9px no-repeat,
+      linear-gradient(
+          90deg,
+          transparent,
+          rgb(var(--border)) 20%,
+          rgb(var(--border)) 80%,
+          transparent
+        )
+        center / 100% 1px no-repeat;
+  }
+  .article-prose code {
+    @apply bg-cyan/[0.07] px-1 font-mono text-[0.86em] font-medium text-cyan;
+  }
+  .article-prose pre {
+    @apply my-5 overflow-auto border border-line bg-surface-2/60 px-3 py-2.5 font-mono text-meta leading-relaxed;
+  }
   .article-prose pre code {
-    @apply border-0 bg-transparent p-0;
+    @apply bg-transparent p-0 text-ink;
+  }
+  /* markdown images: reticle corners, like the city icons */
+  .article-figure {
+    @apply relative my-5 block p-1.5;
+  }
+  .article-figure::after {
+    content: '';
+    @apply pointer-events-none absolute inset-0 border border-accent/80;
+    -webkit-mask: conic-gradient(at 14px 14px, transparent 75%, #000 0) 0 0 / calc(100% - 14px)
+      calc(100% - 14px);
+    mask: conic-gradient(at 14px 14px, transparent 75%, #000 0) 0 0 / calc(100% - 14px)
+      calc(100% - 14px);
+  }
+
+  /* wide window: h2s float into a 150px gutter and the text column is pushed
+     past it (a container query styles descendants, so the offset goes on the
+     children); h1, its subtitle and rules span the full width */
+  @container (min-width: 640px) {
+    .article-prose > * {
+      margin-left: 174px;
+    }
+    .article-prose > h1,
+    .article-prose > h1 + p,
+    .article-prose > hr {
+      margin-left: 0;
+    }
+    .article-prose > h2 {
+      float: left;
+      clear: left;
+      width: 150px;
+      margin: 0.3em 0 0;
+      padding-right: 12px;
+      border-right: 1px solid rgb(var(--cyan) / 0.4);
+      text-align: right;
+    }
+    .article-prose > h2 ~ h2 {
+      margin-top: 2.2em;
+    }
+    .article-prose > h2 + * {
+      margin-top: 0;
+    }
   }
 
   /* ---- shared list card + pill ---- */
@@ -214,11 +363,11 @@
     @apply my-3.5;
   }
   .media-img {
-    @apply block w-full rounded-tile border-2 border-line;
+    @apply block w-full border border-line;
     box-shadow: var(--shadow-soft);
   }
   .media-caption {
-    @apply mt-1.5 text-center text-meta italic text-muted;
+    @apply mt-1.5 font-mono text-[11.5px] tracking-[0.06em] text-muted;
   }
   .media-gallery {
     @apply my-3.5 grid gap-2;
