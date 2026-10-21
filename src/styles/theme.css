@@ -26,6 +26,8 @@
   --cyan: 25 225 255; /* instrument cyan — title bars, HUD text */
   --accent-2: 92 222 142; /* green — "ok" */
   --accent-3: 255 110 80; /* coral — warnings, the third chip colour */
+  --violet: 190 150 255; /* Thoughts topic: learning */
+  --pink: 255 120 190; /* Thoughts topic: health */
 
   /* ---- file-kind glyphs (File Explorer + Books page icons) ---- */
   --file-page: 200 214 220;

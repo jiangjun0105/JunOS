@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Thoughts — design proposals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  /* tokens copied from src/styles/theme.css */
+  :root {
+    --bg: 2 6 10; --surface: 9 14 17; --surface-2: 15 26 32;
+    --ink: 214 228 234; --muted: 138 160 170; --border: 36 88 102;
+    --accent: 255 178 63; --heading: 234 252 255; --cyan: 25 225 255;
+    --accent-2: 92 222 142; --accent-3: 255 110 80;
+    --chrome: 'Exo 2', sans-serif; --body: 'IBM Plex Sans', sans-serif; --mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: rgb(var(--bg)); color: rgb(var(--ink)); font-family: var(--body); }
+  .switch { display: flex; gap: 6px; justify-content: center; padding: 18px; font-family: var(--chrome); }
+  .switch button { background: none; border: 1px solid rgb(var(--border)); color: rgb(var(--muted)); padding: 6px 14px;
+    font: 600 13px var(--chrome); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+  .switch button.on { color: rgb(var(--accent)); border-color: rgb(var(--accent)); background: rgb(var(--accent) / .08); }
+  .note { text-align: center; color: rgb(var(--muted)); font-size: 14px; max-width: 760px; margin: 0 auto 16px; }
+
+  /* the OS window frame */
+  .win { width: 860px; max-width: calc(100vw - 32px); margin: 0 auto 60px; background: rgb(var(--surface));
+    border: 1px solid rgb(var(--cyan) / .5); box-shadow: 0 0 40px rgb(var(--cyan) / .2); }
+  .bar { display: flex; justify-content: space-between; padding: 7px 12px; border-bottom: 1px solid rgb(var(--border));
+    font: 600 12px var(--chrome); letter-spacing: .18em; color: rgb(var(--cyan)); text-transform: uppercase; }
+  .body { padding: 18px 20px; height: 640px; overflow: auto; }
+  .body::-webkit-scrollbar { width: 6px; } .body::-webkit-scrollbar-thumb { background: rgb(var(--border)); }
+  .pane { display: none; } .pane.on { display: block; }
+
+  h1 { font: 700 22px var(--body); color: rgb(var(--heading)); margin: 0 0 4px; }
+  .sub { color: rgb(var(--muted)); font-size: 16px; margin: 0 0 16px; line-height: 1.45; }
+  .label { font: 600 12px var(--chrome); letter-spacing: .16em; text-transform: uppercase; color: rgb(var(--cyan)); }
+  .mono { font-family: var(--mono); }
+  .t-CORE { --t: var(--accent); } .t-AI { --t: var(--cyan); } .t-BRAIN { --t: var(--accent-2); }
+  .t-LEARN { --t: 190 150 255; } .t-DECIDE { --t: var(--accent-3); } .t-HEALTH { --t: 255 120 190; }
+  .tag { font: 600 10.5px var(--chrome); letter-spacing: .14em; color: rgb(var(--t)); border: 1px solid rgb(var(--t) / .5);
+    padding: 1px 6px; white-space: nowrap; }
+
+  /* ---------- A: cognition log ---------- */
+  .log { font-family: var(--mono); font-size: 13px; border-top: 1px solid rgb(var(--border)); }
+  .row { display: grid; grid-template-columns: 74px 92px 1fr auto; gap: 12px; padding: 10px 6px; align-items: baseline;
+    border-bottom: 1px dashed rgb(var(--border) / .6); cursor: pointer; }
+  .row:hover { background: rgb(var(--surface-2)); }
+  .row:hover .ttl::before { content: '▸ '; color: rgb(var(--accent)); }
+  .ts { color: rgb(var(--muted)); } .idx { color: rgb(var(--cyan)); }
+  .ttl { font: 600 15px var(--body); color: rgb(var(--ink)); }
+  .sum { grid-column: 3 / 5; color: rgb(var(--muted)); font: 14px/1.45 var(--body); max-height: 0; overflow: hidden; transition: max-height .25s; }
+  .row:hover .sum, .row:focus .sum { max-height: 80px; }
+  .cursor { display: inline-block; width: 8px; height: 15px; background: rgb(var(--accent)); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- B: spine ---------- */
+  .spine { position: relative; padding: 4px 0 10px; }
+  .spine::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; transform: translateX(-1px);
+    background: linear-gradient(rgb(var(--accent)), rgb(var(--cyan) / .3)); }
+  .root.card { background: rgb(var(--surface)); }
+  .root { position: relative; z-index: 1; margin: 0 auto 26px; width: 420px; text-align: center; padding: 14px 16px;
+    background: rgb(var(--surface)); border: 1px solid rgb(var(--accent)); box-shadow: 0 0 24px rgb(var(--accent) / .25); }
+  .root .ttl { font-size: 18px; color: rgb(var(--heading)); }
+  .vert { position: relative; display: flex; margin: 0 0 14px; }
+  .vert .card { width: calc(50% - 34px); }
+  .vert.l { justify-content: flex-start; } .vert.r { justify-content: flex-end; }
+  .vert::after { content: ''; position: absolute; top: 22px; height: 1px; width: 34px; background: rgb(var(--t) / .7); }
+  .vert.l::after { left: calc(50% - 34px); } .vert.r::after { left: 50%; }
+  .vert::before { content: ''; position: absolute; left: 50%; top: 18px; width: 9px; height: 9px; transform: translateX(-50%) rotate(45deg);
+    background: rgb(var(--surface)); border: 1px solid rgb(var(--t)); z-index: 1; }
+  .card { background: rgb(var(--surface-2) / .6); border: 1px solid rgb(var(--border)); padding: 10px 12px; cursor: pointer; transition: border-color .15s; }
+  .card:hover { border-color: rgb(var(--t, var(--accent))); }
+  .card p { margin: 5px 0 0; color: rgb(var(--muted)); font-size: 13.5px; line-height: 1.45; }
+  .head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+
+  /* ---------- B2: tinted fills ---------- */
+  .fill .card { border: 0; background: linear-gradient(135deg, rgb(var(--t) / .16), rgb(var(--t) / .04)); }
+  .fill .card:hover { background: linear-gradient(135deg, rgb(var(--t) / .28), rgb(var(--t) / .08)); }
+  .fill .card .ttl { color: rgb(var(--heading)); }
+  .fill .tag { border: 0; background: rgb(var(--t) / .2); }
+  .fill .card .code2 { color: rgb(var(--t)); font: 500 11px var(--mono); margin-top: 6px; }
+  .fill .root.card { background: radial-gradient(circle at 50% 0, rgb(var(--accent) / .35), rgb(var(--accent) / .06) 70%), rgb(var(--surface)); box-shadow: 0 0 30px rgb(var(--accent) / .2); }
+  .fill .vert::before { transform: translateX(-50%); background: rgb(var(--t)); border: 0; box-shadow: 0 0 8px rgb(var(--t)); }
+
+  /* ---------- B3: colour wash from the spine ---------- */
+  .wash .card { border: 0; background: rgb(var(--surface-2) / .4); position: relative; overflow: hidden; }
+  .wash .vert.l .card { background: linear-gradient(to left, rgb(var(--t) / .30), rgb(var(--t) / 0) 75%); text-align: right; }
+  .wash .vert.r .card { background: linear-gradient(to right, rgb(var(--t) / .30), rgb(var(--t) / 0) 75%); }
+  .wash .vert.l .head { flex-direction: row-reverse; }
+  .wash .card:hover { filter: brightness(1.35); }
+  .wash .card .ttl { color: rgb(var(--t)); font-size: 16px; }
+  .wash .tag { border: 0; color: rgb(var(--muted)); padding: 0; }
+  .wash .vert::after { display: none; }
+  .wash .vert.l .card { width: 50%; } .wash .vert.r .card { width: 50%; }
+  .wash .vert::before { width: 12px; height: 12px; border: 0; background: rgb(var(--t)); box-shadow: 0 0 12px rgb(var(--t)); }
+  .wash .root.card { background: radial-gradient(ellipse at 50% 100%, rgb(var(--accent) / .4), rgb(var(--accent) / 0) 70%), rgb(var(--surface)); text-align: center; }
+  .wash .root .ttl { color: rgb(var(--heading)); font-size: 20px; }
+  .spine.wash::before { width: 3px; background: linear-gradient(rgb(var(--accent)), rgb(var(--cyan)), rgb(var(--accent-2)), rgb(var(--accent-3))); opacity: .7; }
+
+  /* ---------- C: map ---------- */
+  .mapwrap { display: grid; grid-template-columns: 1fr 260px; gap: 14px; }
+  svg text { font-family: var(--chrome); }
+  .node { cursor: pointer; } .node circle { transition: r .15s; }
+  .node:hover circle.dot, .node.sel circle.dot { r: 9; }
+  .readout { border: 1px solid rgb(var(--cyan) / .5); padding: 14px; position: relative; align-self: start; min-height: 260px; }
+  .readout::before, .readout::after { content: ''; position: absolute; width: 12px; height: 12px; border: 2px solid rgb(var(--accent)); }
+  .readout::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+  .readout::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+  .readout .ttl { display: block; margin: 8px 0 6px; font-size: 17px; color: rgb(var(--heading)); }
+  .readout p { color: rgb(var(--muted)); font-size: 14px; line-height: 1.5; }
+  .btn { font: 700 14px var(--body); color: rgb(var(--ink)); background: rgb(var(--accent) / .1); border: 1px solid rgb(var(--border)); padding: 5px 12px; cursor: pointer; }
+  .btn:hover { background: rgb(var(--accent) / .2); }
+
+  /* ---------- D: memory banks ---------- */
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filters .tag { cursor: pointer; padding: 3px 9px; background: none; }
+  .filters .tag.on { background: rgb(var(--t) / .15); }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tile { position: relative; background: rgb(var(--surface-2) / .5); border: 1px solid rgb(var(--border)); padding: 12px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 6px; min-height: 150px; transition: border-color .15s, opacity .2s; }
+  .tile:hover { border-color: rgb(var(--t)); box-shadow: inset 0 0 22px rgb(var(--t) / .08); }
+  .tile.big { grid-column: span 2; min-height: 0; background: rgb(var(--accent) / .05); border-color: rgb(var(--accent) / .6); }
+  .tile.big .ttl { font-size: 22px; color: rgb(var(--heading)); }
+  .tile.dim { opacity: .2; }
+  .tile .code { font: 500 11px var(--mono); color: rgb(var(--muted)); display: flex; justify-content: space-between; }
+  .tile p { margin: 0; color: rgb(var(--muted)); font-size: 13.5px; line-height: 1.45; }
+  .tile .meter { margin-top: auto; height: 3px; background: rgb(var(--border) / .5); }
+  .tile .meter i { display: block; height: 100%; background: rgb(var(--t)); }
+</style>
+</head>
+<body>
+<div class="switch" id="switch"></div>
+<p class="note" id="note"></p>
+<div class="win">
+  <div class="bar"><span>◎ Thoughts</span><span id="barR"></span></div>
+  <div class="body">
+    <section class="pane" id="A"></section>
+    <section class="pane" id="B"></section>
+    <section class="pane" id="C"></section>
+    <section class="pane" id="D"></section>
+    <section class="pane" id="B2"></section>
+    <section class="pane" id="B3"></section>
+  </div>
+</div>
+
+<script>
+// Data from refactor/audit-cleanup:src/content/thoughts/index.ts (hand order). Topic + read time are new, proposed metadata.
+const T = [
+  ['bottom-up','Bottom-Up','2026-09-03','CORE',6,'The one idea under everything I build — the harness, the brain, how I learn, even how I train. Start from a working model; extend one verified step at a time.'],
+  ['agile-survives-the-agents','Agile Survives the Agents','2026-09-05','AI',7,"Someone has to gather requirements from every stakeholder and translate them for the agent. That proxy role is the next programmer — and it's why development stays Agile."],
+  ['20-watts-vs-megawatts','20 Watts of Carbon vs. Megawatts of Silicon','2026-09-05','BRAIN',8,'Backprop is biologically impossible; local rules, growing networks, and learning-during-inference are the way out of the current local minimum.'],
+  ['will-ai-replace-programmers','Will AI Replace Programmers?','2026-09-04','AI',6,'Ask what happened to the human computers and the hand coders. The job vanishes; the role transforms — and an all-AI company needs a different architecture.'],
+  ['build-for-the-next-model','Build for the Next Model, Not This One','2026-09-03','AI',5,"Why I stopped building a repo-understanding tool, and the line between tools that compensate for a model's weakness and tools that give it a body."],
+  ['learning-by-asking','Learning by Asking','2026-09-03','LEARN',4,'Conversation with AI is how I learn now. Knowledge must attach to what you already know; islands vanish.'],
+  ['chemistry-is-the-optimizer','Chemistry Is the Optimizer','2026-09-04','BRAIN',6,'Reward chemistry is what rewires a brain; "emotion" is our name for its effect on the body. A reward function does the same job in a robot.'],
+  ['why-im-optimistic-about-ai',"Why I'm Optimistic About the AI Revolution",'2026-09-03','AI',5,'Every productivity leap frees humans for creative work. AI is the next one, and it will move faster than we did because it inherits across generations.'],
+  ['face-reality','Face Reality','2026-09-03','DECIDE',5,"Dalio's first principle — seek truth from facts — in three layers, and the post-mortem habit it gave me."],
+  ['which-layer-is-the-limit','Which Layer Is the Limit?','2026-10-20','BRAIN',6,'First principles as a hierarchy: is the limit math, information, physics, or biology — or one we chose? A fixed network architecture is the last kind.'],
+  ['the-body-is-one-system','The Body Is One System','2026-09-03','HEALTH',5,'What a desk worker actually needs from the gym: not one big muscle, but the whole chain assembled right. Posture is a productivity issue.'],
+].map(([slug,title,date,topic,min,summary],i)=>({slug,title,date,topic,min,summary,code:'TH-'+String(i).padStart(2,'0')}))
+const TOPIC = { CORE:'Core', AI:'AI · Work', BRAIN:'Brains', LEARN:'Learning', DECIDE:'Decisions', HEALTH:'Health' }
+const SUB = 'Essays on coding with AI, next-generation models, learning, health, and how I make decisions. They share one spine — start from something that works and extend it.'
+const tag = t => `<span class="tag t-${t.topic}">${TOPIC[t.topic].toUpperCase()}</span>`
+const open = t => alert('openApp("thoughts", { slug: "' + t.slug + '" })')
+const [core, ...rest] = T
+
+const P = {
+  A: { name: 'A · Cognition log', bar: 'LOG · 11 ENTRIES', note: 'The robot’s internal monologue: a dense, timestamped log. Hover/focus a line to unfold its summary. Cheapest to build — a restyled list.',
+    html: () => `<h1>Thoughts</h1><p class="sub">${SUB}</p>
+      <div class="label" style="margin-bottom:6px">// cognition.log — read top to bottom</div>
+      <div class="log">${T.map(t=>`<div class="row t-${t.topic}" tabindex="0" data-s="${t.slug}">
+        <span class="ts">${t.date.slice(5).replace('-','.')}</span><span class="idx">[${t.code}]</span>
+        <span class="ttl">${t.title}</span>${tag(t)}<div class="sum">${t.summary} <span class="mono" style="color:rgb(var(--cyan))">· ${t.min} min</span></div></div>`).join('')}
+      </div><p class="mono" style="color:rgb(var(--muted));font-size:13px">&gt; awaiting next thought <span class="cursor"></span></p>` },
+  B: { name: 'B · The spine', bar: 'ROOT · BOTTOM-UP', note: 'Makes the intro’s claim literal: Bottom-Up is the root, every other essay hangs off one spine, in reading order. Diamond node colour = topic.',
+    html: () => `<h1>Thoughts</h1><p class="sub">${SUB}</p><div class="spine">
+      <div class="root card t-CORE" data-s="${core.slug}"><div class="label" style="color:rgb(var(--accent))">${core.code} · start here</div>
+        <div class="ttl" style="margin-top:4px">${core.title}</div><p>${core.summary}</p></div>
+      ${rest.map((t,i)=>`<div class="vert ${i%2?'r':'l'} t-${t.topic}"><div class="card" data-s="${t.slug}">
+        <div class="head"><span class="ttl">${t.title}</span>${tag(t)}</div><p>${t.summary}</p>
+        <div class="mono" style="font-size:11px;color:rgb(var(--muted));margin-top:6px">${t.code} · ${t.date} · ${t.min} MIN</div></div></div>`).join('')}
+      </div>` },
+  B2: { name: 'B2 · Tinted', bar: 'ROOT · BOTTOM-UP', note: 'B with no outlines: each card is filled with a soft gradient of its topic colour; spine nodes glow.',
+    html: () => `<h1>Thoughts</h1><p class="sub">${SUB}</p><div class="spine fill">
+      <div class="root card t-CORE" data-s="${core.slug}"><div class="label" style="color:rgb(var(--accent))">${core.code} · start here</div>
+        <div class="ttl" style="margin-top:4px">${core.title}</div><p>${core.summary}</p></div>
+      ${rest.map((t,i)=>`<div class="vert ${i%2?'r':'l'} t-${t.topic}"><div class="card" data-s="${t.slug}">
+        <div class="head"><span class="ttl">${t.title}</span>${tag(t)}</div><p>${t.summary}</p>
+        <div class="code2 mono" style="font-size:11px;margin-top:6px">${t.code} · ${t.date} · ${t.min} MIN</div></div></div>`).join('')}
+      </div>` },
+  B3: { name: 'B3 · Wash', bar: 'ROOT · BOTTOM-UP', note: 'B with colour washing out from the spine: cards fade from topic colour at the spine to nothing, titles in topic colour, a multicolour spine.',
+    html: () => `<h1>Thoughts</h1><p class="sub">${SUB}</p><div class="spine wash">
+      <div class="root card t-CORE" data-s="${core.slug}"><div class="label" style="color:rgb(var(--accent))">${core.code} · start here</div>
+        <div class="ttl" style="margin-top:4px">${core.title}</div><p>${core.summary}</p></div>
+      ${rest.map((t,i)=>`<div class="vert ${i%2?'r':'l'} t-${t.topic}"><div class="card" data-s="${t.slug}">
+        <div class="head"><span class="ttl">${t.title}</span>${tag(t)}</div><p>${t.summary}</p>
+        <div class="code2 mono" style="font-size:11px;margin-top:6px;color:rgb(var(--muted))">${t.code} · ${t.date} · ${t.min} MIN</div></div></div>`).join('')}
+      </div>` },
+  C: { name: 'C · Thought map', bar: 'MAP · 5 CLUSTERS', note: 'A radar of ideas: Bottom-Up at the centre, essays orbit by topic. Click a node — the bracketed readout (like the About callout) shows it. Most “robot vision”, least scannable.',
+    html: () => {
+      const W=520,H=520,cx=W/2,cy=H/2, groups=['AI','BRAIN','LEARN','DECIDE','HEALTH']
+      let nodes='',links='',labels=''
+      groups.forEach((g,gi)=>{
+        const a0=-Math.PI/2+gi*2*Math.PI/groups.length, items=rest.filter(t=>t.topic===g)
+        const lx=cx+Math.cos(a0)*235, ly=cy+Math.sin(a0)*235
+        labels+=`<text x="${lx}" y="${ly}" text-anchor="middle" font-size="11" letter-spacing="2" fill="rgb(var(--muted))">${TOPIC[g].toUpperCase()}</text>`
+        items.forEach((t,k)=>{
+          const a=a0+(k-(items.length-1)/2)*0.42, r=150+(k%2)*35, x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r
+          links+=`<path d="M${cx} ${cy}L${x} ${y}" stroke="rgb(var(--cyan) / .25)" stroke-dasharray="3 4"/>`
+          nodes+=`<g class="node t-${g}" data-s="${t.slug}"><circle cx="${x}" cy="${y}" r="16" fill="none" stroke="rgb(var(--t) / .3)"/>
+            <circle class="dot" cx="${x}" cy="${y}" r="6" fill="rgb(var(--t))"/>
+            <text x="${x}" y="${y+30}" text-anchor="middle" font-size="10.5" fill="rgb(var(--ink))">${t.code}</text></g>`
+        })
+      })
+      const rings=[70,150,185].map(r=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgb(var(--border) / .6)"/>`).join('')
+      return `<h1>Thoughts</h1><p class="sub">${SUB}</p><div class="mapwrap">
+        <svg viewBox="0 0 ${W} ${H}" width="100%">${rings}
+          <path d="M${cx-250} ${cy}H${cx+250}M${cx} ${cy-250}V${cy+250}" stroke="rgb(var(--border) / .35)"/>${links}${labels}${nodes}
+          <g class="node t-CORE" data-s="${core.slug}"><circle cx="${cx}" cy="${cy}" r="30" fill="rgb(var(--accent) / .08)" stroke="rgb(var(--accent))"/>
+          <circle class="dot" cx="${cx}" cy="${cy}" r="7" fill="rgb(var(--accent))"/>
+          <text x="${cx}" y="${cy+48}" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="2" fill="rgb(var(--accent))">BOTTOM-UP</text></g>
+        </svg><div class="readout" id="readout"></div></div>`
+    } },
+  D: { name: 'D · Memory banks', bar: 'BANKS · FILTER', note: 'A tiled grid with topic filters; Bottom-Up gets the large featured tile. The meter shows read time. Best for skimming as the list grows.',
+    html: () => `<h1>Thoughts</h1><p class="sub">${SUB}</p>
+      <div class="filters"><span class="tag t-CORE on" data-f="ALL" style="--t:var(--ink)">ALL</span>${Object.keys(TOPIC).filter(k=>k!=='CORE').map(k=>`<span class="tag t-${k}" data-f="${k}">${TOPIC[k].toUpperCase()}</span>`).join('')}</div>
+      <div class="grid">${T.map((t,i)=>`<div class="tile t-${t.topic} ${i?'':'big'}" data-s="${t.slug}" data-t="${t.topic}">
+        <div class="code"><span>${t.code}</span><span>${t.date}</span></div>
+        <span class="ttl">${t.title}</span>${i?'':'<span class="label" style="color:rgb(var(--accent))">the spine — start here</span>'}<p>${t.summary}</p>
+        <div class="code"><span>${tag(t)}</span><span>${t.min} MIN</span></div><div class="meter"><i style="width:${t.min*12}%"></i></div></div>`).join('')}</div>` },
+}
+
+function show(k) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === k))
+  document.querySelectorAll('#switch button').forEach(b => b.classList.toggle('on', b.dataset.k === k))
+  document.getElementById('note').textContent = P[k].note
+  document.getElementById('barR').textContent = P[k].bar
+  location.hash = k
+}
+function readout(t) {
+  document.querySelectorAll('.node').forEach(n => n.classList.toggle('sel', n.dataset.s === t.slug))
+  document.getElementById('readout').innerHTML = `<div class="label">${t.code} · ${t.date}</div><span class="ttl">${t.title}</span>${tag(t)}
+    <p>${t.summary}</p><button class="btn" data-s="${t.slug}" data-go>Read · ${t.min} min →</button>`
+}
+for (const k in P) {
+  document.getElementById(k).innerHTML = P[k].html()
+  document.getElementById('switch').insertAdjacentHTML('beforeend', `<button data-k="${k}">${P[k].name}</button>`)
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#switch button'); if (b) return show(b.dataset.k)
+  const f = e.target.closest('[data-f]')
+  if (f) {
+    document.querySelectorAll('[data-f]').forEach(x => x.classList.toggle('on', x === f))
+    document.querySelectorAll('.tile').forEach(x => x.classList.toggle('dim', f.dataset.f !== 'ALL' && x.dataset.t !== f.dataset.f && x.dataset.t !== 'CORE'))
+    return
+  }
+  const s = e.target.closest('[data-s]'); if (!s) return
+  const t = T.find(x => x.slug === s.dataset.s)
+  if (s.classList.contains('node')) readout(t); else open(t)
+})
+readout(core)
+show(location.hash.slice(1) in P ? location.hash.slice(1) : 'A')
+</script>
+</body>
+</html>
