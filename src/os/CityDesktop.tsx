@@ -34,7 +34,7 @@ const openShift = (W: number) => (W - openRect(W, 0).x) / 2 // centres the landm
 const deg = (v: number) => Math.abs(v).toFixed(4) + '°'
 
 export function CityDesktop() {
-  const { win, openApp, close } = useWindows()
+  const { win, openApp, close, canGoBack, back } = useWindows()
   const rootRef = useRef<HTMLDivElement>(null)
   const winRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -150,6 +150,11 @@ export function CityDesktop() {
         tabIndex={-1}
       >
         <div className="w3t">
+          {win && canGoBack && (
+            <button type="button" className="w3x w3back" aria-label="Back" onClick={back}>
+              ‹ BACK
+            </button>
+          )}
           <span>
             {name}.MD{win ? '' : ' · PREVIEW'}
           </span>

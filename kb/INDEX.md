@@ -1,6 +1,6 @@
 ---
 title: Knowledge base index
-updated: 2026-09-05
+updated: 2026-10-20
 ---
 
 One paragraph per file. This is the map for the site build and for the Call Me agent. `raw/` holds Jun's verbatim words (ground truth); `refined/` holds the organized versions; `agent/` holds what gets uploaded to ElevenLabs.
@@ -29,20 +29,21 @@ One paragraph per file. This is the map for the site build and for the Call Me a
 
 # Books (refined/books/)
 
-- **INDEX.md** — Six one-paragraph recommendations, each linked to the essay it fed: The Tell-Tale Brain, Einstein biography, Guns Germs and Steel, Foundation, Descartes' Error, Principles. Individual files hold the same text with metadata.
+- **INDEX.md** — Eight one-paragraph recommendations, each linked to the essay it fed: The Tell-Tale Brain, Einstein biography, Guns Germs and Steel, Foundation, Descartes' Error, Principles, Elon Musk (Isaacson), 信息传 (Wu Jun). Individual files hold the same text with metadata.
 
 # Thoughts (refined/thoughts/)
 
-- **INDEX.md** — Ten essays with one-line summaries.
+- **INDEX.md** — Eleven essays with one-line summaries.
 - **bottom-up.md** — The spine: start from what works, extend one verified step at a time (harness, brain, learning, body).
 - **agile-survives-the-agents.md** — The programmer as the agent's proxy to every stakeholder; why AI coding stays Agile, not Waterfall.
-- **20-watts-vs-megawatts.md** — Polished from Jun's site draft: backprop is biologically impossible; STDP, structural plasticity, in-situ adaptation, the neuromorphic CUDA moment.
+- **20-watts-vs-megawatts.md** — Polished from Jun's site draft: backprop is biologically impossible; STDP, structural plasticity, in-situ adaptation, the neuromorphic CUDA moment; an information-theory case (from 信息传) that global updates can't match local ones for learning efficiency.
 - **will-ai-replace-programmers.md** — Human computers and hand coders vanished; programming transformed; the AI coding operator; why an all-AI company needs a different architecture.
 - **build-for-the-next-model.md** — Tools that compensate for a weakness vs. tools that give the model a body; the Bitter Lesson; creativity as the new bottleneck.
 - **learning-by-asking.md** — Asking vs. following a course; how to read a paper; no enclaves.
 - **chemistry-is-the-optimizer.md** — Reward chemistry rewires brains; emotion is the label; reward functions do the same in robots; alignment can't be rules on top.
 - **why-im-optimistic-about-ai.md** — Productivity frees humans for creative work; work may become optional; cross-generational accumulation.
 - **face-reality.md** — 实事求是 in three layers; the post-mortem habit.
+- **which-layer-is-the-limit.md** — From the Musk biography: first principles as a hierarchy (math → information → physics → biology); a fixed network architecture is a limit we chose; curiosity as more levels to check.
 - **the-body-is-one-system.md** — Functional fitness over bodybuilding; the flat-foot chain; posture as productivity.
 
 # Agent (agent/)

@@ -2,9 +2,9 @@
 title: 20 Watts of Carbon vs. Megawatts of Silicon
 section: thoughts
 tags: [snn, backpropagation, stdp, local-learning, structural-plasticity, neuromorphic, compute-in-memory, catastrophic-forgetting, next-generation-models]
-sources: [src/content/thoughts/20-watts-vs-megawatts.mdx (Jun's original draft), raw/2026-09-05-harness-day-and-agent-proxy.md]
-related: [research/why-biology.md, research/structure-over-weights.md, research/snn-overview.md, thoughts/chemistry-is-the-optimizer.md]
-updated: 2026-09-05
+sources: [src/content/thoughts/20-watts-vs-megawatts.mdx (Jun's original draft), raw/2026-09-05-harness-day-and-agent-proxy.md, raw/2026-10-20-books-xinxizhuan.md]
+related: [research/why-biology.md, research/structure-over-weights.md, research/snn-overview.md, thoughts/chemistry-is-the-optimizer.md, books/xinxizhuan.md]
+updated: 2026-10-20
 status: draft
 note: Polished from Jun's existing site draft. Argument unchanged; claims tightened (STDP timescale, "forward pass is backward pass", state of evidence), and explicitly tied to the three-stage research plan.
 ---
@@ -35,6 +35,12 @@ Spike-timing-dependent plasticity (STDP):
 ```
 
 What the brain has instead is purely local rules. The best-known is STDP: a synapse changes based on the millisecond-scale timing between its own input and its neuron's output. A neuron doesn't know what a loss function is. It only sees its neighbors, and it strengthens the connections that predicted its own firing. Local, no overhead, and it discovers causal structure as a side effect.
+
+# Counting the information
+
+Wu Jun's 信息传 (The Biography of Information) gave me another way to see the same gap. Both kinds of network do the same basic thing: they move the information in the data into the network. The difference is where it lands. Backpropagation adjusts the weights globally, so it needs a lot of data. A brain uses dopamine-based local updates: given the same amount of information, it updates only a very small local area. That is why I think learning by backpropagation can't be as efficient as the biological way.
+
+And the information never stops. Images stream into our eyes; touch sensors, the body, the joints all send information in, 24/7. That is one of the fundamental reasons I believe we have to invent something other than backpropagation — at least, the current globally optimizing version of it can't give us really high learning efficiency.
 
 # Grow as you learn
 

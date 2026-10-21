@@ -100,27 +100,6 @@
     @apply font-body text-sm font-bold uppercase tracking-wide text-muted;
   }
 
-  /* ---- book cover thumbnail (Books app) ----
-     A small paperback on the left of each card: fixed 64×96 so the text columns
-     line up, an ink outline and the soft glow like every other framed image
-     here (see .media-img), and a little lift on hover since it's a link out to
-     Goodreads. */
-  .book-cover {
-    @apply block h-24 w-16 flex-none overflow-hidden rounded-[3px] border border-line bg-surface-2;
-    box-shadow: var(--shadow-soft);
-    transition: transform 0.12s ease;
-  }
-  .book-cover:hover {
-    transform: translateY(-2px);
-  }
-  .book-cover:focus-visible {
-    outline: 2px solid rgb(var(--accent));
-    outline-offset: 2px;
-  }
-  .book-cover img {
-    @apply h-full w-full object-cover;
-  }
-
   /* ---- inline action button ("Read the full story →"), accent-tinted ---- */
   .os-action-btn {
     @apply rounded-btn border border-line bg-accent/10 px-3 py-1 text-sm font-bold text-ink transition-colors;
@@ -666,6 +645,532 @@ button.about-co:focus-visible {
     border-left: 0;
     border-top: 1px solid rgb(var(--cyan) / 0.18);
   }
+}
+
+/* ============================================================================
+   Books window (src/components/windows/BooksWindow.tsx): "Engrams". Books are
+   input neurons (cover in a reticle ring), essays are output neurons; synapses
+   carry pulses. The readout dock on the right shows a spike raster, or Jun's
+   take on a scanlined screen behind an amber leader line. Positions come from
+   engrams.ts; below 640px of stage width it folds into a grid (.eng-narrow).
+   ============================================================================ */
+.eng-k {
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 14px;
+  color: rgb(var(--cyan) / 0.55);
+}
+.eng-sub {
+  font: 500 11px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+/* the stage takes whatever height the window has left, so the footer line sits at the bottom */
+.eng {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.eng-stage {
+  position: relative;
+  flex: 1;
+  min-height: 560px;
+  margin-top: 14px;
+}
+.eng-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.eng-cap {
+  position: absolute;
+  top: 0;
+  font: 600 9px var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgb(var(--cyan) / 0.55);
+}
+.eng-cap::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin-top: 4px;
+  background: linear-gradient(90deg, rgb(var(--cyan) / 0.4), transparent);
+}
+
+/* synapses, dendrites, pulses, the leader line */
+.eng-syn {
+  fill: none;
+  stroke: rgb(var(--cyan) / 0.32);
+  stroke-width: 1;
+  transition:
+    stroke 0.25s,
+    opacity 0.25s;
+}
+.eng-syn.bb {
+  stroke: rgb(var(--cyan) / 0.16);
+  stroke-dasharray: 2 4;
+}
+.eng-syn.on {
+  stroke: rgb(var(--accent) / 0.85);
+  stroke-width: 1.4;
+}
+.eng-dend {
+  fill: none;
+  stroke: rgb(var(--cyan) / 0.35);
+  stroke-linecap: round;
+  transition:
+    stroke 0.25s,
+    opacity 0.25s;
+}
+.eng-dend.on {
+  stroke: rgb(var(--accent) / 0.7);
+}
+.has-on .eng-syn:not(.on) {
+  opacity: 0.18;
+}
+.has-on .eng-dend:not(.on) {
+  opacity: 0.2;
+}
+/* glow is a stroke halo, not a filter: filtered SVG repaints every frame */
+.eng-pulse {
+  fill: rgb(var(--heading));
+  stroke: rgb(var(--cyan) / 0.35);
+  stroke-width: 4;
+}
+.eng-pulse.a {
+  fill: #fff3dc;
+  stroke: rgb(var(--accent) / 0.4);
+}
+.eng-lead {
+  fill: none;
+  stroke: rgb(var(--accent) / 0.85);
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: eng-draw 0.45s ease-out forwards;
+}
+.eng-lead-dot {
+  fill: rgb(var(--accent));
+}
+@keyframes eng-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* book neurons: reticle ring + 4 ticks around the cover */
+.eng-neuron {
+  all: unset;
+  position: absolute;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+  transition: opacity 0.25s;
+}
+.eng-ring {
+  position: absolute;
+  left: -36px;
+  top: -36px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--cyan) / 0.75);
+  box-shadow:
+    0 0 14px rgb(var(--cyan) / 0.25),
+    inset 0 0 10px rgb(var(--cyan) / 0.2);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.15s;
+}
+.eng-ring::before,
+.eng-ring::after,
+.eng-ring i::before,
+.eng-ring i::after {
+  content: '';
+  position: absolute;
+  background: rgb(var(--cyan) / 0.9);
+}
+.eng-ring::before,
+.eng-ring::after {
+  left: 50%;
+  width: 1px;
+  height: 8px;
+}
+.eng-ring::before {
+  top: -6px;
+}
+.eng-ring::after {
+  bottom: -6px;
+}
+.eng-ring i::before,
+.eng-ring i::after {
+  top: 50%;
+  width: 8px;
+  height: 1px;
+}
+.eng-ring i::before {
+  left: -6px;
+}
+.eng-ring i::after {
+  right: -6px;
+}
+.eng-ring img {
+  position: absolute;
+  inset: 6px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: saturate(0.55) brightness(0.85) sepia(0.2) hue-rotate(150deg);
+  transition: filter 0.2s;
+}
+.eng-lab {
+  position: absolute;
+  top: 44px;
+  left: -80px;
+  width: 160px;
+  text-align: center;
+  pointer-events: none;
+}
+.eng-t {
+  display: block;
+  font: 600 9.5px/1.35 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--heading));
+}
+.eng-hz {
+  display: block;
+  margin-top: 2px;
+  font: 500 8.5px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+.eng-id {
+  position: absolute;
+  left: 30px;
+  top: -44px;
+  font: 500 8.5px var(--font-mono);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: rgb(var(--cyan) / 0.6);
+  pointer-events: none;
+}
+.eng-neuron.fire .eng-ring {
+  border-color: rgb(var(--heading));
+  box-shadow:
+    0 0 26px rgb(var(--cyan) / 0.7),
+    inset 0 0 16px rgb(var(--cyan) / 0.5);
+}
+.eng-neuron.on .eng-ring {
+  border-color: rgb(var(--accent));
+  box-shadow:
+    0 0 28px rgb(var(--accent) / 0.55),
+    inset 0 0 14px rgb(var(--accent) / 0.35);
+}
+.eng-neuron.on .eng-ring::before,
+.eng-neuron.on .eng-ring::after,
+.eng-neuron.on .eng-ring i::before,
+.eng-neuron.on .eng-ring i::after {
+  background: rgb(var(--accent));
+}
+.eng-neuron.on img {
+  filter: none;
+}
+.eng-neuron.on .eng-t {
+  color: rgb(var(--accent));
+}
+.eng-neuron.on .eng-hz {
+  color: rgb(var(--accent) / 0.8);
+}
+.eng-neuron:focus-visible .eng-ring {
+  outline: 1px dashed rgb(var(--accent));
+  outline-offset: 10px;
+}
+.has-on .eng-neuron:not(.on),
+.has-on .eng-essay:not(.on) {
+  opacity: 0.28;
+}
+
+/* essays: output neurons, open the essay */
+.eng-essay {
+  all: unset;
+  position: absolute;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+  transition: opacity 0.25s;
+}
+.eng-dot {
+  position: absolute;
+  left: -11px;
+  top: -11px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--cyan) / 0.8);
+  background: radial-gradient(rgb(var(--cyan)) 0 3px, rgb(var(--cyan) / 0.15) 4px, transparent 9px);
+  box-shadow: 0 0 10px rgb(var(--cyan) / 0.3);
+  transition:
+    box-shadow 0.15s,
+    border-color 0.2s;
+}
+.eng-elab {
+  position: absolute;
+  left: -10px;
+  top: 18px;
+  width: 118px;
+  font: 500 9px/1.4 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--cyan));
+}
+.eng-elab span {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: rgb(var(--muted));
+}
+.eng-essay.fire .eng-dot {
+  border-color: rgb(var(--heading));
+  box-shadow:
+    0 0 22px rgb(var(--cyan)),
+    0 0 6px rgb(var(--heading));
+}
+.eng-essay.on .eng-dot {
+  border-color: rgb(var(--accent));
+  background: radial-gradient(
+    rgb(var(--accent)) 0 3px,
+    rgb(var(--accent) / 0.2) 4px,
+    transparent 9px
+  );
+  box-shadow: 0 0 18px rgb(var(--accent) / 0.7);
+}
+.eng-essay.on .eng-elab,
+.eng-essay:hover .eng-elab {
+  color: rgb(var(--accent));
+}
+.eng-essay:focus-visible .eng-dot {
+  outline: 1px dashed rgb(var(--accent));
+  outline-offset: 4px;
+}
+
+/* the readout dock: idle raster, or Jun's take */
+.eng-dock {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+}
+.eng-idle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 22px;
+  transition: opacity 0.2s;
+}
+.has-on .eng-idle {
+  opacity: 0;
+  visibility: hidden;
+}
+.eng-hd {
+  font: 600 9px var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--cyan) / 0.7);
+}
+.eng-msg {
+  font: 600 15px/1.3 var(--font-chrome);
+  letter-spacing: 0.04em;
+  color: rgb(var(--heading));
+}
+.eng-msg small {
+  display: block;
+  margin-top: 4px;
+  font: 500 10px/1.5 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+.eng-idle canvas {
+  width: 100%;
+  height: 210px;
+  border: 1px solid rgb(var(--cyan) / 0.25);
+  background: rgb(var(--bg) / 0.4);
+}
+.eng-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 14px;
+  font: 500 9.5px var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+.eng-stats b {
+  float: right;
+  font-weight: 600;
+  color: rgb(var(--cyan));
+}
+.eng-take-cap {
+  position: absolute;
+  left: 0;
+  font: 600 8.5px var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--accent));
+  animation: eng-in 0.2s 0.25s both;
+}
+/* an old screen: static scanlines over the take, which types out once and then sits still */
+.eng-take {
+  position: absolute;
+  left: 0;
+  width: 320px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgb(var(--accent) / 0.7);
+  background: radial-gradient(120% 90% at 50% 40%, rgb(8 26 32), rgb(2 8 11));
+  box-shadow:
+    inset 0 0 40px rgb(0 0 0 / 0.8),
+    0 0 24px rgb(var(--accent) / 0.2);
+  animation: eng-in 0.2s 0.25s both;
+}
+.eng-take::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.22) 0 1px, transparent 1px 3px);
+}
+.eng-take header {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+}
+.eng-take header img {
+  flex: none;
+  width: 46px;
+  height: 69px;
+  object-fit: cover;
+  border: 1px solid rgb(var(--cyan) / 0.5);
+}
+.eng-nm {
+  font: 700 15px/1.2 var(--font-chrome);
+  color: rgb(var(--heading));
+}
+.eng-au,
+.eng-tag {
+  margin-top: 3px;
+  font: 500 9.5px var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+.eng-tag {
+  margin-top: 5px;
+  color: rgb(var(--cyan));
+}
+.eng-lbl {
+  padding-top: 8px;
+  border-top: 1px solid rgb(var(--cyan) / 0.2);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--accent));
+}
+.eng-take p {
+  margin: 0;
+  font: 400 12.5px/1.55 var(--font-body);
+  color: rgb(var(--ink));
+  text-shadow: 0 0 6px rgb(var(--cyan) / 0.25);
+}
+.eng-take p .typing::after {
+  content: '▮';
+  margin-left: 2px;
+  color: rgb(var(--accent));
+  animation: eng-blink 0.6s steps(1) infinite;
+}
+.eng-rest {
+  visibility: hidden;
+}
+.eng-take footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.1em;
+}
+.eng-take footer button {
+  all: unset;
+  cursor: pointer;
+  color: rgb(var(--accent));
+}
+.eng-take footer a {
+  white-space: nowrap;
+  color: rgb(var(--muted));
+}
+.eng-take footer :is(button, a):is(:hover, :focus-visible) {
+  color: rgb(var(--heading));
+}
+@keyframes eng-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes eng-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* narrow window: neurons in a grid, essays + wiring hidden, the readout under them */
+.eng-narrow {
+  flex: none;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 24px 12px;
+  padding-top: 44px;
+}
+.eng-narrow .eng-essay,
+.eng-narrow .eng-svg,
+.eng-narrow .eng-idle {
+  display: none;
+}
+.eng-narrow .eng-neuron {
+  position: relative;
+  justify-self: center;
+  width: 0;
+  height: 96px;
+  margin-top: 36px;
+}
+.eng-narrow .eng-dock {
+  position: relative;
+  grid-column: 1 / -1;
+  width: auto;
+}
+.eng-narrow .eng-take,
+.eng-narrow .eng-take-cap {
+  position: relative;
+  width: 100%;
+}
+.eng-narrow .eng-take-cap {
+  margin-bottom: 6px;
 }
 
 /* Respect the OS "reduce motion" setting: neutralize CSS transitions/animations. */

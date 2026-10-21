@@ -101,8 +101,11 @@ function layout(pins, camera, { x0, x1, W, H }, focused, k) {
       p.x = null
       continue
     }
-    p.ax = ((sv.x + 1) / 2) * W // anchor on screen
+    // icon height comes from the anchor (tower top); x and the leader from the ground point
     p.ay = ((1 - sv.y) / 2) * H
+    sv.copy(p.ground).project(camera) // lifted icons still run their leader down to the ring's centre
+    p.gx = ((sv.x + 1) / 2) * W
+    p.gy = ((1 - sv.y) / 2) * H
     vis.push(p)
   }
   vis.sort((a, b) => b.ay - a.ay) // nearest to the bottom first, so far-away icons are the ones that move
@@ -112,7 +115,7 @@ function layout(pins, camera, { x0, x1, W, H }, focused, k) {
     const w = p.w * p.s,
       h = p.h * p.s
     const bx = {
-      x: focused ? p.ax : Math.min(x1 - w / 2 - PAD, Math.max(x0 + w / 2 + PAD, p.ax)),
+      x: focused ? p.gx : Math.min(x1 - w / 2 - PAD, Math.max(x0 + w / 2 + PAD, p.gx)),
       y: Math.min(H - PAD, Math.max(TOPM + h, p.ay - LIFT * p.s)),
       w,
       h,
@@ -134,10 +137,10 @@ function layout(pins, camera, { x0, x1, W, H }, focused, k) {
       p.y += (bx.y - p.y) * k
     }
     p.el.style.transform = `translate(${p.x - p.w / 2}px, ${p.y - p.h}px) scale(${p.s})` // origin: bottom centre (CSS)
-    const ey = p.ay < p.y - h / 2 ? p.y - h : p.y // leader leaves the icon's bottom, or its top if the icon ended up below its landmark
+    const ey = p.gy < p.y - h / 2 ? p.y - h : p.y // leader leaves the icon's bottom, or its top if the icon ended up below its landmark
     p.ld.setAttribute(
       'd',
-      `M${p.x} ${ey}L${p.ax} ${p.ay}M${p.ax - 2.5} ${p.ay}a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0`,
+      `M${p.x} ${ey}L${p.gx} ${p.gy}M${p.gx - 2.5} ${p.gy}a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0`,
     )
   }
 }

@@ -71,7 +71,7 @@ export const articles: ArticleMeta[] = [
   {
     slug: 'structure-over-weights',
     title: 'Structure Over Weights',
-    date: '2026-09-04',
+    date: '2026-10-20',
     summary:
       'A whole-fly-brain model moves a body with nothing trained. If structure carries the function, training should search structure.',
     tags: ['snn', 'connectome', 'training'],
