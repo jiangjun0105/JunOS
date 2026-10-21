@@ -2,18 +2,8 @@
 
 import { useState, type InputHTMLAttributes } from 'react'
 import { RECIPIENT_EMAIL } from '@/site'
-import { WindowHeader } from './ui/WindowHeader'
 
 /** Gmail-style compose form that POSTs to /api/email (Resend; validation and honeypot live in that route). */
-
-// Muted fixed-width label and borderless input; the row underline highlights on focus.
-const labelClass =
-  'w-16 shrink-0 font-display text-label font-semibold uppercase tracking-wide text-muted'
-const inputClass =
-  'min-w-0 flex-1 bg-transparent text-field text-ink placeholder:text-muted/55 focus:outline-none disabled:opacity-60'
-
-const sendClass =
-  'inline-flex items-center gap-2 rounded-tile border border-ink bg-accent px-5 py-2 font-display text-field font-bold uppercase tracking-wide text-surface shadow-soft transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0'
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -76,14 +66,11 @@ export function EmailWindow() {
   const sending = status === 'sending'
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-full flex-col">
+    <form onSubmit={handleSubmit} className="mail">
       {/* To — fixed recipient, shown as a locked chip (not an input). */}
-      <div className="flex items-center gap-3 border-b border-line/70 py-1.5">
-        <span className={labelClass}>To</span>
-        <span
-          title="Messages from this app always go to Jun"
-          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-ui text-ink"
-        >
+      <div className="mail-row">
+        <span className="mail-k">To</span>
+        <span title="Messages from this app always go to Jun" className="mail-to">
           <LockGlyph />
           {RECIPIENT_EMAIL}
         </span>
@@ -132,12 +119,12 @@ export function EmailWindow() {
         onChange={onEdit(setBody)}
         disabled={sending}
         placeholder="Write your message. This note goes straight to Jun's inbox. He'll reply to your address."
-        className="mt-3 min-h-[150px] w-full flex-1 resize-none rounded-md bg-transparent text-field leading-relaxed text-ink placeholder:text-muted/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/25"
+        className="mail-body"
       />
 
       {/* Footer: send button + error status. */}
-      <footer className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line/70 pt-3">
-        <button type="submit" disabled={sending} className={sendClass}>
+      <footer className="mail-foot">
+        <button type="submit" disabled={sending} className="call-key" data-k="send">
           {sending ? (
             'Sending…'
           ) : (
@@ -149,9 +136,8 @@ export function EmailWindow() {
         </button>
 
         {status === 'error' && (
-          <p className="inline-flex items-center gap-1.5 text-label font-semibold text-accent-3">
-            <span aria-hidden>⚠</span>
-            {error}
+          <p className="call-error" role="alert">
+            ⚠ {error}
           </p>
         )}
       </footer>
@@ -159,33 +145,34 @@ export function EmailWindow() {
   )
 }
 
-/** Success screen shown after a message is delivered. */
 /** A labelled single-line field; the row underline highlights on focus. */
 function Field({
   label,
   ...input
 }: { label: string; id: string } & InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <div className="flex items-center gap-3 border-b border-line/70 py-1.5 transition-colors focus-within:border-accent">
-      <label htmlFor={input.id} className={labelClass}>
+    <div className="mail-row">
+      <label htmlFor={input.id} className="mail-k">
         {label}
       </label>
-      <input required className={inputClass} {...input} />
+      <input required className="mail-in" {...input} />
     </div>
   )
 }
 
+/** Success screen shown after a message is delivered. */
 function SentConfirmation({ onReset }: { onReset: () => void }) {
   return (
-    <div className="flex min-h-full flex-col items-center justify-center gap-4 py-6 text-center">
-      <span className="grid h-16 w-16 place-items-center rounded-full border border-ink bg-accent-2/15 text-accent-2">
+    <div className="mail-sent" role="status">
+      <span className="mail-check">
         <CheckGlyph />
       </span>
-      <WindowHeader
-        title="Message sent"
-        subtitle="Thanks — your note is on its way to Jun. He'll reply straight to your email."
-      />
-      <button type="button" onClick={onReset} className="os-action-btn">
+      <div className="call-k">Transmission complete</div>
+      <h1 className="call-title">Message sent</h1>
+      <p className="call-pitch">
+        Thanks. It&apos;s on its way to Jun, who replies straight to your email.
+      </p>
+      <button type="button" onClick={onReset} className="call-key" data-k="send">
         Write another
       </button>
     </div>
@@ -195,14 +182,7 @@ function SentConfirmation({ onReset }: { onReset: () => void }) {
 /** Tiny lock marking the recipient as fixed. */
 function LockGlyph() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="12"
-      height="12"
-      fill="currentColor"
-      className="text-muted"
-      aria-hidden
-    >
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden>
       <path d="M12 2a4 4 0 0 0-4 4v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V6a4 4 0 0 0-4-4zm-2 6V6a2 2 0 1 1 4 0v2h-4z" />
     </svg>
   )
