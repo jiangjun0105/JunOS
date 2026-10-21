@@ -1156,6 +1156,895 @@ button.about-co:focus-visible {
   margin-bottom: 6px;
 }
 
+/* ============================================================================
+   Development window (src/components/windows/ProjectsWindow.tsx): "HUD trace".
+   The projects are parts on one PCB drawn as cyan hairline copper on the glass window;
+   hovering or focusing a part (chip or BOM row) lights its nets amber and sends pulses out
+   from U1. Below ~640px of window width the BOM rows collapse to two lines (container query).
+   ============================================================================ */
+.dev {
+  container-type: inline-size;
+  --dev-board: rgb(var(--cyan) / 0.025);
+  --dev-edge: rgb(var(--cyan) / 0.45);
+  --dev-cu: rgb(var(--cyan) / 0.28);
+  --dev-cu-hot: rgb(var(--accent));
+  --dev-pad: rgb(var(--cyan) / 0.55);
+  --dev-silk: rgb(var(--cyan) / 0.9);
+  --dev-via: rgb(var(--cyan) / 0.45);
+  --dev-hole: rgb(var(--cyan) / 0.7);
+  --dev-pulse: #fff;
+  --dev-chip: rgb(var(--cyan) / 0.03);
+  --dev-dnp: rgb(var(--muted) / 0.18);
+  --dev-dnp-hot: rgb(var(--muted) / 0.45);
+}
+.dev-k {
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--cyan));
+}
+.dev-name {
+  margin: 8px 0 6px;
+  font: 700 34px/1.1 var(--font-chrome);
+  letter-spacing: 0.02em;
+  color: rgb(var(--heading));
+}
+.dev-sub {
+  margin: 0 0 18px;
+  max-width: 64ch;
+  font-size: 14px;
+  color: rgb(var(--muted));
+}
+
+/* board */
+.dev-stack {
+  position: relative;
+  aspect-ratio: 1000 / 600;
+}
+.dev-board {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.dev-board text {
+  font-family: var(--font-mono);
+}
+.dev-hit {
+  pointer-events: all;
+  cursor: pointer;
+  fill: transparent;
+}
+.dev-substrate {
+  fill: var(--dev-board);
+  stroke: var(--dev-edge);
+  stroke-width: 1.6;
+}
+.dev-grid {
+  opacity: 0.6;
+}
+.dev-hole {
+  fill: none;
+  stroke: var(--dev-hole);
+  stroke-width: 5;
+}
+.dev-hole-in,
+.dev-via-hole {
+  fill: rgb(var(--surface));
+}
+.dev-via {
+  fill: var(--dev-via);
+}
+
+/* copper: traces draw in, pads pop */
+.dev-trace {
+  fill: none;
+  stroke: var(--dev-cu);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: dev-draw 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: var(--d, 0s);
+  transition: stroke 0.25s;
+}
+.dev-thin {
+  stroke-width: 2.2;
+}
+@keyframes dev-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.dev-pad {
+  fill: var(--dev-pad);
+  opacity: 0;
+  animation: dev-pop 0.3s ease-out forwards;
+  animation-delay: var(--d, 0.2s);
+  transition: fill 0.25s;
+}
+@keyframes dev-pop {
+  to {
+    opacity: 1;
+  }
+}
+
+/* pulses: pathLength=100, one short dash travelling from U1 outward */
+.dev-pulse {
+  fill: none;
+  stroke: var(--dev-pulse);
+  stroke-width: 3.6;
+  stroke-linecap: round;
+  stroke-dasharray: 6 300;
+  stroke-dashoffset: 6;
+  opacity: 0;
+}
+.dev-bus[data-ping] .dev-pulse {
+  animation: dev-run 1.3s linear 1 both;
+  animation-delay: var(--pd, 0s);
+}
+.dev-bus.dev-hot .dev-pulse {
+  animation: dev-run 1.3s linear infinite both;
+  animation-delay: var(--pd, 0s);
+}
+.dev-bus.dev-dnp[data-ping] .dev-pulse,
+.dev-bus.dev-dnp.dev-hot .dev-pulse {
+  animation-name: dev-fizzle;
+}
+@keyframes dev-run {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: 6;
+  }
+  100% {
+    opacity: 1;
+    stroke-dashoffset: -100;
+  }
+}
+@keyframes dev-fizzle {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: 6;
+  }
+  70% {
+    opacity: 1;
+  }
+  85%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -70;
+  }
+}
+.dev-bus.dev-hot {
+  filter: drop-shadow(0 0 3px var(--dev-cu-hot));
+}
+.dev-bus.dev-hot .dev-trace {
+  stroke: var(--dev-cu-hot);
+}
+.dev-bus.dev-dnp .dev-trace {
+  stroke: var(--dev-dnp);
+}
+.dev-bus.dev-dnp.dev-hot .dev-trace {
+  stroke: var(--dev-dnp-hot);
+}
+.dev-bus.dev-dnp.dev-hot {
+  filter: none;
+}
+.dev-padset.dev-hot .dev-pad {
+  fill: var(--dev-cu-hot);
+}
+
+/* silkscreen */
+.dev-silk {
+  opacity: 0;
+  animation: dev-pop 0.6s ease-out forwards;
+  animation-delay: 1.1s;
+}
+.dev-s-line {
+  fill: none;
+  stroke: var(--dev-silk);
+  stroke-width: 1.3;
+}
+.dev-s-txt {
+  fill: var(--dev-silk);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.dev-s-name {
+  fill: rgb(var(--heading));
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  transition: fill 0.25s;
+}
+.dev-s-tag {
+  fill: var(--dev-silk);
+  opacity: 0.6;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+.dev-s-dim {
+  fill: var(--dev-silk);
+  opacity: 0.55;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+.dev-body {
+  fill: var(--dev-chip);
+  transition: fill 0.25s;
+}
+.dev-chip.dev-hot .dev-body {
+  fill: rgb(var(--accent) / 0.1);
+}
+.dev-chip.dev-hot .dev-s-name {
+  fill: rgb(var(--accent));
+}
+.dnp-stamp {
+  fill: none;
+  stroke: var(--dev-silk);
+  stroke-width: 1.2;
+  font: 700 34px var(--font-chrome);
+  letter-spacing: 0.2em;
+  opacity: 0.5;
+}
+.dev-led {
+  fill: rgb(var(--accent-2));
+  animation: dev-blink 2.4s steps(1) infinite;
+  filter: drop-shadow(0 0 4px rgb(var(--accent-2)));
+}
+.dev-slow {
+  animation-duration: 3.7s;
+}
+@keyframes dev-blink {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  71%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+/* lock-on brackets (the About window's detection frame) */
+.dev-brk path {
+  fill: none;
+  stroke: rgb(var(--accent));
+  stroke-width: 2.4;
+}
+.dev-brk {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1.25);
+  transition:
+    opacity 0.2s,
+    transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.dev-chip.dev-hot .dev-brk {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* callout */
+.dev-callout {
+  position: absolute;
+  z-index: 3;
+  width: 280px;
+  max-width: 60%;
+  pointer-events: none;
+  padding: 10px 12px 11px;
+  background: rgb(var(--bg) / 0.88);
+  border: 1px solid rgb(var(--accent) / 0.55);
+  border-left: 3px solid rgb(var(--accent));
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.2s,
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.dev-callout.dev-on {
+  opacity: 1;
+  transform: none;
+}
+.dev-co-ref {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  color: rgb(var(--accent));
+}
+.dev-callout h3 {
+  margin: 4px 0;
+  font: 600 17px var(--font-chrome);
+  letter-spacing: 0.03em;
+  color: rgb(var(--heading));
+}
+.dev-callout p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgb(var(--muted));
+}
+.dev-co-go {
+  margin-top: 8px;
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  color: rgb(var(--accent));
+}
+
+/* probe readout */
+.dev-probe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin-top: 10px;
+  font: 500 11px var(--font-mono);
+  letter-spacing: 0.12em;
+  color: rgb(var(--muted));
+}
+.dev-probe b {
+  font-weight: 600;
+  color: rgb(var(--cyan));
+}
+.dev-probe .dev-live b {
+  color: rgb(var(--accent));
+}
+
+/* bill of materials (About's row hover: amber rail, nudge, OPEN) */
+.dev-sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 0 10px;
+}
+.dev-sec::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgb(var(--cyan) / 0.25);
+}
+.dev-rows {
+  border-top: 1px solid rgb(var(--cyan) / 0.18);
+}
+.dev-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px 190px 1fr 170px 54px;
+  gap: 14px;
+  align-items: baseline;
+  width: 100%;
+  margin: 0;
+  padding: 12px 4px;
+  border: 0;
+  border-bottom: 1px solid rgb(var(--cyan) / 0.18);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    padding 0.2s;
+}
+.dev-row:focus-visible {
+  outline: 1px solid rgb(var(--cyan));
+  outline-offset: -1px;
+}
+.dev-n {
+  font: 500 11px var(--font-mono);
+  color: rgb(var(--cyan) / 0.7);
+}
+.dev-t {
+  font: 600 15px var(--font-chrome);
+  letter-spacing: 0.03em;
+  color: rgb(var(--heading));
+}
+.dev-d {
+  font-size: 13.5px;
+  color: rgb(var(--muted));
+}
+.dev-st {
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  color: rgb(var(--accent-2));
+}
+.dev-st.dev-off {
+  color: rgb(var(--muted));
+}
+.dev-go {
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-align: right;
+  color: rgb(var(--accent));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.dev-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgb(var(--accent));
+  transform: scaleY(0);
+  transition: transform 0.2s;
+}
+.dev-row.dev-hot {
+  padding-left: 12px;
+  background: rgb(var(--cyan) / 0.05);
+}
+.dev-row.dev-hot::before {
+  transform: scaleY(1);
+}
+.dev-row.dev-hot .dev-go {
+  opacity: 1;
+}
+.dev-row.dev-hot .dev-t {
+  color: rgb(var(--accent));
+}
+@container (max-width: 640px) {
+  .dev-name {
+    font-size: 28px;
+  }
+  .dev-row {
+    grid-template-columns: 36px 1fr auto;
+    gap: 4px 12px;
+  }
+  .dev-n,
+  .dev-t,
+  .dev-st {
+    grid-row: 1;
+  }
+  .dev-d {
+    grid-row: 2;
+    grid-column: 2 / -1;
+  }
+  .dev-go {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   Research window (src/components/windows/ResearchWindow.tsx): "stage strip".
+   A rotating male-CNS specimen, the three-stage plan as recording columns, then the
+   articles as channel rows. Hovering or focusing a channel lights its brain region.
+   Below ~640px of window width the strip stacks and the rows collapse (container query).
+   ============================================================================ */
+.res {
+  container-type: inline-size;
+}
+.res-k {
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--cyan));
+}
+.res-name {
+  margin: 8px 0 6px;
+  font: 700 34px/1.1 var(--font-chrome);
+  letter-spacing: 0.02em;
+  color: rgb(var(--heading));
+}
+.res-sub {
+  margin: 0 0 14px;
+  max-width: 66ch;
+  font-size: 14px;
+  color: rgb(var(--muted));
+}
+.res-spec {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 22px;
+  margin: 0 0 22px;
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  color: rgb(var(--muted));
+}
+.res-spec b {
+  font-weight: 600;
+  color: rgb(var(--cyan));
+}
+.res-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  color: rgb(var(--accent));
+  cursor: pointer;
+}
+.res-link:hover {
+  text-decoration: underline;
+}
+.res-link:focus-visible {
+  outline: 1px solid rgb(var(--cyan));
+  outline-offset: 2px;
+}
+.res-sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 30px 0 12px;
+}
+.res-sec::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgb(var(--cyan) / 0.25);
+}
+.res-sec.res-first {
+  margin-top: 0;
+}
+.res-tag {
+  color: rgb(var(--muted));
+}
+
+/* captions over instruments */
+.res-cap {
+  position: absolute;
+  left: 10px;
+  top: 6px;
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  color: rgb(var(--cyan));
+  text-shadow: 0 0 4px #000;
+  pointer-events: none;
+}
+.res-cap.res-dim {
+  color: rgb(var(--muted));
+}
+.res-rec {
+  color: #ff5a4a;
+  animation: res-rec 1.2s steps(1) infinite;
+}
+@keyframes res-rec {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* specimen viewfinder */
+.res-vf {
+  position: relative;
+  height: 320px;
+  margin: 0 0 26px;
+  overflow: hidden;
+  border: 1px solid rgb(var(--cyan) / 0.2);
+  background: radial-gradient(ellipse at center, rgb(var(--cyan) / 0.06), transparent 70%);
+}
+.res-vf canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.res-vf canvas:active {
+  cursor: grabbing;
+}
+.res-br {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 0 solid rgb(var(--cyan));
+}
+.res-tl {
+  left: 8px;
+  top: 8px;
+  border-width: 2px 0 0 2px;
+}
+.res-tr {
+  right: 8px;
+  top: 8px;
+  border-width: 2px 2px 0 0;
+}
+.res-bl {
+  left: 8px;
+  bottom: 8px;
+  border-width: 0 0 2px 2px;
+}
+.res-brr {
+  right: 8px;
+  bottom: 8px;
+  border-width: 0 2px 2px 0;
+}
+.res-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -40px;
+  height: 40px;
+  background: linear-gradient(transparent, rgb(var(--cyan) / 0.12), transparent);
+  border-bottom: 1px solid rgb(var(--cyan) / 0.4);
+  animation: res-scan 4.6s linear infinite;
+  pointer-events: none;
+}
+@keyframes res-scan {
+  to {
+    top: 100%;
+  }
+}
+.res-vf .res-cap {
+  left: 18px;
+  top: 14px;
+}
+.res-vf .res-r {
+  left: auto;
+  right: 18px;
+  color: rgb(var(--accent));
+}
+.res-vf .res-legend {
+  top: 32px;
+}
+.res-vf .res-credit {
+  top: auto;
+  bottom: 14px;
+  left: auto;
+  right: 18px;
+  font-size: 9px;
+  color: rgb(var(--muted));
+}
+
+/* stage strip */
+.res-strip {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr 1fr;
+  border: 1px solid rgb(var(--cyan) / 0.3);
+}
+.res-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 14px 12px;
+  border-left: 1px solid rgb(var(--cyan) / 0.2);
+}
+.res-col:first-child {
+  border-left: 0;
+  background: rgb(var(--cyan) / 0.04);
+}
+.res-col.res-off {
+  opacity: 0.8;
+}
+.res-hd {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+}
+.res-big {
+  font: 700 44px/1 var(--font-chrome);
+  letter-spacing: 0.02em;
+  color: rgb(var(--cyan) / 0.9);
+}
+.res-big.res-dim {
+  color: rgb(var(--muted) / 0.45);
+}
+.res-stt {
+  margin: 4px 0 2px;
+  font: 600 17px var(--font-chrome);
+  letter-spacing: 0.03em;
+  color: rgb(var(--heading));
+}
+.res-std {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgb(var(--muted));
+}
+.res-chip {
+  display: inline-block;
+  padding: 2px 7px;
+  border: 1px solid currentColor;
+  font: 600 9px var(--font-mono);
+  letter-spacing: 0.14em;
+}
+.res-chip.res-live {
+  color: rgb(var(--accent-2));
+}
+.res-chip.res-q {
+  color: rgb(var(--muted));
+}
+.res-mini {
+  position: relative;
+  border: 1px solid rgb(var(--cyan) / 0.2);
+}
+.res-mini canvas {
+  display: block;
+  width: 100%;
+  height: 96px;
+}
+
+/* milestones */
+.res-ms {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: 500 11px/1.5 var(--font-mono);
+  letter-spacing: 0.06em;
+}
+.res-ms li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 6px;
+  padding: 3px 0;
+  color: rgb(var(--muted));
+}
+.res-ms li::before {
+  content: '○';
+  color: rgb(var(--muted) / 0.7);
+}
+.res-ms li.res-done {
+  color: rgb(var(--ink));
+}
+.res-ms li.res-done::before {
+  content: '✓';
+  color: rgb(var(--accent-2));
+}
+.res-ms li.res-now {
+  color: rgb(var(--accent));
+}
+.res-ms li.res-now::before {
+  content: '●';
+  color: rgb(var(--accent));
+  animation: res-rec 1.2s steps(1) infinite;
+}
+
+/* channel rows (hover or focus lights the brain region) */
+.res-chans,
+.res-rows {
+  border-top: 1px solid rgb(var(--cyan) / 0.18);
+}
+.res-ch,
+.res-row {
+  position: relative;
+  display: grid;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid rgb(var(--cyan) / 0.18);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    padding 0.2s;
+}
+.res-ch {
+  grid-template-columns: 52px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 4px;
+}
+.res-row {
+  grid-template-columns: 36px 220px 1fr 54px;
+  gap: 14px;
+  align-items: baseline;
+  padding: 11px 4px;
+}
+.res-ch:focus-visible,
+.res-row:focus-visible {
+  outline: 1px solid rgb(var(--cyan));
+  outline-offset: -1px;
+}
+.res-ch::before,
+.res-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgb(var(--accent));
+  transform: scaleY(0);
+  transition: transform 0.2s;
+}
+.res-n {
+  font: 500 10px/1.3 var(--font-mono);
+  letter-spacing: 0.1em;
+  color: rgb(var(--cyan) / 0.7);
+}
+.res-t {
+  display: block;
+  font: 600 15px var(--font-chrome);
+  letter-spacing: 0.03em;
+  color: rgb(var(--heading));
+}
+.res-d {
+  display: block;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgb(var(--muted));
+}
+.res-quiet .res-t,
+.res-row .res-t {
+  font-size: 14px;
+}
+.res-go {
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-align: right;
+  color: rgb(var(--accent));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.res-ch.res-hot,
+.res-row:hover,
+.res-row:focus-visible {
+  padding-left: 12px;
+  background: rgb(var(--cyan) / 0.05);
+}
+.res-ch.res-hot::before,
+.res-row:hover::before,
+.res-row:focus-visible::before {
+  transform: scaleY(1);
+}
+.res-ch.res-hot .res-t,
+.res-row:hover .res-t,
+.res-row:focus-visible .res-t {
+  color: rgb(var(--accent));
+}
+.res-row:hover .res-go,
+.res-row:focus-visible .res-go {
+  opacity: 1;
+}
+
+/* ideas */
+.res-ideas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: res-i;
+}
+.res-ideas li {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px dashed rgb(var(--cyan) / 0.14);
+  font-size: 13.5px;
+}
+.res-ideas li::before {
+  counter-increment: res-i;
+  content: 'A' counter(res-i, decimal-leading-zero);
+  font: 500 10px/2.1 var(--font-mono);
+  letter-spacing: 0.1em;
+  color: rgb(var(--cyan) / 0.7);
+}
+@container (max-width: 640px) {
+  .res-name {
+    font-size: 28px;
+  }
+  .res-strip {
+    grid-template-columns: 1fr;
+  }
+  .res-col {
+    border-left: 0;
+    border-top: 1px solid rgb(var(--cyan) / 0.2);
+  }
+  .res-col:first-child {
+    border-top: 0;
+  }
+  .res-row {
+    grid-template-columns: 36px 1fr;
+    gap: 4px 12px;
+  }
+  .res-row .res-d {
+    grid-column: 2;
+  }
+  .res-go {
+    display: none;
+  }
+}
+
 /* Respect the OS "reduce motion" setting: neutralize CSS transitions/animations. */
 @media (prefers-reduced-motion: reduce) {
   *,
