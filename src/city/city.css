@@ -269,12 +269,13 @@
   padding-top: 24px;
   border-top: 1px solid rgb(var(--border));
 }
-/* About, Call Me, Books, Development, Research, Files and Email bring their own header: once
+/* About, Call Me, Books, Thoughts, Development, Research, Files and Email bring their own header: once
    open, keep only the location line, no divider (the peek still shows title + blurb) */
 .open:is(
     [data-app='about'],
     [data-app='support'],
     [data-app='books'],
+    [data-app='thoughts'],
     [data-app='projects'],
     [data-app='research'],
     [data-app='files'],
@@ -287,7 +288,9 @@
   opacity: 0;
   overflow: hidden;
 }
-.open:is([data-app='projects'], [data-app='research'], [data-app='files']) .w3b > .more {
+.open:is([data-app='thoughts'], [data-app='projects'], [data-app='research'], [data-app='files'])
+  .w3b
+  > .more {
   margin-top: 16px;
   padding-top: 0;
   border-top: 0;

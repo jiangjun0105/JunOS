@@ -120,6 +120,95 @@
     pointer-events: none;
   }
 
+  /* ---- Thoughts spine ----
+     Root essay on top, the rest alternate left/right off one vertical line.
+     Colour per topic through --t (set inline by ThoughtsWindow); cards are tinted fills, not outlines. */
+  .spine {
+    @apply relative pb-2;
+    container-type: inline-size;
+  }
+  .spine::before {
+    content: '';
+    @apply absolute bottom-0 left-1/2 top-0 w-0.5 -translate-x-1/2;
+    background: linear-gradient(rgb(var(--accent)), rgb(var(--cyan) / 0.3));
+  }
+  .spine-card {
+    @apply block w-full rounded-tile p-3 text-left transition-colors;
+    background: linear-gradient(135deg, rgb(var(--t) / 0.16), rgb(var(--t) / 0.04));
+  }
+  .spine-card:hover {
+    background: linear-gradient(135deg, rgb(var(--t) / 0.28), rgb(var(--t) / 0.08));
+  }
+  .spine-card:focus-visible {
+    outline: 2px solid rgb(var(--t));
+    outline-offset: 2px;
+  }
+  .spine-root {
+    @apply relative z-[1] mx-auto mb-6 max-w-md text-center;
+    color: rgb(var(--heading));
+    background:
+      radial-gradient(circle at 50% 0, rgb(var(--accent) / 0.45), rgb(var(--accent) / 0.32)),
+      rgb(var(--surface));
+    box-shadow: 0 0 30px rgb(var(--accent) / 0.2);
+  }
+  .spine-root:hover {
+    background:
+      radial-gradient(circle at 50% 0, rgb(var(--accent) / 0.55), rgb(var(--accent) / 0.42)),
+      rgb(var(--surface));
+  }
+  .spine-tag {
+    @apply flex-none whitespace-nowrap rounded-btn px-1.5 py-px font-display text-[10.5px] font-semibold uppercase tracking-widest;
+    color: rgb(var(--t));
+    background: rgb(var(--t) / 0.2);
+  }
+  /* one row per essay; the card takes half the width minus the connector */
+  .spine-row {
+    @apply relative mb-3.5 flex;
+  }
+  .spine-row > .spine-card {
+    width: calc(50% - 34px);
+  }
+  .spine-row.right {
+    @apply justify-end;
+  }
+  .spine-row::after {
+    content: '';
+    @apply absolute top-[22px] h-px w-[34px];
+    left: calc(50% - 34px);
+    background: rgb(var(--t) / 0.7);
+  }
+  .spine-row.right::after {
+    left: 50%;
+  }
+  .spine-row::before {
+    content: '';
+    @apply absolute left-1/2 top-[18px] z-[1] h-[9px] w-[9px] -translate-x-1/2;
+    background: rgb(var(--t));
+    box-shadow: 0 0 8px rgb(var(--t));
+  }
+  /* narrow window: spine moves to the left edge, every card on the right */
+  @container (max-width: 560px) {
+    .spine::before,
+    .spine-row::before {
+      left: 6px;
+    }
+    .spine-row,
+    .spine-row.right {
+      @apply justify-end;
+    }
+    .spine-row > .spine-card {
+      width: calc(100% - 30px);
+    }
+    .spine-row::after,
+    .spine-row.right::after {
+      left: 6px;
+      width: 24px;
+    }
+    .spine-root {
+      @apply ml-[30px] max-w-none;
+    }
+  }
+
   /* ---- media blocks ---- */
   .media-figure {
     @apply my-3.5;
