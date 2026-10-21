@@ -599,12 +599,15 @@ button.about-co:focus-visible {
 .call-key[data-k='end'] {
   --k: var(--accent-3);
 }
-.call-key:is([data-k='call'], [data-k='end']) {
+.call-key[data-k='send'] {
+  --k: var(--accent);
+}
+.call-key:is([data-k='call'], [data-k='end'], [data-k='send']) {
   color: rgb(var(--k));
   border-color: rgb(var(--k) / 0.7);
   background: rgb(var(--k) / 0.08);
 }
-.call-key:is([data-k='call'], [data-k='end']):hover {
+.call-key:is([data-k='call'], [data-k='end'], [data-k='send']):enabled:hover {
   background: rgb(var(--k));
   color: rgb(var(--bg));
 }
@@ -1936,6 +1939,115 @@ button.about-co:focus-visible {
   .res-col:first-child {
     border-top: 0;
   }
+}
+
+/* ============================================================================
+   Files — the one-line intro above the tree
+   ============================================================================ */
+.files-sub {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: rgb(var(--muted));
+}
+
+/* ============================================================================
+   Email — a compose form in the Call Me idiom: mono cyan labels on hairline rows,
+   a body that fills the window, and an amber send key
+   ============================================================================ */
+.mail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.mail-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgb(var(--cyan) / 0.18);
+  transition: border-color 0.2s;
+}
+.mail-row:focus-within {
+  border-bottom-color: rgb(var(--cyan) / 0.7);
+}
+.mail-k {
+  width: 64px;
+  flex: none;
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--cyan));
+}
+.mail-to {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  font: 500 12px var(--font-mono);
+  color: rgb(var(--ink));
+  border: 1px solid rgb(var(--cyan) / 0.3);
+  background: rgb(var(--cyan) / 0.06);
+}
+.mail-to svg {
+  color: rgb(var(--muted));
+}
+.mail-in,
+.mail-body {
+  min-width: 0;
+  background: transparent;
+  font-size: 14px;
+  color: rgb(var(--ink));
+  outline: none;
+}
+.mail-in {
+  flex: 1;
+}
+.mail-body {
+  flex: 1;
+  min-height: 160px;
+  margin-top: 14px;
+  resize: none;
+  line-height: 1.6;
+}
+.mail-in::placeholder,
+.mail-body::placeholder {
+  color: rgb(var(--muted) / 0.6);
+}
+.mail-in:disabled,
+.mail-body:disabled {
+  opacity: 0.6;
+}
+.mail-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgb(var(--cyan) / 0.18);
+}
+.mail-sent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+}
+.mail-sent .call-key {
+  margin-top: 14px;
+}
+.mail-check {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  color: rgb(var(--accent-2));
+  border: 1px solid rgb(var(--accent-2) / 0.7);
+  background: rgb(var(--accent-2) / 0.08);
 }
 
 /* Respect the OS "reduce motion" setting: neutralize CSS transitions/animations. */

@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react'
 import { sectionsByKind, type ArticleKind } from '@/content/articles'
 import { notifications } from '@/content/notifications'
+import { thoughts } from '@/content/thoughts'
 import { apps, type AppId } from '@/os/apps'
 import { useWindows } from '@/os/WindowManager'
 
@@ -22,24 +23,25 @@ type TreeNode =
 
 /**
  * A kind's articles become a two-layer tree: one sub-folder per section, each
- * holding the article "files" that open the reader with their slug. `project`
- * has a single section, so its folder is one level deep in practice.
+ * holding the article "files" that open the reader with their slug. A kind
+ * with a single section (`project`) skips the sub-folder and lists its files.
  */
 function articleFolders(kind: ArticleKind): TreeNode[] {
-  return sectionsByKind(kind).map((section) => ({
+  const sections = sectionsByKind(kind).map((section) => ({
     kind: 'folder' as const,
     name: section.name,
     children: section.articles.map((a) => ({
       kind: 'file' as const,
       name: a.title,
-      appId: 'article',
+      appId: 'article' as const,
       fileKind: 'doc' as const,
       slug: a.slug,
     })),
   }))
+  return sections.length === 1 ? sections[0].children : sections
 }
 
-/** Research / Projects / Personal folders are generated from src/content/articles. */
+/** Research / Projects / Personal folders come from src/content/articles; Thoughts and Notifications from their own content folders. */
 const shortcut = (appId: AppId, fileKind: FileKind): TreeNode => ({
   kind: 'file',
   name: apps[appId].title,
@@ -53,14 +55,27 @@ const TREE: TreeNode[] = [
     name: 'JunOS',
     children: [
       shortcut('about', 'doc'),
+      shortcut('research', 'doc'),
       shortcut('projects', 'csv'),
       shortcut('thoughts', 'doc'),
       shortcut('books', 'txt'),
       shortcut('support', 'exe'),
+      shortcut('email', 'exe'),
     ],
   },
   { kind: 'folder', name: 'Research', children: articleFolders('research') },
   { kind: 'folder', name: 'Projects', children: articleFolders('project') },
+  {
+    kind: 'folder',
+    name: 'Thoughts',
+    children: thoughts.map((t) => ({
+      kind: 'file' as const,
+      name: t.title,
+      appId: 'thoughts',
+      fileKind: 'doc' as const,
+      slug: t.slug,
+    })),
+  },
   { kind: 'folder', name: 'Personal', children: articleFolders('personal') },
   {
     kind: 'folder',
@@ -78,11 +93,14 @@ const TREE: TreeNode[] = [
 /** File Explorer: an expandable folder tree. */
 export function FilesWindow() {
   return (
-    <div className="tree">
-      {TREE.map((node) => (
-        <TreeRow key={node.name} node={node} />
-      ))}
-    </div>
+    <>
+      <p className="files-sub">Everything on this site, as a tree.</p>
+      <div className="tree">
+        {TREE.map((node) => (
+          <TreeRow key={node.name} node={node} />
+        ))}
+      </div>
+    </>
   )
 }
 

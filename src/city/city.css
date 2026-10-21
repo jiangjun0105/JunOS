@@ -269,14 +269,16 @@
   padding-top: 24px;
   border-top: 1px solid rgb(var(--border));
 }
-/* About, Call Me, Books, Development and Research bring their own header: once open, keep only
-   the location line, no divider (the peek still shows title + blurb) */
+/* About, Call Me, Books, Development, Research, Files and Email bring their own header: once
+   open, keep only the location line, no divider (the peek still shows title + blurb) */
 .open:is(
     [data-app='about'],
     [data-app='support'],
     [data-app='books'],
     [data-app='projects'],
-    [data-app='research']
+    [data-app='research'],
+    [data-app='files'],
+    [data-app='email']
   )
   .w3b
   > :is(h3, .lead) {
@@ -285,17 +287,19 @@
   opacity: 0;
   overflow: hidden;
 }
-.open:is([data-app='projects'], [data-app='research']) .w3b > .more {
+.open:is([data-app='projects'], [data-app='research'], [data-app='files']) .w3b > .more {
   margin-top: 16px;
   padding-top: 0;
   border-top: 0;
 }
-/* …and its content centres vertically in the space under that line (still scrolls when taller); Call Me and Books stretch to fill it */
-.open:is([data-app='about'], [data-app='support'], [data-app='books']) .w3b {
+/* …and its content centres vertically in the space under that line (still scrolls when taller); Call Me, Books and Email stretch to fill it */
+.open:is([data-app='about'], [data-app='support'], [data-app='books'], [data-app='email']) .w3b {
   display: flex;
   flex-direction: column;
 }
-.open:is([data-app='about'], [data-app='support'], [data-app='books']) .w3b > .more {
+.open:is([data-app='about'], [data-app='support'], [data-app='books'], [data-app='email'])
+  .w3b
+  > .more {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
