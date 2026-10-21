@@ -1,20 +1,7 @@
-import type { MdxLoader } from '../articles'
+import type { DocMeta } from '../articles'
 
-/**
- * The notification feed — Jun's changelog for this site. Newest first.
- */
-export interface NotificationMeta {
-  slug: string
-  title: string
-  /** ISO date (YYYY-MM-DD). */
-  date: string
-  /** Short blurb shown in the notification card. */
-  summary: string
-  /** Long MDX body shown in the reader window. */
-  load: MdxLoader
-}
-
-export const notifications: NotificationMeta[] = [
+/** The notification feed — Jun's changelog for this site. Newest first. */
+export const notifications: DocMeta[] = [
   {
     slug: 'site-relaunched',
     title: 'Site relaunched with real content',
@@ -24,7 +11,3 @@ export const notifications: NotificationMeta[] = [
     load: () => import('./site-relaunched.mdx'),
   },
 ]
-
-export function getNotification(slug: string): NotificationMeta | undefined {
-  return notifications.find((n) => n.slug === slug)
-}

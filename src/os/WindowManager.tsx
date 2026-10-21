@@ -1,9 +1,7 @@
 'use client'
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
-import { getArticle } from '@/content/articles'
-import { getNotification } from '@/content/notifications'
-import { getThought } from '@/content/thoughts'
+import { getDoc } from '@/content'
 import { apps, type AppId } from './apps'
 import { windowKey } from './url'
 
@@ -14,12 +12,12 @@ import { windowKey } from './url'
  */
 export interface OpenWindow {
   appId: AppId
-  params?: Record<string, unknown>
+  slug?: string
 }
 
 interface WindowManagerValue {
   win: OpenWindow | null
-  openApp: (appId: AppId, opts?: { params?: Record<string, unknown> }) => void
+  openApp: (appId: AppId, opts?: { slug?: string }) => void
   close: () => void
   /** The window that was showing before this one, if any; `back` returns to it. */
   canGoBack: boolean
@@ -37,12 +35,11 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
   const { win, stack } = state
 
   const openApp = useCallback<WindowManagerValue['openApp']>((appId, opts) => {
-    if (!apps[appId]) return
-    const params = opts?.params
+    const slug = opts?.slug
     setState((cur) =>
-      cur.win && windowKey(cur.win.appId, cur.win.params) === windowKey(appId, params)
+      cur.win && windowKey(cur.win.appId, cur.win.slug) === windowKey(appId, slug)
         ? cur
-        : { win: { appId, params }, stack: cur.win ? [...cur.stack, cur.win] : [] },
+        : { win: { appId, slug }, stack: cur.win ? [...cur.stack, cur.win] : [] },
     )
   }, [])
 
@@ -74,9 +71,5 @@ export function useWindows(): WindowManagerValue {
 
 /** Window title: the article/thought/notification title for readers, else the app's. */
 export function windowTitle(win: OpenWindow): string {
-  const slug = typeof win.params?.slug === 'string' ? win.params.slug : undefined
-  const get = { article: getArticle, thoughts: getThought, notification: getNotification }[
-    win.appId as string
-  ] as ((slug: string) => { title: string } | undefined) | undefined
-  return (slug && get?.(slug)?.title) || apps[win.appId].title
+  return getDoc(win.appId, win.slug)?.title || apps[win.appId].title
 }

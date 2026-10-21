@@ -1,7 +1,7 @@
 // Terrain: AWS Terrarium elevation tiles → one graded wire grid (land + animated sea), fine island meshes, and the coastline.
 import * as THREE from 'three'
 import { EX, CITY, REGION, ISLANDS, COLOR } from './config.js'
-import { xz, ll, inBox, lines } from './geo.js'
+import { xz, ll, inBox, lines, segs } from './geo.js'
 
 // one zoom level over a [S, N, W, E] box → (x, z) => metres (negative = bay floor). Pixels: R*256 + G + B/256 - 32768
 async function dem(Z, [s, n, w, e]) {
@@ -163,9 +163,7 @@ export function buildGround({ city, region }, coast) {
       for (let z = z0; z <= z1; z += step) zs.push(z)
       g.add(grid(xs, zs, city, 0.6, false))
     }
-  const cp = []
-  for (const c of coast)
-    for (let i = 1; i < c.length; i++) cp.push(c[i - 1][0], 3, c[i - 1][1], c[i][0], 3, c[i][1])
+  const cp = coast.flatMap((c) => segs(c, 3))
   g.add(lines(cp, new THREE.LineBasicMaterial({ color: COLOR.coast })))
   return g
 }

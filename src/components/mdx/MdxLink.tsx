@@ -1,6 +1,7 @@
 'use client'
 
 import type { AnchorHTMLAttributes } from 'react'
+import { isAppId } from '@/os/apps'
 import { parseWindowPath } from '@/os/url'
 import { useWindows } from '@/os/WindowManager'
 
@@ -24,7 +25,7 @@ export function MdxLink({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAn
         // Let the browser handle new-tab / new-window / download modifiers.
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
         e.preventDefault()
-        windows.openApp(target.appId, { params: { slug: target.slug } })
+        windows.openApp(target.appId, { slug: target.slug })
       }}
       {...rest}
     >
@@ -34,10 +35,7 @@ export function MdxLink({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAn
 }
 
 /** `/article/<slug>` or `/thoughts/<slug>` → the window it opens, else null. */
-function parseInternal(href: string): { appId: 'article' | 'thoughts'; slug: string } | null {
+function parseInternal(href: string) {
   const parsed = /^\/[^?#]*$/.test(href) ? parseWindowPath(href) : null
-  if (!parsed?.slug) return null
-  if (parsed.appId === 'article' || parsed.appId === 'thoughts')
-    return { appId: parsed.appId, slug: parsed.slug }
-  return null
+  return parsed?.slug && isAppId(parsed.appId) ? { appId: parsed.appId, slug: parsed.slug } : null
 }

@@ -7,12 +7,7 @@ default:
 # Stop whatever is listening on port 4173 (graceful TERM, then force KILL)
 stop:
     #!/usr/bin/env sh
-    # lsof is unreliable on this host, so resolve PIDs via ss, falling back to fuser
-    get_pids() {
-        pids=$(ss -ltnp "sport = :4173" 2>/dev/null | grep -o 'pid=[0-9]*' | cut -d= -f2 | sort -u)
-        [ -z "$pids" ] && pids=$(fuser 4173/tcp 2>/dev/null)
-        echo $pids
-    }
+    get_pids() { lsof -ti tcp:4173 -sTCP:LISTEN 2>/dev/null | tr '\n' ' '; }
     pids=$(get_pids)
     if [ -z "$pids" ]; then
         echo "✓ Port 4173 is already free"

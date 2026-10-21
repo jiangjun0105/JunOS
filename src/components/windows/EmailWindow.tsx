@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type InputHTMLAttributes } from 'react'
+import { RECIPIENT_EMAIL } from '@/site'
 import { WindowHeader } from './ui/WindowHeader'
 
 /** Gmail-style compose form that POSTs to /api/email (Resend; validation and honeypot live in that route). */
-
-/** Where every message from this app is addressed. Not user-editable. */
-const RECIPIENT = 'jiangjun0105@gmail.com'
 
 // Muted fixed-width label and borderless input; the row underline highlights on focus.
 const labelClass =
@@ -87,44 +85,31 @@ export function EmailWindow() {
           className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-ui text-ink"
         >
           <LockGlyph />
-          {RECIPIENT}
+          {RECIPIENT_EMAIL}
         </span>
       </div>
 
       {/* From — the sender's own address (becomes Reply-To). */}
-      <div className="flex items-center gap-3 border-b border-line/70 py-1.5 transition-colors focus-within:border-accent">
-        <label htmlFor="email-from" className={labelClass}>
-          From
-        </label>
-        <input
-          id="email-from"
-          type="email"
-          required
-          autoComplete="email"
-          value={from}
-          onChange={onEdit(setFrom)}
-          disabled={sending}
-          placeholder="you@example.com"
-          className={inputClass}
-        />
-      </div>
+      <Field
+        label="From"
+        id="email-from"
+        type="email"
+        autoComplete="email"
+        value={from}
+        onChange={onEdit(setFrom)}
+        disabled={sending}
+        placeholder="you@example.com"
+      />
 
-      {/* Subject */}
-      <div className="flex items-center gap-3 border-b border-line/70 py-1.5 transition-colors focus-within:border-accent">
-        <label htmlFor="email-subject" className={labelClass}>
-          Subject
-        </label>
-        <input
-          id="email-subject"
-          type="text"
-          required
-          value={subject}
-          onChange={onEdit(setSubject)}
-          disabled={sending}
-          placeholder="What's this about?"
-          className={inputClass}
-        />
-      </div>
+      <Field
+        label="Subject"
+        id="email-subject"
+        type="text"
+        value={subject}
+        onChange={onEdit(setSubject)}
+        disabled={sending}
+        placeholder="What's this about?"
+      />
 
       {/* Honeypot — off-screen and hidden from AT; only bots fill it. */}
       <input
@@ -175,6 +160,21 @@ export function EmailWindow() {
 }
 
 /** Success screen shown after a message is delivered. */
+/** A labelled single-line field; the row underline highlights on focus. */
+function Field({
+  label,
+  ...input
+}: { label: string; id: string } & InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div className="flex items-center gap-3 border-b border-line/70 py-1.5 transition-colors focus-within:border-accent">
+      <label htmlFor={input.id} className={labelClass}>
+        {label}
+      </label>
+      <input required className={inputClass} {...input} />
+    </div>
+  )
+}
+
 function SentConfirmation({ onReset }: { onReset: () => void }) {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 py-6 text-center">

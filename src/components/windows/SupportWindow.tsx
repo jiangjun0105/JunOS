@@ -2,6 +2,7 @@
 
 import { ConversationProvider, useConversation } from '@elevenlabs/react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { cssVar, prefersReducedMotion } from './dom'
 import { voiceLevel, smoothLevel } from './voiceLevel'
 import {
   drawBars,
@@ -140,7 +141,7 @@ function CallPanel({ agentId }: { agentId: string }) {
               {isMuted ? 'Unmute' : 'Mute'}
             </button>
             <button type="button" className="call-key" data-k="end" onClick={endSession}>
-              <PhoneDownIcon />
+              <PhoneIcon rotate={135} />
               End
             </button>
           </>
@@ -189,14 +190,13 @@ function CallScreen({
       },
       () => {}, // no cutout: the projector still runs, just empty
     )
-    const css = getComputedStyle(document.documentElement)
     const pal: Palette = {
-      cyan: css.getPropertyValue('--cyan').trim(),
-      amber: css.getPropertyValue('--accent').trim(),
-      green: css.getPropertyValue('--accent-2').trim(),
-      font: css.getPropertyValue('--font-mono').trim() || 'monospace',
+      cyan: cssVar('--cyan'),
+      amber: cssVar('--accent'),
+      green: cssVar('--accent-2'),
+      font: cssVar('--font-mono') || 'monospace',
     }
-    const still = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const still = prefersReducedMotion()
     const lv = { ai: 0, you: 0 }
     const hist = { ai: [] as number[], you: [] as number[] }
     let sampled = performance.now()
@@ -270,31 +270,24 @@ function CallScreen({
   )
 }
 
-/** Phone receiver, off the hook — start the call. */
-function PhoneIcon() {
+/** Phone receiver, off the hook — start the call; rotated 135° it is the universal "hang up". */
+function PhoneIcon({ rotate = 0 }: { rotate?: number }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden fill="currentColor">
-      <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+      <path
+        transform={`rotate(${rotate} 12 12)`}
+        d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+      />
     </svg>
   )
 }
 
-/** The same receiver rotated 135° — the universal "hang up". */
-function PhoneDownIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden fill="currentColor">
-      <g transform="rotate(135 12 12)">
-        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-      </g>
-    </svg>
-  )
-}
-
-function MicIcon() {
+function MicIcon({ children }: { children?: ReactNode }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden fill="currentColor">
       <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z" />
       <path d="M18 11a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.92V19H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A6 6 0 0 0 18 11z" />
+      {children}
     </svg>
   )
 }
@@ -302,9 +295,7 @@ function MicIcon() {
 /** Mic with a slash — muted. */
 function MicOffIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden fill="currentColor">
-      <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z" />
-      <path d="M18 11a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.92V19H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A6 6 0 0 0 18 11z" />
+    <MicIcon>
       <path
         d="M4 3.5 20.5 20"
         stroke="currentColor"
@@ -312,6 +303,6 @@ function MicOffIcon() {
         strokeLinecap="round"
         fill="none"
       />
-    </svg>
+    </MicIcon>
   )
 }

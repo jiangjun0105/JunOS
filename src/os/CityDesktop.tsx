@@ -125,7 +125,7 @@ export function CityDesktop() {
   }, [win])
 
   const App = win ? apps[win.appId].Component : null
-  const name = String(win?.params?.slug ?? shownId ?? '').toUpperCase()
+  const name = String(win?.slug ?? shownId ?? '').toUpperCase()
 
   return (
     <div className="city">
@@ -163,7 +163,7 @@ export function CityDesktop() {
           </button>
         </div>
         <div ref={bodyRef} className="w3b">
-          {meta && (!win || win.appId === meta.id) && (
+          {meta && (
             <>
               <div className="k">
                 ◢ {meta.place} · {deg(meta.at[0])}N {deg(meta.at[1])}W
@@ -175,8 +175,8 @@ export function CityDesktop() {
           )}
           {App && (
             <div className="more">
-              <ErrorBoundary key={windowKey(win!.appId, win!.params)}>
-                <App params={win?.params} />
+              <ErrorBoundary key={windowKey(win!.appId, win!.slug)}>
+                <App slug={win?.slug} />
               </ErrorBoundary>
             </div>
           )}

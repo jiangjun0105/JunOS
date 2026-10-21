@@ -1,11 +1,10 @@
 'use client'
 
-import { getArticle } from '@/content/articles'
+import { getDoc } from '@/content'
 import type { WindowComponentProps } from '@/os/types'
 import { MdxReader } from './ui/MdxReader'
 
-/** Renders one article; the slug arrives via the window's `params`. */
-export function ArticleWindow({ params }: WindowComponentProps) {
-  const slug = typeof params?.slug === 'string' ? params.slug : undefined
-  return <MdxReader noun="Article" slug={slug} meta={slug ? getArticle(slug) : undefined} />
+/** Renders one article; the slug arrives as the window's `slug`. */
+export function ArticleWindow({ slug }: WindowComponentProps) {
+  return <MdxReader noun="Article" slug={slug} meta={getDoc('article', slug)} />
 }

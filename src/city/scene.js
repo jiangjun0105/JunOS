@@ -181,7 +181,7 @@ export function createCity(root, on) {
     city?.update()
     controls.update()
     composer.render()
-    icons?.update(t, camera, { x0: 0, x1: W - 2 * shift, W, H })
+    icons?.update(t, camera, { x1: W - 2 * shift, W, H })
   })
 
   function dispose() {

@@ -2,7 +2,7 @@
 // with a boat shuttling along each. Waypoints are rough real routes ([lat, lon]), bent around the islands.
 import * as THREE from 'three'
 import { COLOR } from './config.js'
-import { xz, polyline, rnd } from './geo.js'
+import { xz, polyline, rnd, movers } from './geo.js'
 
 const FERRY = [37.7955, -122.392]
 const ROUTES = [
@@ -69,38 +69,21 @@ export function buildSea() {
         ship: r.ship,
       })
   }
-  const g = new THREE.BufferGeometry()
-  g.setAttribute(
-    'position',
-    new THREE.Float32BufferAttribute(new Float32Array(boats.length * 3), 3),
-  )
-  g.setAttribute(
-    'color',
-    new THREE.Float32BufferAttribute(
-      boats.flatMap((b) => (b.ship ? [1, 0.7, 0.25] : [0.85, 1, 1])),
-      3,
-    ),
-  )
-  const pos = g.attributes.position
-  group.add(
-    new THREE.Points(
-      g,
-      new THREE.PointsMaterial({ size: 7, sizeAttenuation: false, vertexColors: true }),
-    ),
-  )
-
-  function update() {
-    boats.forEach((b, i) => {
+  const { points, update } = movers(
+    boats,
+    boats.flatMap((b) => (b.ship ? [1, 0.7, 0.25] : [0.85, 1, 1])),
+    new THREE.PointsMaterial({ size: 7, sizeAttenuation: false, vertexColors: true }),
+    (b) => {
       b.s += b.v
       if (b.s > b.path.len || b.s < 0) {
         b.v = -b.v
         b.s = Math.min(Math.max(b.s, 0), b.path.len)
       }
       const [x, z] = b.path.at(b.s).p
-      pos.setXYZ(i, x, Y + 2, z)
-    })
-    pos.needsUpdate = true
-  }
+      return [x, Y + 2, z]
+    },
+  )
+  group.add(points)
   update()
   return { group, update }
 }

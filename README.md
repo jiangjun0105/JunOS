@@ -62,7 +62,7 @@ To add one:
    date, summary, tags, `kind: 'research' | 'personal'`).
 3. Put images / short clips under `public/media/my-slug/`.
 
-**Media:** images live under `public/media/` (see `public/media/README.md`). How the plain
+**Media:** images live under `public/media/` (reference them as `/media/my-slug/file.png`). How the plain
 Markdown elements (`#`, lists, quotes, code) are skinned lives in
 `src/mdx-components.tsx`.
 

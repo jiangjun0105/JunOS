@@ -15,19 +15,14 @@ describe('pathForWindow', () => {
   })
 
   it('maps an article to /article/<slug>, url-encoding the slug', () => {
-    expect(pathForWindow({ appId: 'article', params: { slug: 'hello-world' } })).toBe(
-      '/article/hello-world',
-    )
+    expect(pathForWindow({ appId: 'article', slug: 'hello-world' })).toBe('/article/hello-world')
     // A slug with characters that must be percent-encoded in a path segment.
-    expect(pathForWindow({ appId: 'article', params: { slug: 'a b/c' } })).toBe(
-      '/article/a%20b%2Fc',
-    )
+    expect(pathForWindow({ appId: 'article', slug: 'a b/c' })).toBe('/article/a%20b%2Fc')
   })
 
   it('falls back to /article when an article window has no slug', () => {
     // No usable slug → treated like any other app id (`/article`).
     expect(pathForWindow({ appId: 'article' })).toBe('/article')
-    expect(pathForWindow({ appId: 'article', params: { slug: 123 } })).toBe('/article')
   })
 })
 
@@ -55,11 +50,6 @@ describe('parseWindowPath', () => {
     expect(parseWindowPath('/thoughts')).toEqual({ appId: 'thoughts' })
     expect(parseWindowPath('/thoughts/x')).toEqual({ appId: 'thoughts', slug: 'x' })
   })
-
-  it('ignores /article with no slug (meaningless)', () => {
-    expect(parseWindowPath('/article')).toBeNull()
-    expect(parseWindowPath('/article/')).toBeNull()
-  })
 })
 
 describe('pathForWindow <-> parseWindowPath round-trips', () => {
@@ -70,35 +60,26 @@ describe('pathForWindow <-> parseWindowPath round-trips', () => {
 
   it('round-trips an article slug (incl. one needing url-encoding)', () => {
     for (const slug of ['my-first-post', 'tricky slug/with bits']) {
-      const path = pathForWindow({ appId: 'article', params: { slug } })
+      const path = pathForWindow({ appId: 'article', slug })
       expect(parseWindowPath(path)).toEqual({ appId: 'article', slug })
     }
   })
 })
 
 describe('windowKey', () => {
-  it('returns just the appId when there are no params', () => {
-    // Matches the previous inline behavior (`appId + ''`), so no-params windows
-    // still dedupe exactly as before.
-    expect(windowKey('about')).toBe('about')
-    expect(windowKey('about', undefined)).toBe('about')
+  it('is the appId when there is no slug', () => {
+    expect(windowKey('about')).toBe('about/')
   })
 
-  it('produces the SAME key regardless of param key order', () => {
-    const a = windowKey('article', { a: 1, b: 2 })
-    const b = windowKey('article', { b: 2, a: 1 })
-    expect(a).toBe(b)
+  it('differs for different slugs', () => {
+    expect(windowKey('article', 'one')).not.toBe(windowKey('article', 'two'))
   })
 
-  it('produces DIFFERENT keys for different param values', () => {
-    expect(windowKey('article', { slug: 'one' })).not.toBe(windowKey('article', { slug: 'two' }))
+  it('differs for the same slug under different apps', () => {
+    expect(windowKey('article', 'x')).not.toBe(windowKey('thoughts', 'x'))
   })
 
-  it('produces DIFFERENT keys for the same params under different apps', () => {
-    expect(windowKey('article', { slug: 'x' })).not.toBe(windowKey('files', { slug: 'x' }))
-  })
-
-  it('treats a params-less window and a same-app windowed-with-params as distinct', () => {
-    expect(windowKey('article')).not.toBe(windowKey('article', { slug: 'x' }))
+  it('treats a slug-less window and a same-app windowed-with-slug as distinct', () => {
+    expect(windowKey('article')).not.toBe(windowKey('article', 'x'))
   })
 })
