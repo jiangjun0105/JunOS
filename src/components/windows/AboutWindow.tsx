@@ -126,6 +126,9 @@ export function AboutWindow() {
       <p className="about-bio">{BIO}</p>
 
       <div className="about-links">
+        <button type="button" onClick={() => openArticle('publications')}>
+          Publications &amp; patents ▸
+        </button>
         {/* opening a window flies the city to its landmark (Sutro Tower, Golden Gate Bridge) */}
         <button type="button" onClick={() => openApp('support')}>
           Talk to AI Jun ▸

@@ -269,13 +269,26 @@
   padding-top: 24px;
   border-top: 1px solid rgb(var(--border));
 }
-/* About, Call Me and Books bring their own header: once open, keep only the location line (the peek still shows title + blurb) */
-.open:is([data-app='about'], [data-app='support'], [data-app='books']) .w3b > h3,
-.open:is([data-app='about'], [data-app='support'], [data-app='books']) .w3b > .lead {
+/* About, Call Me, Books, Development and Research bring their own header: once open, keep only
+   the location line, no divider (the peek still shows title + blurb) */
+.open:is(
+    [data-app='about'],
+    [data-app='support'],
+    [data-app='books'],
+    [data-app='projects'],
+    [data-app='research']
+  )
+  .w3b
+  > :is(h3, .lead) {
   max-height: 0;
   margin: 0;
   opacity: 0;
   overflow: hidden;
+}
+.open:is([data-app='projects'], [data-app='research']) .w3b > .more {
+  margin-top: 16px;
+  padding-top: 0;
+  border-top: 0;
 }
 /* …and its content centres vertically in the space under that line (still scrolls when taller); Call Me and Books stretch to fill it */
 .open:is([data-app='about'], [data-app='support'], [data-app='books']) .w3b {
