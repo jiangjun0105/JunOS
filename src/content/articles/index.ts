@@ -117,19 +117,6 @@ export const articles: ArticleMeta[] = [
     load: () => import('./stage-1-current-work.mdx'),
   },
 
-  // ── Research / Track record ───────────────────────────────────────────────
-  {
-    slug: 'publications',
-    title: 'Publications and Patents',
-    date: '2026-09-05',
-    summary:
-      'Six robotics papers from the University of Tokyo, a Toyota patent on in-car gesture search, and five DJI image-processing patents.',
-    tags: ['publications', 'patents', 'robotics'],
-    kind: 'research',
-    section: 'Track record',
-    load: () => import('./publications.mdx'),
-  },
-
   // ── Projects ──────────────────────────────────────────────────────────────
   {
     slug: 'agent-harness',
@@ -176,6 +163,17 @@ export const articles: ArticleMeta[] = [
     kind: 'personal',
     section: 'Life',
     load: () => import('./about-me.mdx'),
+  },
+  {
+    slug: 'publications',
+    title: 'Publications and Patents',
+    date: '2026-09-05',
+    summary:
+      'Six robotics papers from the University of Tokyo, a Toyota patent on in-car gesture search, and five DJI image-processing patents.',
+    tags: ['publications', 'patents', 'robotics'],
+    kind: 'personal',
+    section: 'Life',
+    load: () => import('./publications.mdx'),
   },
 
   // ── Personal / Now ────────────────────────────────────────────────────────
