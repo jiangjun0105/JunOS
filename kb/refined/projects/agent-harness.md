@@ -11,7 +11,7 @@ status: draft
 
 The harness takes a project, collects requirements from human developers, and decomposes the work as a tree: project → epics → issues → workable tasks, which multiple agents then execute. Each task is served by dedicated coder, reviewer, and tester agents, with human-in-the-loop review gates at every level.
 
-It grew out of the voice startup I co-founded, where I was trying to boost my own productivity. Today a single engineer runs that company's day-to-day development through the harness at full product velocity.
+It grew out of Digital Double, a voice-AI education project I built with Stanford GSB professors, where I was trying to boost my own productivity. Today that project's day-to-day development runs through the harness at full product velocity.
 
 # The philosophy: foundation first
 
@@ -21,7 +21,7 @@ So the rule became: nothing gets automated until I have run it by hand and seen 
 
 # How it started
 
-I was using Cursor and Claude Code on the voice agent project and noticed my workflow was already regular: given a feature, design it, implement it, review it. I also noticed that agents with fresh context windows, each handling one specific part of the process, gave better results and used fewer tokens than one long session.
+I was using Cursor and Claude Code on Digital Double and noticed my workflow was already regular: given a feature, design it, implement it, review it. I also noticed that agents with fresh context windows, each handling one specific part of the process, gave better results and used fewer tokens than one long session.
 
 I turned the workflow into skills, ran them manually, and refined them with repo-specific domain knowledge. Once each skill was verified, I put a facilitator on top:
 

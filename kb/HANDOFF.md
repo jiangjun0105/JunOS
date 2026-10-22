@@ -39,7 +39,7 @@ Status: all files are `draft` — meaning "content approved by Jun, not yet proo
 
 ## 2. Hard constraints (do not violate)
 
-1. **Stealth startup.** Jun's startup is referred to only as "a voice-AI startup I co-founded." Never write its name, product, customers, partners, or metrics anywhere in `src/`. `kb/raw/` contains the name; do not copy from raw. Grep `src/` for the name before every commit.
+1. **Digital Double.** Describe it only as "a real-time voice-AI system for education, built with Stanford GSB professors." Never call it a startup or company, never mention a CTO or co-founder role, and never write any company name, customers, partners or metrics in `src/` or `kb/`. `kb/raw/` has private details; do not copy from raw. Grep for "startup", "co-founded" and "CTO" before every commit.
 2. **Toyota** content stays exactly at the level of `about-me.md` and `publications.md`. Add nothing.
 3. **No invented facts.** If a component needs a value the KB doesn't have (a date, a number, an image caption), leave a clearly marked TODO rather than guessing.
 4. **Personal data**: only what's in `about-me.md` (the San Francisco Bay Area — the city itself is deliberately not named; two dogs Mochi and Peanuts; walks with family; gym). No addresses, family names, or schedule beyond the routine paragraph.
@@ -122,8 +122,7 @@ Upload as knowledge-base documents: every file under `kb/refined/` (INDEX files 
 ## 6. Definition of done
 
 - No placeholder text or sample content remains in `src/content/` or the window components.
-- Grepping `src/` for the startup's name returns nothing. (The name itself is deliberately
-  not written here: this file is in a public repo. It is in `kb/raw/`, which is not.)
+- Grepping `src/` for "startup", "co-founded" and "CTO" finds no reference to Digital Double.
 - Every refined file is rendered somewhere, or listed here as intentionally omitted.
 - All internal links resolve (run the site, click every card).
 - `kb/` untouched except this file, which you may append a "Done" section to.
@@ -204,8 +203,8 @@ construction.
 
 - `npm run build` passes; 29 routes prerendered (home, 8 apps, 10 articles, 10 thoughts).
 - `npx tsc --noEmit` and `npm run lint` clean.
-- Grepping for the startup's name returns nothing in `src/`, `kb/refined/`, `kb/agent/` or the
-  built bundle. Run it with the real name from `kb/raw/` (which is gitignored) before each push.
+- Grepping for "startup", "co-founded" and "CTO" finds no reference to Digital Double in `src/`,
+  `kb/refined/`, `kb/agent/` or the built bundle. Run it before each push.
 - No CJK anywhere in `src/`, `kb/refined/`, `kb/agent/`, `scripts/` or the generated bundle.
 - MDX `{/* TODO */}` comments are stripped from production bundles — they're notes for whoever
   edits the source, never shown to a visitor.

@@ -158,7 +158,7 @@ export const articles: ArticleMeta[] = [
     title: 'About Me',
     date: '2026-09-03',
     summary:
-      'A skateboard in an anime, robotics at the University of Tokyo, chip logic at DJI, LLMs at Toyota, and a voice startup.',
+      'A skateboard in an anime, robotics at the University of Tokyo, chip logic at DJI, LLMs at Toyota, and a voice-AI system for education.',
     tags: ['bio', 'robotics', 'ai'],
     kind: 'personal',
     section: 'Life',

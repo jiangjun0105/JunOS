@@ -9,7 +9,7 @@ status: draft
 
 # Short version
 
-I'm an AI engineer at Woven by Toyota, rebuilding the software development lifecycle around agents. I've shipped LLM-powered products end to end there and as CTO of a voice-AI startup I co-founded, and I design multi-agent harnesses that plan, implement, review, and test real coding work with a human in the loop. In my free time I study spiking neural networks by putting uploaded biological brains into digital bodies. I'm based in the San Francisco Bay Area, California, after about ten years in Japan; I grew up in a small town in North China, and I speak Chinese, Japanese, and English.
+I'm an AI engineer at Woven by Toyota, rebuilding the software development lifecycle around agents. I've shipped LLM-powered products end to end there and on Digital Double, a real-time voice-AI system for education built with Stanford GSB professors, and I design multi-agent harnesses that plan, implement, review, and test real coding work with a human in the loop. In my free time I study spiking neural networks by putting uploaded biological brains into digital bodies. I'm based in the San Francisco Bay Area, California, after about ten years in Japan; I grew up in a small town in North China, and I speak Chinese, Japanese, and English.
 
 # How I got here
 
@@ -35,13 +35,13 @@ After two years I wanted to work closer to high-level intelligence; not everythi
 
 Then ChatGPT arrived. I started a side project on understanding large code repositories, and with my former director — who shared the interest in LLMs — built the company's first internal chatbot. That effort led the company to create its Generative AI team, where I architected the agent framework behind Lexus's next-generation in-car assistant. Since 2024 I've been in the Bay Area on the Arene advanced development team — where I still am — building the AI pipeline that turns researcher prototypes into production vehicle code, cutting the handoff from about three months to about a week.
 
-## A voice startup
+## Digital Double
 
-In 2025 I co-founded a voice-AI startup as CTO — still in stealth, so no name here. I built its real-time conversational server solo and owned the full stack. The agent harness I use today came out of that work; a single engineer now runs the company's day-to-day development through it, and I'm moving to an advisory role. Woven by Toyota is still my day job.
+In 2025 I started Digital Double, a real-time voice-AI system for education built with professors at Stanford GSB: a voice clone of an expert that students can talk to and interrupt. I built its real-time conversational server solo and owned the full stack. The agent harness I use today came out of that work, and the project's day-to-day development now runs through it. Woven by Toyota is still my day job.
 
 ## Why the Bay Area
 
-I had been looking for startup opportunities in Tokyo, and my honest conclusion was that Tokyo is the best city in the world to live in and enjoy life — not the best place to build a startup. So when the chance to relocate to the Bay Area came, I took it.
+I'm passionate about AI, and the best place in the world to work on AI is the Bay Area. Tokyo is still, to me, the best city in the world to live in and enjoy life — but when the chance to relocate to the Bay Area came, I took it.
 
 # Life now
 
