@@ -5,7 +5,7 @@ updated: 2026-09-03
 status: draft
 ---
 
-**[Agent Harness](agent-harness.md)** — Multi-agent SDLC automation built bottom-up: project → epics → issues → tasks, each served by coder, reviewer, and tester agents with human review gates. Nothing was automated until it had been run by hand and proven. 10x+ single-developer velocity; a single engineer now runs the voice startup through it. Next: whole projects, starting with Cursor's SQLite benchmark.
+**[Agent Harness](agent-harness.md)** — Multi-agent SDLC automation built bottom-up: project → epics → issues → tasks, each served by coder, reviewer, and tester agents with human review gates. Nothing was automated until it had been run by hand and proven. 10x+ single-developer velocity; Digital Double, a voice-AI education project, now runs through it. Next: whole projects, starting with Cursor's SQLite benchmark.
 
 **[JunOS](junos-website.md)** — This site: a desktop OS in the browser, in a Japanese-cartoon style, inspired by PostHog's UI. Next.js, TypeScript, Tailwind, Framer Motion; the desktop is one array of window objects in React state. Nothing special technically — which is the point: design is what made the difference.
 

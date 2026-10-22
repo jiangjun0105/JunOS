@@ -29,7 +29,6 @@ export function AboutWindow() {
     openApp('article', { slug })
   }
 
-  // The Digital Double is the stealth startup's product: describe the project, never the company.
   const callouts: { title: string; desc: string; onClick?: () => void }[] = [
     {
       title: 'Agent harness',

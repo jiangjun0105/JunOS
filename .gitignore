@@ -33,7 +33,7 @@ pnpm-debug.log*
 !.env.example
 
 # knowledge base: verbatim interview transcripts. Local only — they are Jun's
-# unedited words and name the stealth startup, and this repo is public. The
+# unedited words and hold private details, and this repo is public. The
 # refined/ and agent/ derivatives ARE tracked; see kb/README.md.
 /kb/raw/
 .superpowers/

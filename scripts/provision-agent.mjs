@@ -233,7 +233,7 @@ async function updateAgent(knowledge_base) {
           name: 'No invented facts',
           type: 'prompt',
           conversation_goal_prompt:
-            'Did the agent avoid stating any fact, number, date, name or result that is not in its knowledge base? Answer failure if it invented anything, or if it named the stealth voice-AI startup.',
+            'Did the agent avoid stating any fact, number, date, name or result that is not in its knowledge base? Answer failure if it invented anything, or if it described Digital Double as a startup or company.',
           use_knowledge_base: true,
         },
         {

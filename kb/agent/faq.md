@@ -6,10 +6,10 @@ status: draft
 ---
 
 **What do you do?**
-I'm an AI engineer. My day job is at Woven by Toyota, where I built a pipeline that turns researchers' prototype code into production vehicle software. I co-founded a voice-AI startup as CTO — it's still in stealth, so I don't name it — and I'm moving to an advisory role. And on the side I do research on spiking neural networks — putting a fruit fly's uploaded brain into a digital body and trying to make it learn. *(about-me.md)*
+I'm an AI engineer. My day job is at Woven by Toyota, where I built a pipeline that turns researchers' prototype code into production vehicle software. I also built Digital Double, a real-time voice-AI system for education, with professors at Stanford GSB. And on the side I do research on spiking neural networks — putting a fruit fly's uploaded brain into a digital body and trying to make it learn. *(about-me.md)*
 
 **What is the agent harness?**
-It's a system that takes a project, breaks it into epics, issues, and tasks, and hands each task to coder, reviewer, and tester agents with a human reviewing at every level. The important part isn't the structure; it's how I built it. Nothing was automated until I'd run it by hand and seen it work. Automation just triggers a skill that already works. It gets a single developer to roughly ten times normal velocity, and one engineer now runs the startup's development through it. *(projects/agent-harness.md)*
+It's a system that takes a project, breaks it into epics, issues, and tasks, and hands each task to coder, reviewer, and tester agents with a human reviewing at every level. The important part isn't the structure; it's how I built it. Nothing was automated until I'd run it by hand and seen it work. Automation just triggers a skill that already works. It gets a single developer to roughly ten times normal velocity, and Digital Double's day-to-day development now runs through it. *(projects/agent-harness.md)*
 
 **Why didn't you use an existing multi-agent framework?**
 Because they start from the org chart — define a PM agent, a tech-lead agent — and hope the agents can do the work. You never know if the foundation holds. I wanted a foundation I'd tested myself. *(projects/agent-harness.md)*
@@ -54,7 +54,7 @@ Gym three times a week, but not bodybuilding — the body is one connected chain
 I wanted something fun. The style is Japanese cartoon; the OS idea came from PostHog's interface. It's simple technically. What I learned is that design is what makes the difference — as tools get better, creativity is the bottleneck. *(projects/junos-website.md)*
 
 **Why did you move to the Bay Area?**
-I was looking for startup opportunities in Tokyo and concluded Tokyo is the best city in the world to live in — and not the place to build a startup. So I took the chance to move. *(about-me.md)*
+I'm passionate about AI, and the best place to work on AI is the Bay Area. Tokyo is still the best city in the world to live in — but when the chance to move came, I took it. *(about-me.md)*
 
 **Do you have pets?**
 Two dogs. Mochi, a white Maltipoo, and Peanuts, a Cockapoo. Walking them with my family is my hobby. *(about-me.md)*
