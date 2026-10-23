@@ -406,7 +406,7 @@ export function ProjectsWindow() {
               ref={(el) => {
                 buses.current[i] = el
               }}
-              className={`dev-bus${b.dnp ? 'dev-dnp' : ''}${hot === b.owner ? 'dev-hot' : ''}`}
+              className={`dev-bus${b.dnp ? ' dev-dnp' : ''}${hot === b.owner ? ' dev-hot' : ''}`}
             >
               {b.paths.map((d, k) => (
                 <g key={k}>
@@ -623,7 +623,7 @@ export function ProjectsWindow() {
         </svg>
 
         <div
-          className={`dev-callout${hot && callout ? 'dev-on' : ''}`}
+          className={`dev-callout${hot && callout ? ' dev-on' : ''}`}
           style={callout?.call}
           aria-hidden="true"
         >
@@ -660,7 +660,7 @@ export function ProjectsWindow() {
               <span className="dev-n">{b?.ref ?? '—'}</span>
               <span className="dev-t">{p.title}</span>
               <span className="dev-d">{p.summary}</span>
-              <span className={`dev-st${b?.dnp ? 'dev-off' : ''}`}>{b && `● ${b.status}`}</span>
+              <span className={`dev-st${b?.dnp ? ' dev-off' : ''}`}>{b && `● ${b.status}`}</span>
               <span className="dev-go">OPEN ▸</span>
             </button>
           )
