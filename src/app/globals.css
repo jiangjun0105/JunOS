@@ -102,11 +102,20 @@
   .article-prose > * {
     max-width: 62ch;
   }
+  /* big screens: scale the type up rather than stretching lines past a readable measure */
+  @media (min-width: 2000px) {
+    .article-prose {
+      font-size: 19px;
+    }
+    .article-prose > * {
+      max-width: 68ch;
+    }
+  }
   .article-prose > :first-child {
     margin-top: 0;
   }
   .article-prose h1 {
-    @apply mb-2 font-display text-[30px] font-semibold leading-tight;
+    @apply mb-2 font-display text-[22px] font-semibold leading-tight sm:text-[26px];
     color: rgb(var(--heading));
     text-shadow: 0 0 14px rgb(var(--cyan) / 0.25);
   }
@@ -360,7 +369,7 @@
       width: 24px;
     }
     .spine-root {
-      @apply ml-[30px] max-w-none;
+      @apply ml-[30px] w-[calc(100%-30px)] max-w-none;
     }
   }
 
@@ -1999,6 +2008,21 @@ button.about-co:focus-visible {
   right: 18px;
   font-size: 9px;
   color: rgb(var(--muted));
+}
+@media (max-width: 719px) {
+  /* phone: the level meters are empty until a call starts, and only push the call button down */
+  .call[data-phase='idle'] .call-chan {
+    display: none;
+  }
+}
+@media (max-width: 719px) {
+  /* no room for four corner captions: keep the title and the credit */
+  .res-vf :is(.res-r, .res-legend) {
+    display: none;
+  }
+  .res-vf .res-cap {
+    right: 18px;
+  }
 }
 
 /* stage strip */

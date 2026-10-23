@@ -5,7 +5,7 @@
  *
  * The bust comes from /media/jun-cutout.png (a background-free cutout of the photo):
  * each mask row becomes a rounded cross-section for depth, brightness adds relief, and
- * no rotation; depth reads from shading, a glowing rim and a perspective swell.
+ * no rotation; depth reads from a glowing rim and a perspective swell.
  */
 
 export type Phase = 'idle' | 'connecting' | 'speaking' | 'listening'
@@ -83,13 +83,16 @@ function enhance(v: Float32Array, a: Float32Array, w: number, h: number) {
   return out
 }
 
-/** Brightness + alpha maps → bust points, shaded like a solid (lit from the front) with a glowing rim. */
+/** Brightness + alpha maps → bust points: brightness straight from the photo, plus a glowing rim. */
 export function bustPoints(v: Float32Array, a: Float32Array, w: number, h: number): Pt[] {
   const at = (x: number, y: number) =>
     Math.min(h - 1, Math.max(0, (y * h) | 0)) * w + Math.min(w - 1, Math.max(0, (x * w) | 0))
   const pts: Pt[] = []
   const asp = w / (h * CROP)
   const cols = Math.round(ROWS * asp)
+  let headX = 0 // mean mask centre over the top 30% of rows: the bust is centred on the head, not the photo
+  let headN = 0
+  const rows: [number, number, number][] = []
   for (let r = 0; r < ROWS; r++) {
     const y = r / ROWS
     const sy = y * CROP
@@ -101,6 +104,16 @@ export function bustPoints(v: Float32Array, a: Float32Array, w: number, h: numbe
         rr = c
       }
     if (l < 0) continue
+    rows.push([r, l, rr])
+    if (y < 0.3) {
+      headX += (l + rr) / 2 / cols
+      headN++
+    }
+  }
+  const cx0 = headN ? headX / headN : 0.5
+  for (const [r, l, rr] of rows) {
+    const y = r / ROWS
+    const sy = y * CROP
     const mid = (l + rr) / 2 / cols
     const hw = Math.max(0.01, (rr - l + 1) / 2 / cols)
     const fade = y > 0.72 ? 1 - (y - 0.72) / 0.28 : 1 // the chest dissolves into the projector
@@ -112,10 +125,9 @@ export function bustPoints(v: Float32Array, a: Float32Array, w: number, h: numbe
       const d = Math.sqrt(Math.max(0, 1 - u * u)) * hw * asp * 0.85
       const z = d + v[i] * 0.025
       const e = Math.abs(u)
-      const face = Math.min(1, Math.max(0.2, 0.5 + z * 2.4))
       const rim = Math.max(0, (e - 0.82) / 0.18) ** 2
-      const b = Math.max((0.2 + 0.8 * v[i]) * face, rim * 0.8) * fade
-      pts.push({ x: (nx - 0.5) * asp, y, z, e, f: fade, b })
+      const b = Math.max(0.2 + 0.8 * v[i], rim * 0.8) * fade
+      pts.push({ x: (nx - cx0) * asp, y, z, e, f: fade, b })
     }
   }
   return pts

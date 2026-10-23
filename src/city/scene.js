@@ -49,7 +49,7 @@ export function createCity(root, on) {
   Object.assign(controls, {
     enableDamping: true,
     autoRotate: !cam,
-    autoRotateSpeed: 0.12,
+    autoRotateSpeed: W < 700 ? 0.4 : 0.12, // phones turn faster, so off-screen icons come round sooner
     maxPolarAngle: 1.4,
     minDistance: 250,
     maxDistance: 30000,
@@ -181,7 +181,7 @@ export function createCity(root, on) {
     city?.update()
     controls.update()
     composer.render()
-    icons?.update(t, camera, { x1: W - 2 * shift, W, H })
+    icons?.update(t, camera, { W, H })
   })
 
   function dispose() {

@@ -232,7 +232,7 @@ function CallScreen({
   }, [])
 
   return (
-    <div className="call">
+    <div className="call" data-phase={phase}>
       <div className="call-in">
         <div className="call-twin">
           <canvas ref={twinRef} aria-hidden="true" />

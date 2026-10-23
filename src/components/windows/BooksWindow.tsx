@@ -360,7 +360,15 @@ export function BooksWindow() {
           </button>
         ))}
 
-        <div className="eng-dock">
+        <div
+          className="eng-dock"
+          // narrow: the readout opens in the grid row right under the tapped book (columns as in .eng-narrow)
+          style={
+            narrow && active != null
+              ? { gridRow: Math.floor(active / Math.max(1, Math.floor((size.W + 12) / 132))) + 2 }
+              : undefined
+          }
+        >
           <div className="eng-idle">
             <div className="eng-hd">◇ Engram readout</div>
             <div className="eng-msg">

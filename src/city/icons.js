@@ -81,16 +81,16 @@ export function createIcons(scene, layer, leads, groundY, on) {
   return { pins, focus, update }
 }
 
-// Each icon sits LIFT px above its landmark, clamped inside `region` ({ x1, W, H }: the part of the W × H screen not under the open window).
+// Each icon sits LIFT px above its landmark, on the W × H screen.
 // Collisions stack upward; if that would leave the top edge, the icon stacks downward from the top instead. Leader lines join icon → landmark.
-// The focused icon skips the clamp and the x easing: it stays plumb over its landmark, so its leader is always vertical.
+// Icons never slide sideways off their landmark (x = landmark x), so leaders stay vertical; near the edges they fade out instead.
 const sv = new THREE.Vector3(),
   LIFT = 36,
   TOPM = 44,
   PAD = 8
 const hits = (a, b) => Math.abs(a.x - b.x) < (a.w + b.w) / 2 && a.y - a.h < b.y && b.y - b.h < a.y // boxes: centre x, bottom y, w, h
 
-function layout(pins, camera, { x1, W, H }, focused, k) {
+function layout(pins, camera, { W, H }, focused, k) {
   const vis = [],
     placed = []
   for (const p of pins) {
@@ -106,6 +106,9 @@ function layout(pins, camera, { x1, W, H }, focused, k) {
     sv.copy(p.ground).project(camera) // lifted icons still run their leader down to the ring's centre
     p.gx = ((sv.x + 1) / 2) * W
     p.gy = ((1 - sv.y) / 2) * H
+    p.el.style.opacity = p.ld.style.opacity = focused
+      ? ''
+      : Math.max(0, Math.min(1, (Math.min(p.gx, W - p.gx) - PAD) / (p.w / 2)))
     vis.push(p)
   }
   vis.sort((a, b) => b.ay - a.ay) // nearest to the bottom first, so far-away icons are the ones that move
@@ -115,7 +118,7 @@ function layout(pins, camera, { x1, W, H }, focused, k) {
     const w = p.w * p.s,
       h = p.h * p.s
     const bx = {
-      x: focused ? p.gx : Math.min(x1 - w / 2 - PAD, Math.max(w / 2 + PAD, p.gx)),
+      x: p.gx,
       y: Math.min(H - PAD, Math.max(TOPM + h, p.ay - LIFT * p.s)),
       w,
       h,
@@ -133,7 +136,7 @@ function layout(pins, camera, { x1, W, H }, focused, k) {
       p.x = bx.x
       p.y = bx.y
     } else {
-      p.x = focused ? bx.x : p.x + (bx.x - p.x) * k
+      p.x = bx.x
       p.y += (bx.y - p.y) * k
     }
     p.el.style.transform = `translate(${p.x - p.w / 2}px, ${p.y - p.h}px) scale(${p.s})` // origin: bottom centre (CSS)
