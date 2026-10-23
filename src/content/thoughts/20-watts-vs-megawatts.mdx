@@ -6,10 +6,12 @@ transformers into data centers the size of towns.
 
 We're also sprinting toward a physics wall.
 
-```
-[Silicon AI]    Megawatt data center ──> discrete token grids ──> global backprop
-[Carbon brain]  20-watt skull         ──> continuous dynamics  ──> local plasticity
-```
+<Flow
+  columns={[
+    { label: 'Silicon AI', steps: ['Megawatt data center', 'discrete token grids', 'global backprop'] },
+    { label: 'Carbon brain', accent: true, steps: ['20-watt skull', 'continuous dynamics', 'local plasticity'] },
+  ]}
+/>
 
 The brute-force approach trades megawatts and enormous memory bandwidth for statistical
 approximation. We have optimized the transformer-on-GPU stack to an extraordinary degree, and I
@@ -31,11 +33,13 @@ no such reverse pathway that tracks forward synaptic strength.
 propagates, the network's state has to hold still. A brain runs in continuous time. There is no
 pause button while a global loss is computed.
 
-```
-Spike-timing-dependent plasticity (STDP):
-   pre fires just BEFORE post ──> strengthen the synapse
-   pre fires just AFTER  post ──> weaken it
-```
+<Flow
+  title="Spike-timing-dependent plasticity (STDP)"
+  columns={[
+    { label: 'pre fires just before post', accent: true, steps: ['pre → post', 'strengthen the synapse'] },
+    { label: 'pre fires just after post', steps: ['post → pre', 'weaken the synapse'] },
+  ]}
+/>
 
 What the brain has instead is purely local rules. The best-known is STDP: a synapse changes based
 on the millisecond-scale timing between its own input and its neuron's output. A neuron doesn't
@@ -65,10 +69,12 @@ overwrites what it knew, unless you replay the old data at scale.
 
 Biology's alternative is structural plasticity. Networks grow.
 
-```
-[Static tensors]  fixed VRAM allocation ──> global weight overwrite ──> catastrophic forgetting
-[Growing SNN]     sparse seed network   ──> local synaptic sprouting ──> non-destructive growth
-```
+<Flow
+  columns={[
+    { label: 'Static tensors', steps: ['fixed VRAM allocation', 'global weight overwrite', 'catastrophic forgetting'] },
+    { label: 'Growing SNN', accent: true, steps: ['sparse seed network', 'local synaptic sprouting', 'non-destructive growth'] },
+  ]}
+/>
 
 Instead of shipping a multi-billion-parameter monolith on day one, start with a small, sparse seed
 network trained on simple tasks, and as task complexity rises let it sprout new neurons and
@@ -93,18 +99,12 @@ eligibility traces, learning can happen during inference, on the device, at a ti
 energy — especially on compute-in-memory hardware where the synapse and the memory are the same
 physical element.
 
-```
-   ┌────────────────────────────────────────┐
-   │        Neuromorphic CIM node           │
-   │   input ──> [ forward inference ]      │
-   │                    │ (local rules)     │
-   │                    ▼                   │
-   │            [ synaptic update ]         │
-   │                    │                   │
-   │                    ▼                   │
-   │        physical state changes now      │
-   └────────────────────────────────────────┘
-```
+<Flow
+  title="Neuromorphic CIM node"
+  columns={[
+    { steps: ['input', 'forward inference', { text: 'synaptic update', via: 'local rules' }, 'physical state changes now'] },
+  ]}
+/>
 
 There is no training mode. There is only running, and adapting while you run. A robot's brain
 adapts to its user, its climate, its own body, on the edge — which is the whole reason I care about

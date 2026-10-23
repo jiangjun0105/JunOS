@@ -1,5 +1,7 @@
 import type { MDXComponents } from 'mdx/types'
 import Image from 'next/image'
+import { GithubLink } from '@/components/windows/ui/GithubLink'
+import { Flow } from '@/components/mdx/Flow'
 import { Gallery } from '@/components/mdx/Gallery'
 import { MdxLink } from '@/components/mdx/MdxLink'
 
@@ -37,6 +39,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         </span>
       ) : null,
 
+    Flow,
     Gallery,
+    GithubLink,
   }
 }

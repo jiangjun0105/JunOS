@@ -110,10 +110,13 @@
     color: rgb(var(--heading));
     text-shadow: 0 0 14px rgb(var(--cyan) / 0.25);
   }
-  .article-prose > h1 + p:has(> em:only-child) {
+  .article-prose > h1 + p:has(> em:only-child, > em:first-child + a.article-gh) {
     @apply mb-6 text-muted;
   }
-  .article-prose > h1 + p:has(> em:only-child) > em {
+  .article-prose > h1 + p:has(> em:first-child + a.article-gh) {
+    @apply max-w-none flex items-center justify-between gap-3;
+  }
+  .article-prose > h1 + p:has(> em:only-child, > em:first-child + a.article-gh) > em {
     font-style: normal;
   }
   .article-prose h2 {
@@ -214,7 +217,7 @@
       margin-left: 174px;
     }
     .article-prose > h1,
-    .article-prose > h1 + p:has(> em:only-child),
+    .article-prose > h1 + p:has(> em:only-child, > em:first-child + a.article-gh),
     .article-prose > hr {
       margin-left: 0;
     }
@@ -1419,7 +1422,7 @@ button.about-co:focus-visible {
   --dev-pulse: #fff;
   --dev-chip: rgb(var(--cyan) / 0.03);
   --dev-dnp: rgb(var(--muted) / 0.18);
-  --dev-dnp-hot: rgb(var(--muted) / 0.45);
+  --dev-dnp-hot: rgb(var(--accent) / 0.5);
 }
 .dev-k {
   font: 500 10px var(--font-mono);
@@ -1568,7 +1571,7 @@ button.about-co:focus-visible {
   stroke: var(--dev-dnp-hot);
 }
 .dev-bus.dev-dnp.dev-hot {
-  filter: none;
+  filter: drop-shadow(0 0 3px var(--dev-dnp-hot));
 }
 .dev-padset.dev-hot .dev-pad {
   fill: var(--dev-cu-hot);
