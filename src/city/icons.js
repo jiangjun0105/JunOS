@@ -82,7 +82,7 @@ export function createIcons(scene, layer, leads, groundY, on) {
 }
 
 // Each icon sits LIFT px above its landmark, on the W × H screen.
-// Collisions stack upward; if that would leave the top edge, the icon stacks downward from the top instead. Leader lines join icon → landmark.
+// Collisions only stack upward, into the sky, never below the landmark; if the stack reaches the top edge the icon stops there (overlapping). Leader lines join icon → landmark.
 // Icons never slide sideways off their landmark (x = landmark x), so leaders stay vertical; near the edges they fade out instead.
 const sv = new THREE.Vector3(),
   LIFT = 36,
@@ -125,11 +125,7 @@ function layout(pins, camera, { W, H }, focused, k) {
     }
     for (let n = 0, hit; n <= placed.length && (hit = placed.find((q) => hits(q, bx))); n++)
       bx.y = hit.y - hit.h
-    if (bx.y - bx.h < TOPM) {
-      bx.y = TOPM + bx.h
-      for (let n = 0, hit; n <= placed.length && (hit = placed.find((q) => hits(q, bx))); n++)
-        bx.y = hit.y + bx.h
-    }
+    bx.y = Math.max(bx.y, TOPM + bx.h) // ponytail: overlaps at the top when the sky is full; side-step if that shows up
     placed.push(bx)
 
     if (p.x === null) {
