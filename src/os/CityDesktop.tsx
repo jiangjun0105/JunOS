@@ -152,7 +152,10 @@ export function CityDesktop() {
         <div className="w3t">
           {win && canGoBack && (
             <button type="button" className="w3x w3back" aria-label="Back" onClick={back}>
-              ‹ BACK
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path d="M14 8H3M7.5 3.5 3 8l4.5 4.5" />
+              </svg>
+              BACK
             </button>
           )}
           <span>

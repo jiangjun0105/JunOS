@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { articlesByKind } from '@/content/articles'
 import { useWindows } from '@/os/WindowManager'
+import { GithubLink } from './ui/GithubLink'
 
 /** VNC long axis is 7.3° off level in the scan (PCA of VNC somata, y-z plane); rotate it flat. */
 const PITCH = (7.3 * Math.PI) / 180
@@ -404,10 +405,13 @@ export function ResearchWindow() {
 
   return (
     <div className="res" ref={root}>
-      <p className="res-sub">
-        Transformers can&apos;t fit in a robot or learn from experience. A fly brain does both, so
-        I&apos;m uploading one into a digital body.
-      </p>
+      <div className="mb-3.5 flex items-start justify-between gap-3">
+        <p className="res-sub !mb-0">
+          Transformers can&apos;t fit in a robot or learn from experience. A fly brain does both, so
+          I&apos;m uploading one into a digital body.
+        </p>
+        <GithubLink href="https://github.com/jiangjun0105/fly-dog-and-human" />
+      </div>
       <div className="res-spec">
         <span>
           CONNECTOME <b>MALE-CNS v0.9</b>

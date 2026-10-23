@@ -180,6 +180,7 @@
   letter-spacing: 0.14em;
   padding: 7px 12px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
 }
 .w3t span {
@@ -191,6 +192,11 @@
   all: unset;
   cursor: pointer;
   padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+  line-height: 1;
+  padding-bottom: 3px; /* the × glyph sits low in its line box */
   visibility: hidden;
 }
 .open .w3x {
@@ -199,6 +205,17 @@
 .w3back {
   margin-right: 10px;
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px 0 5px;
+  font-size: 11px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+}
+.w3back:hover {
+  background: rgb(var(--bg));
+  color: rgb(var(--cyan));
 }
 .w3back + span {
   flex: 1;

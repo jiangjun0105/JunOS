@@ -134,7 +134,7 @@ export const articles: ArticleMeta[] = [
     title: 'JunOS',
     date: '2026-09-03',
     summary:
-      'This site: a desktop OS in the browser. Technically ordinary — which is the point, because design is what made the difference.',
+      'This site: a 3D city desktop, and the first thing I designed with AI. My workflow, and why I am optimistic about what AI does to work.',
     tags: ['web', 'nextjs', 'design'],
     kind: 'project',
     section: 'Projects',

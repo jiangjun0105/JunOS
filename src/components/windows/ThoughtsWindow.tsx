@@ -30,18 +30,7 @@ export function ThoughtsWindow({ slug }: WindowComponentProps) {
   const { openApp } = useWindows()
 
   if (slug) {
-    return (
-      <div>
-        <button
-          type="button"
-          className="os-nav-btn mb-3 !w-auto px-2 text-xs"
-          onClick={() => openApp('thoughts')}
-        >
-          All thoughts
-        </button>
-        <MdxReader noun="Thought" slug={slug} meta={getDoc('thoughts', slug)} />
-      </div>
-    )
+    return <MdxReader noun="Thought" slug={slug} meta={getDoc('thoughts', slug)} />
   }
 
   const open = (t: ThoughtMeta) => openApp('thoughts', { slug: t.slug })

@@ -15,7 +15,7 @@ One paragraph per file. This is the map for the site build and for the Call Me a
 
 - **INDEX.md** — One paragraph per project.
 - **agent-harness.md** — Multi-agent SDLC harness built bottom-up: manual skills verified first, then facilitator/worker/reviewer/tester, then issues, epics, projects; tooling; GitHub bot; 10x+ velocity; what the job became (requirements in, verification out; the morning loop); why not Paperclip-style frameworks; next target Cursor's SQLite benchmark.
-- **junos-website.md** — This site: OS-in-browser, cartoon style, PostHog-inspired; Next.js stack; lesson that design and creativity are the differentiator.
+- **junos-website.md** — This site: 3D SF city desktop; AI-assisted design workflow; optimism about AI transforming work.
 - **repo-understanding-tool.md** — AST-shaped hierarchical graph of agents for large-codebase understanding; beat Copilot Chat; UTokyo/PKU collaboration; stopped to avoid the Bitter Lesson; the small-specialized-model alternative.
 
 # Research (refined/research/)
