@@ -18,7 +18,7 @@ import { WindowUrlSync } from './WindowUrlSync'
 type Rect = { x: number; y: number; w: number; h: number }
 
 const PEEK = { w: 320, h: 168 }
-const OPEN = { left: 0.36, top: 56, m: 20, compact: 720 } // below `compact` px wide the open window takes the full width
+const OPEN = { left: 0.36, top: 56, m: 20, compact: 720, max: 1600 } // below `compact` px wide the open window takes the full width; never wider than `max`
 
 const peekRect = (W: number): Rect => ({
   x: W - PEEK.w - OPEN.m,
@@ -27,7 +27,7 @@ const peekRect = (W: number): Rect => ({
   h: PEEK.h,
 }) // shares the open window's top-right corner
 function openRect(W: number, H: number): Rect {
-  const x = W < OPEN.compact ? OPEN.m : Math.round(W * OPEN.left)
+  const x = W < OPEN.compact ? OPEN.m : Math.max(Math.round(W * OPEN.left), W - OPEN.m - OPEN.max)
   return { x, y: OPEN.top, w: W - x - OPEN.m, h: H - OPEN.top - OPEN.m }
 }
 const openShift = (W: number) => (W - openRect(W, 0).x) / 2 // centres the landmark in the strip left of the open window
@@ -128,7 +128,7 @@ export function CityDesktop() {
   const name = String(win?.slug ?? shownId ?? '').toUpperCase()
 
   return (
-    <div className="city">
+    <div className={`city${win ? ' has-win' : ''}`}>
       <WindowUrlSync />
       <div ref={rootRef} className="city-stage" />
       <div className="hud city-status">{status}</div>

@@ -340,6 +340,13 @@
   .city-hint {
     display: none;
   }
+  .city-status {
+    max-width: calc(100% - 150px); /* clear of the Overview button */
+  }
+  /* the open window covers the screen: its icon would only peek out at the edge */
+  .has-win :is(.city-icons, .city-leads, .city-status) {
+    display: none;
+  }
   .open .w3b {
     padding: 20px;
   }
