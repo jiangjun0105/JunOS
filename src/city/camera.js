@@ -18,7 +18,8 @@ export function orbitOf(pos, target) {
   return { target: target.clone(), yaw: Math.atan2(o.x, o.z), pitch: Math.asin(o.y / dist), dist }
 }
 
-const lerp = (a, b, e) => a + (b - a) * e
+const DROP = 0.18 // phones: fraction of screen height the view centre moves down (calibration knob)
+const lerp =(a, b, e) => a + (b - a) * e
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a)) // → (-π, π], so yaw turns the short way round
 
 // → { fly(...legs), update(), resize(W, H), setShift(px), orbit(), get leg (current leg's name), get busy (a leg running or queued) }
@@ -29,10 +30,12 @@ export function createFlights(camera, controls) {
     W = 1,
     H = 1
 
-  // the camera renders a (W + 2·shift)-wide virtual view and shows its right-hand W px; aspect must be the virtual view's
+  // the camera renders a (W + 2·shift)-wide virtual view and shows its right-hand W px; aspect must be the virtual view's.
+  // On phones it is also (H + 2·drop) tall and shows the top H px, so the city sits `drop` px lower: sky room for stacked icons
   const applyShift = () => {
-    camera.aspect = (W + 2 * shift) / H
-    camera.setViewOffset(W + 2 * shift, H, 2 * shift, 0, W, H)
+    const drop = W < 700 ? H * DROP : 0
+    camera.aspect = (W + 2 * shift) / (H + 2 * drop)
+    camera.setViewOffset(W + 2 * shift, H + 2 * drop, 2 * shift, 0, W, H)
   }
   const orbit = () => ({ ...orbitOf(camera.position, controls.target), shift })
 
