@@ -2010,6 +2010,12 @@ button.about-co:focus-visible {
   color: rgb(var(--muted));
 }
 @media (max-width: 719px) {
+  /* phone: the level meters are empty until a call starts, and only push the call button down */
+  .call[data-phase='idle'] .call-chan {
+    display: none;
+  }
+}
+@media (max-width: 719px) {
   /* no room for four corner captions: keep the title and the credit */
   .res-vf :is(.res-r, .res-legend) {
     display: none;
